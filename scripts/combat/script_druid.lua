@@ -15,7 +15,8 @@ script_druid = {
 	moonFireTime = GetTimeEX(),
 	tigerTime = GetTimeEX(),
 	rakeTime = GetTimeEX(),
-	pulled = false
+	pulled = false,
+	useRotation = false,
 }
 
 function script_druid:setup()
@@ -171,7 +172,7 @@ function script_druid:run(targetObj)
 					end
 
 					-- Wrath if we don't have bear or cat
-					if (not self.cat and not self.bear) then
+					if (not self.cat and not self.bear) and (localMana >20) then
 						if (Cast('Wrath', targetGUID)) then
 							return;
 						end
@@ -208,16 +209,18 @@ function script_druid:run(targetObj)
 			end
 
 			-- Check if we are in meele range
-			if (GetDistance(targetObj) > 5) then
-				MoveToTarget(targetObj);
-				if (script_grind.waitTimer ~= 0) then
-					script_grind.waitTimer = GetTimeEX() + 1500;
-				end
-				return;
-			else
-				if (IsMoving()) then
-					StopMoving();
+			if (not self.useRotation) then
+				if (GetDistance(targetObj) > 5) then
+					MoveToTarget(targetObj);
+					if (script_grind.waitTimer ~= 0) then
+						script_grind.waitTimer = GetTimeEX() + 1500;
+					end
 					return;
+				else
+					if (IsMoving()) then
+						StopMoving();
+						return;
+					end
 				end
 			end
 
@@ -351,19 +354,27 @@ function script_druid:run(targetObj)
 
 			if (Cast('Faerie Fire', targetGUID)) then return; end
 
-			if (GetDistance(targetObj) > 5) then
-				-- Set the grinder to wait for momvement
-				if (script_grind.waitTimer ~= 0) then
-					script_grind.waitTimer = GetTimeEX()+1500;
+			if(not self.useRotation) then
+				if (GetDistance(targetObj) > 5) then
+					-- Set the grinder to wait for momvement
+					if (script_grind.waitTimer ~= 0) then
+						script_grind.waitTimer = GetTimeEX()+1500;
+					end
+					MoveToTarget(targetObj);
+					return;
+				else
+					FaceTarget(targetObj);
+					AutoAttack(targetObj);
+					if (Cast('Attack', targetGUID)) then return; end
 				end
-				MoveToTarget(targetObj);
-				return;
-			else
+			elseif (self.useRotation) then
 				FaceTarget(targetObj);
 				AutoAttack(targetObj);
-				if (Cast('Attack', targetGUID)) then return; end
+				if (Cast('Attack', targetGUID)) then
+					return;
+				end
 			end
-
+				
 			return;
 		end
 	end

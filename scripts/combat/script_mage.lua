@@ -20,7 +20,8 @@ script_mage = {
 	useFireBlast = true,
 	useWand = true,
 	gemTimer = 0,
-	timer = 0
+	timer = 0,
+	useRotation = false,
 }
 
 function script_mage:setup()
@@ -209,10 +210,13 @@ function script_mage:run(targetObj)
 			end
 
 			-- Auto Attack if no mana
-			if (localMana < 5) then
+			if (localMana < 5) and (not self.useRotation) then
 				UnitInteract(targetObj);
 				self.interactTimer = GetTimeEX() + 5000;
 				return;
+			elseif (localMana < 5) and (self.useRotation) then
+				FaceTarget(targetObj);
+				AutoAttack(targetObj);
 			end
 
 			--Cast Spell

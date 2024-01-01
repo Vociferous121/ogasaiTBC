@@ -95,6 +95,14 @@ function script_grind:setup()
 	self.isSetup = true;
 
 	script_rogue.useRotation = false;
+	script_mage.useRotation = false;
+	script_druid.useRotation = false;
+	script_paladin.useRotation = false;
+	script_warrior.useRotation = false;
+	script_shaman.useRotation = false;
+	script_hunter.useRotation = false;
+	script_priest.useRotation = false;
+	script_warlock.useRotation = false;
 end
 
 function script_grind:draw() 

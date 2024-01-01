@@ -15,7 +15,8 @@ script_hunter = {
 	buyWhenAmmoEmpty = true,
 	ammoName = "",
 	ammoIsArrow = true,
-	extraScript = include("scripts\\combat\\script_hunterEX.lua")
+	extraScript = include("scripts\\combat\\script_hunterEX.lua"),
+	useRotation = false,
 }
 
 -- Only the functions setup, run, rest and menu are located in this file
@@ -131,13 +132,21 @@ function script_hunter:run(targetObj)
 			end
 
 			-- Check move into meele range
-			if (GetDistance(targetObj) > 5) then
-				if (script_grind.waitTimer ~= 0) then
-					script_grind.waitTimer = GetTimeEX() + 1250;
+			if (not self.useRotation) then
+				if (GetDistance(targetObj) > 5) then
+					if (script_grind.waitTimer ~= 0) then
+						script_grind.waitTimer = GetTimeEX() + 1250;
+					end
+					MoveToTarget(targetObj);
+					return;
+				else
+					FaceTarget(targetObj);
+					AutoAttack(targetObj);
+					if (Cast('Raptor Strike', targetGUID)) then 
+						return; 
+					end
 				end
-				MoveToTarget(targetObj);
-				return;
-			else
+			elseif (self.useRotation) then
 				FaceTarget(targetObj);
 				AutoAttack(targetObj);
 				if (Cast('Raptor Strike', targetGUID)) then 
@@ -160,7 +169,9 @@ function script_hunter:run(targetObj)
 				if (script_grind.waitTimer ~= 0) then
 					script_grind.waitTimer = GetTimeEX() + 1250;
 				end
-				MoveToTarget(targetObj);
+				if (not self.useRotation) then
+					MoveToTarget(targetObj);
+				end
 				return;
 			end
 
