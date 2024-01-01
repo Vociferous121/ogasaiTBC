@@ -13,11 +13,6 @@ function menu:draw()
 	if (self.isSetup == false) then
 		
 		self.isSetup = true;
-		
-		DEFAULT_CHAT_FRAME:AddMessage('menu.lua: Loading scripts...');
-		DEFAULT_CHAT_FRAME:AddMessage('How to use:');
-		DEFAULT_CHAT_FRAME:AddMessage("1. Select a mode script (MS) and a combat script (CS)...");
-		DEFAULT_CHAT_FRAME:AddMessage("2. Push Start...");		
 
 		-- Include scripts
 		include("core.lua");
@@ -70,32 +65,36 @@ function menu:draw()
 
 	end
 
-	Separator();
+	--Separator();
 
 	-- Add mode menus
-	if (CollapsingHeader("[Grinder options")) then
-		script_grindMenu:menu();
-	end
+	--if (CollapsingHeader("[Grinder options")) then
+	--	script_grindMenu:menu();
+	--end
 
-	script_gatherMenu:menu();
+	--if (CollapsingHeader("[Rotation Options")) then
+	--	script_rotation:menu();
+	--end
 
-	if (CollapsingHeader("[Fishing options")) then
-		script_fishEX:menu();
-	end
+	--script_gatherMenu:menu();
 
-	Separator();
+	--if (CollapsingHeader("[Fishing options")) then
+	--	script_fishEX:menu();
+	--end
+
+	--Separator();
 
 	-- Add Combat scripts menus
-	if (CollapsingHeader("[Combat options")) then
-		script_mage:menu();
-		script_hunter:menu();
-		script_warlock:menu();
-		script_paladin:menu();
-		script_druid:menu();
-		script_priest:menu();
-		script_warrior:menu();
-		script_rogue:menu();
-		script_shaman:menu();
-	end
+	--if (CollapsingHeader("[Combat options")) then
+	--	script_mage:menu();
+	--	script_hunter:menu();
+	--	script_warlock:menu();
+	--	script_paladin:menu();
+	--	script_druid:menu();
+	--	script_priest:menu();
+	--	script_warrior:menu();
+	--	script_rogue:menu();
+	--	script_shaman:menu();
+	--end
 	
 end
