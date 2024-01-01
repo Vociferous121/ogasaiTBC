@@ -21,7 +21,7 @@ script_grind = {
 	restMana = 60,
 	potHp = 10,
 	potMana = 10,
-	pause = true,
+	pause = false,
 	stopWhenFull = false,
 	hsWhenFull = false,
 	shouldRest = false,
@@ -178,6 +178,7 @@ function script_grind:run()
 
 		self.message = script_helper:ress(GetCorpsePosition()); 
 		script_path:savePos(false); -- SAVE FOR UNSTUCK
+		self.waitTimer = GetTimeEX() + 500;
 		return;
 
 	else

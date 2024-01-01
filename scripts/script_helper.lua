@@ -52,6 +52,8 @@ end
 
 function script_helper:ress(x, y, z)
 
+	self.waitTimer = GetTimeEX() + 250;
+
 	RepopMe();
 
 	RetrieveCorpse();
@@ -59,15 +61,15 @@ function script_helper:ress(x, y, z)
 	if (IsUsingNavmesh() or script_grind.raycastPathing) then
 		if (not script_grind.raycastPathing) then
 			MoveToTarget(x, y, z);
-			script_grind.setWaitTimer(500);
+			script_grind.waitTimer = GetTimeEX() + 500;
 		else
 			script_pather:moveToTarget(x, y, z);
-			script_grind.setWaitTimer(500);
+			script_grind.waitTimer = GetTimeEX() + 500;
 
 		end
 	else
 		if (IsPathLoaded(1)) then
-			script_grind.setWaitTimer(500);
+			script_grind.waitTimer = GetTimeEX() + 500;
 			Grave();
 		else
 			return "No grave path loaded...";
