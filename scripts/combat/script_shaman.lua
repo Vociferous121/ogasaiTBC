@@ -8,7 +8,8 @@ script_shaman = {
 	enhanceWeapon = 'Rockbiter Weapon',
 	totem = 'no totem yet',
 	totemBuff = '',
-	healingSpell = 'Healing Wave'
+	healingSpell = 'Healing Wave',
+	useRotation = false,
 }
 
 

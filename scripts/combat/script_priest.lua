@@ -12,7 +12,8 @@ script_priest = {
 	healHP = 45,
 	greaterHealHP = 20,
 	useWand = true,
-	wandMana = 10
+	wandMana = 10,
+	useRotation = false,
 }
 
 function script_priest:draw()

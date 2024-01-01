@@ -11,7 +11,8 @@ script_hunterEX = {
 	hasPet = true,
 	ammoName = 'Rough Arrow',
 	ammoIsArrow = true,
-	buyWhenAmmoEmpty = true
+	buyWhenAmmoEmpty = true,
+	useRotation = false,
 }
 
 -- this file includes functions used by script_hunter
