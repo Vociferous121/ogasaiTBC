@@ -21,7 +21,7 @@ script_grind = {
 	restMana = 60,
 	potHp = 10,
 	potMana = 10,
-	pause = false,
+	pause = true,
 	stopWhenFull = false,
 	hsWhenFull = false,
 	shouldRest = false,
@@ -62,12 +62,25 @@ function script_grind:setup()
 
 	-- Classes that doesn't use mana
 	local class, classFileName = UnitClass("player");
-	if (strfind("Warrior", class) or strfind("Rogue", class)) then self.useMana = false; self.restMana = 0; end
-	if (strfind("Mage", class)) then self.vendorRefill = false; end
+	if (strfind("Warrior", class) or strfind("Rogue", class)) then
+		self.useMana = false;
+		self.restMana = 0;
+	end
 
-	if (GetLevel(GetLocalPlayer()) <= 3) then self.vendorRefill = false; end
+	-- don't vendor if a mage
+	if (strfind("Mage", class)) then
+		self.vendorRefill = false;
+	end
 
-	if (GetLevel(GetLocalPlayer()) <= 39) then self.useMount = false; end
+	-- don't refill low level
+	if (GetLevel(GetLocalPlayer()) <= 5) then
+		self.vendorRefill = false;
+	end
+
+	-- don't use mount if we don't have one
+	if (GetLevel(GetLocalPlayer()) <= 39) then
+		self.useMount = false;
+	end
 
 	hotspotDB:setup(); 
 
@@ -89,7 +102,10 @@ end
 
 function script_grind:run()
 	-- Run the setup function once
-	if (not self.isSetup) then script_grind:setup(); return; end
+	if (not self.isSetup) then
+		script_grind:setup();
+		return;
+	end
 
 	-- Load nav mesh
 	if (self.useNavMesh) then
@@ -130,26 +146,42 @@ function script_grind:run()
 	if (script_grindEX:doChecks()) then return; end
 
 	-- Check: wait for timer
-	if(self.waitTimer > GetTimeEX()) then return; end
+	if(self.waitTimer > GetTimeEX()) then
+		return;
+	end
+
 	self.waitTimer = GetTimeEX() + self.tickRate;
 
 	if (IsDead(self.target)) then 
 		-- Keep saving path nodes at dead target's locations
-		if (script_path.reachedHotspot) then script_path:savePathNode(); end
+		if (script_path.reachedHotspot) then
+			script_path:savePathNode();
+		end
 		-- Add dead target to the loot list
-		if (not self.skipLoot) then script_target:addLootTarget(self.target); end
+		if (not self.skipLoot) then
+			script_target:addLootTarget(self.target);
+		end
 		self.target = nil; 
 		ClearTarget();
-		return; 
+	return; 
 	end
 
 	-- Dead
 	if (IsDead(GetLocalPlayer())) then
-		if (self.alive) then self.alive = false; RepopMe(); self.message = "Releasing spirit..."; self.waitTimer = GetTimeEX() + 8000; return; end
+		if (self.alive) then
+			self.alive = false;
+			RepopMe();
+			self.message = "Releasing spirit...";
+			self.waitTimer = GetTimeEX() + 5000;
+		return;
+		end
+
 		self.message = script_helper:ress(GetCorpsePosition()); 
 		script_path:savePos(false); -- SAVE FOR UNSTUCK
 		return;
+
 	else
+
 	-- Alive
 		self.alive = true;
 		script_path:savePos(false); -- SAVE FOR UNSTUCK
@@ -161,34 +193,59 @@ function script_grind:run()
 
 	-- Stand up after resting
 	if (self.useMana) then
-		if (hp > 98 and mana > 98 and not IsStanding()) then StopMoving(); self.shouldRest = false; return;
-		else if (IsDrinking() or IsEating()) then self.shouldRest = true; end end
+		if (hp > 98 and mana > 98 and not IsStanding()) then
+			StopMoving();
+			self.shouldRest = false;
+		return;
+		else
+			if (IsDrinking() or IsEating()) then
+				self.shouldRest = true;
+			end
+		end
 	else
-		if (hp > 98 and not IsStanding()) then StopMoving(); self.shouldRest = false; return;
-			else if (IsEating()) then self.shouldRest = true; end
+		if (hp > 98 and not IsStanding()) then
+			StopMoving();
+			self.shouldRest = false;
+		return;
+		else
+			if (IsEating()) then
+				self.shouldRest = true;
+			end
 		end
 	end
 
 	-- Rest out of combat
 	if (not IsInCombat() or script_info:nrTargetingMe() == 0) then
-		if ((not IsSwimming()) and (not IsFlying())) then RunRestScript();
-		else self.shouldRest = false; end
+		if ((not IsSwimming()) and (not IsFlying())) then
+			RunRestScript();
+		else
+			self.shouldRest = false;
+		end
 		if (self.shouldRest) then 
 			script_path:savePos(true); -- SAVE FOR UNSTUCK
 			self.message = "Resting..."; self.waitTimer = GetTimeEX() + 2500; return; end
 	else
 		-- Use Potions in combat
-		if (hp < self.potHp) then script_helper:useHealthPotion(); end
-		if (mana < self.potMana and self.useMana) then script_helper:useHealthPotion(); end
+		if (hp < self.potHp) then
+			script_helper:useHealthPotion();
+		end
+		if (mana < self.potMana and self.useMana) then
+			script_helper:useHealthPotion();
+		end
 		-- Dismount in combat
-		if (IsMounted()) then Dismount(); return; end 
+		if (IsMounted()) then
+			Dismount();
+			return;
+		end 
 		ResetNavigate();
 		script_pather:resetPath()
 	end
 
 	-- Loot
 	if (script_target:isThereLoot() and not IsInCombat() and not AreBagsFull() and not self.bagsFull) then
-		self.message = "Looting... (enable auto loot)"; script_target:doLoot(); return;
+		self.message = "Looting... (enable auto loot)";
+		script_target:doLoot();
+	return;
 	end
 
 	-- Wait for group members

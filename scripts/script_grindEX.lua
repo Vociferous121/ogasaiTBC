@@ -17,7 +17,7 @@ end
 
 function script_grindEX:window()
 	EndWindow();
-	if(NewWindow("Logitech's Grinder", 200, 100)) then
+	if(NewWindow("Grinder", 200, 100)) then
 		script_grindMenu:menu();
 	end
 end
@@ -56,8 +56,8 @@ function script_grindEX:draw()
 		pY = pY + 100;
 		if (onScreen) then
 			DrawRectFilled(pX - 5, pY - 5, pX + 385, pY + 65, 0, 0, 0, 160, 0, 0);
-			DrawRect(pX - 5, pY - 5, pX + 385, pY + 65, 0, 190, 45,  1, 1, 1);
-			DrawText("Logitech's TBC Grinder", pX, pY, 0, 190, 45);
+			--DrawRect(pX - 5, pY - 5, pX + 385, pY + 65, 0, 190, 45,  1, 1, 1);
+			DrawText("Grinder", pX, pY, 0, 190, 45);
 			DrawText('Current Hotspot: ' .. script_path.hName, pX, pY+10, 255, 128, 0);
 			DrawText('Status: ' .. (script_grind.message or " "), pX, pY+20, 255, 255, 0);
 			DrawText('Script Idle: ' .. math.max(script_grind.waitTimer - GetTimeEX(), 0) .. ' ms', pX, pY+30, 255, 255, 255);

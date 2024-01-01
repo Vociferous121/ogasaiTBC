@@ -1,91 +1,113 @@
 script_mage = {
-	version = '0.1',
+	version = '1.2',
 	message = 'Mage Combat',
-	mageExtra = include("scripts\\combat\\script_mageEX.lua"),
-	drinkMana = 50,
-	eatHealth = 50,
+	FIRE = 1,
+	FROST = 0,
+	classType = 0,
+	drinkMana = 25,
+	eatHeath = 65,
 	water = {},
 	numWater = 0,
 	food = {},
 	numfood = 0,
-	manaGem = {},
-	numGem = 0,
-	isSetup = false,
-	useManaShield = true,
-	iceBlockHealth = 35,
-	iceBlockMana = 35,
-	evocationMana = 15,
-	evocationHealth = 40,
-	manaGemMana = 20,
-	useFireBlast = true,
-	useWand = true,
-	gemTimer = 0,
-	timer = 0
+	isSetup = false
 }
 
+function script_mage:addWater(name)
+	self.water[self.numWater] = name;
+	self.numWater = self.numWater + 1;
+end
+
+function script_mage:addFood(name)
+	self.food[self.numfood] = name;
+	self.numfood = self.numfood + 1;
+end
+
 function script_mage:setup()
-	self.iceBlockHealth = 35;
-	self.iceBlockMana = 35;
-	self.evocationMana = 15;
-	self.evocationHealth = 40;
-	self.manaGemMana = 20;
-
-	self.timer = GetTimeEX();
-	self.gemTimer = GetTimeEX();
-
-	DEFAULT_CHAT_FRAME:AddMessage('script_mage: loaded...');
+	script_mage:addWater('Conjured Fresh Water');
+	script_mage:addWater('Conjured Water');
+	script_mage:addWater('Conjured Glacier Water');
+	script_mage:addWater('Conjured Mountain Spring Water');
+	script_mage:addWater('Conjured Crystal Water');
+	script_mage:addWater('Conjured Sparkling Water');
+	script_mage:addWater('Conjured Mineral Water');
+	script_mage:addWater('Conjured Spring Water');
+	script_mage:addWater('Conjured Purified Water');
+	
+	script_mage:addFood('Conjured Sourdough');
+	script_mage:addFood('Conjured Sweet Roll');
+	script_mage:addFood('Conjured Cinnamon Roll');
+	script_mage:addFood('Conjured Croissant');
+	script_mage:addFood('Conjured Muffin');
+	script_mage:addFood('Conjured Bread');
+	script_mage:addFood('Conjured Rye');
+	script_mage:addFood('Conjured Pumpernickel');
+	
 	self.isSetup = true;
+end
 
-	script_mageEX:setup();
+function script_mage:DeBugInfo()
+	-- color
+	local r = 255;
+	local g = 2;
+	local b = 233;
+	
+	-- position
+	local y = 350;
+	local x = 25;
+	
+	-- info
+	DrawText(self.message, x, y, r, g, b);
+end
+
+function script_mage:init()
+	--FOOD SETUP
+end
+
+function script_mage:prep()
+	--CREAT FOOD
 end
 
 function script_mage:run(targetObj)
-
+	
+	script_mage:DeBugInfo();
+	
 	if(not self.isSetup) then
 		script_mage:setup();
 	end
-
+	
 	local localObj = GetLocalPlayer();
 	local localMana = GetManaPercentage(localObj);
 	local localHealth = GetHealthPercentage(localObj);
 	local localLevel = GetLevel(localObj);
-
-	if (targetObj == 0) then
-		targetObj = GetTarget();
+	
+	if(targetObj == 0) then
+		targetObj = GetNearestEnemy();
 	end
-
-	local targetGUID = GetTargetGUID(targetObj);
-
-	targetHealth = GetHealthPercentage(targetObj);
-
-	-- Timer
-	if (self.timer > GetTimeEX()) then
+	
+	if (IsDead(localObj)) then
+		--Grave();
 		return;
-	end
-
-	-- Check: move away from targets affected by frost nova
-	if (script_target:hasDebuff('Frost Nova') or script_target:hasDebuff('Frostbite')) then
-			local xT, yT, zT = GetPosition(targetObj);
- 			local xP, yP, zP = GetPosition(localObj);
-			local distance = GetDistance(targetObj);
- 			local xV, yV, zV = xP - xT, yP - yT, zP - zT;	
- 			local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2)
-			local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;		
- 			local moveX, moveY, moveZ = xT + xUV*30, yT + yUV*30, zT + zUV;	
-			if (distance < 7 and IsInLineOfSight(targetObj)) then 
-				if (script_grind.waitTimer ~= 0) then
-					script_grind.waitTimer = GetTimeEX() + 1000;
-				end
-				Move(moveX, moveY, moveZ);
-				self.timer = GetTimeEX() + 250;
- 				return;
- 			end
 	end
 
 	-- Pre Check
-	if (IsChanneling() or IsCasting() or HasBuff(localObj, 'Ice Block')) then
+	if (IsChanneling() or IsCasting()) then
 		return;
 	end
+
+	-- Do Buff
+	if (Buff('Arcane Intellect', localObj)) then
+		return;
+	elseif (Buff('Dampen Magic', localObj)) then
+		return;
+	elseif (Buff('Frost Armor', localObj)) then
+		return;
+	end
+	
+	--if (IsMoving()) then
+	--	StopMoving();
+	--	return;
+	--end
 	
 	--Valid Enemy
 	if (targetObj ~= 0) then
@@ -98,156 +120,65 @@ function script_mage:run(targetObj)
 		if (not CanAttack(targetObj)) then
 			return;
 		end
-
-		-- Check: Keep Ice Barrier up if possible
-		if (HasSpell("Ice Barrier") and not IsSpellOnCD("Ice Barrier") and not HasBuff(localObj, "Ice Barrier")) then
-			CastSpellByName('Ice Barrier');
-			return;
-		-- Check: If we have Cold Snap use it to clear the Ice Barrier CD
-		elseif (HasSpell("Ice Barrier") and IsSpellOnCD("Ice Barrier") and HasSpell('Cold Snap') and 
-			not IsSpellOnCD("Cold Snap") and not HasBuff(localObj, 'Ice Barrier')) then
-				CastSpellByName('Cold Snap');
-				return;
-		end
-
-		local pet = GetPet(); 
-		local petHP = 0;
-		if (pet ~= nil and pet ~= 0) then petHP = GetHealthPercentage(pet); end
-
-		-- Summon Elemental
-		if (HasSpell("Summon Water Elemental") and not IsSpellOnCD("Summon Water Elemental") and not (petHP > 0)) then
-			CastSpellByName("Summon Water Elemental");
-			return;
-		end
+		
+		-- Dismount
+		DismountEX();
+		
+		-- Auto Attack
+		--AutoAttack(targetObj);
+		
+		targetHealth = GetHealthPercentage(targetObj);
 		
 		--Opener
 		if (not IsInCombat()) then
 			
 			--Cast Spell
-			if (Cast('Frostbolt', targetGUID)) then
-				script_grind.waitTimer = GetTimeEX() + 3000;
+			if (self.classType == self.FROST and Cast('Frostbolt', targetObj)) then
 				return;
-			end
-
-			if (Cast('Fireball', targetGUID)) then
-				script_grind.waitTimer = GetTimeEX() + 3000;
+			elseif (self.classType == self.FIRE and Cast('Fireball', targetObj)) then
 				return;
 			end
 			
 		-- Combat
 		else	
-			-- Use Mana Gem when low on mana
-			if (localMana < self.manaGemMana and GetTimeEX() > self.gemTimer) then
-				for i=0,self.numGem do
-					if(HasItem(self.manaGem[i])) then
-						UseItem(self.manaGem[i]);
-						self.gemTimer = GetTimeEX() + 120000;
-						return;
-					end
-				end
-			end
-			
-			if (targetHealth <= 15 and HasSpell('Fire Blast') and self.useFireBlast) then
-				if (Cast('Fire Blast', targetGUID)) then
+			-- Wand
+			if (localMana <= 15 or targetHealth <= 15 and HasRangedWeapon(localObj)) then
+				if (Cast('Shoot', targetObj)) then
 					return;
-				end
-			end
-	
-			-- Check: Frostnova when the target is close
-			if (GetDistance(targetObj) < 5 and not script_target:hasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova") and targetHealth > 20) then
-				self.message = "Frost nova the target(s)...";
-				CastSpellByName("Frost Nova");
-				return;
-			end
-
-			-- Use Evocation if we have low Mana but still a lot of HP left
-			if (localMana < self.evocationMana and localHealth > self.evocationHealth and HasSpell("Evocation") and not IsSpellOnCD("Evocation")) then		
-				self.message = "Using Evocation...";
-				CastSpellByName("Evocation"); 
-				return;
-			end
-
-			-- Use Mana Shield if mana > 35 procent mana and no active Ice Barrier
-			if (not HasBuff(localObj, 'Ice Barrier') and HasSpell('Mana Shield') and localMana > 35 and 
-				not HasBuff(localObj, 'Mana Shield') and GetDistance(targetObj) < 15) then
-				if (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
-					CastSpellByName('Mana Shield');
+				elseif (IsAutoCasting('Shoot')) then
 					return;
 				end
 			end
 			
-			-- Ice Block
-			if (HasSpell('Ice Block') and not IsSpellOnCD('Ice Block') and 
-				localHealth < self.iceBlockHealth and localMana < self.iceBlockMana) then
-				self.message = "Using Ice Block...";
-				CastSpellByName('Ice Block');
-				return;
-			end
-
-			
-			local max = 0;
-			local dur = 0;
-			if (GetInventoryItemDurability(18) ~= nil) then
-				dur, max = GetInventoryItemDurability(18);
-			end
-
-			if (self.useWand and dur > 0) then
-				if (localMana <= 5 or targetHealth <= 5) then
-					if (not script_target:autoCastingWand()) then 
-						self.message = "Using wand...";
-						FaceTarget(targetObj);
-						CastSpell("Shoot", targetObj);
-						self.waitTimer = GetTimeEX() + 500;
-						return;
-					end
+			--
+			if (targetHealth <= 45 and HasSpell('Fire Blast')) then
+				castingTime, maxRange, minRange, powerType, Cost, spellID, spellObj = GetSpellInfoEX('Fire Blast');
+				if (localManaVal > Cost and Cast('Fire Blast', targetObj)) then
 					return;
 				end
 			end
-
-			-- Auto Attack if no mana
-			if (localMana < 5) then
-				UnitInteract(targetObj);
-				self.interactTimer = GetTimeEX() + 5000;
-				return;
-			end
-
+			
 			--Cast Spell
-			if (Cast('Frostbolt', targetGUID)) then
+			if (self.classType == self.FROST and Cast('Frostbolt', targetObj)) then
+				return;
+			elseif (self.classType == self.FIRE and Cast('Fireball', targetObj)) then
 				return;
 			end
 			
-			-- Fireball at level 1
-			if (not HasSpell("Frostbolt")) then
-				if (Cast('Fireball', targetGUID)) then
-					return;
-				end
-			end
 		end
 	
 	end
-
-	return;
 end
 
 function script_mage:rest()
 
 	if(not self.isSetup) then
 		script_mage:setup();
-		return true;
 	end
 	
 	local localObj = GetLocalPlayer();
 	local localMana = GetManaPercentage(localObj);
 	local localHealth = GetHealthPercentage(localObj);
-
-	-- Update rest values
-	if (script_grind.restHp ~= 0) then
-		self.eatHealth = script_grind.restHp;
-	end
-
-	if (script_grind.restMana ~= 0) then
-		self.drinkMana = script_grind.restMana;
-	end
 	
 	--Create Water
 	local waterIndex = -1;
@@ -259,23 +190,8 @@ function script_mage:rest()
 	end
 	
 	if (waterIndex == -1) then 
-		if (HasSpell('Conjure Water') and not AreBagsFull()) then
-			if (localMana > 10 and not IsDrinking() and not IsEating() and not AreBagsFull()) then
-				if (IsMoving()) then
-					StopMoving();
-					script_grind:restOn();
-					return true;
-				end
-				if (not IsStanding()) then
-					StopMoving();
-					script_grind:restOn();
-					return true;
-				end
-				CastSpellByName('Conjure Water');
-				script_grind:restOn();
-				return true;
-			else
-				script_grind:restOn();
+		if (localMana > 10) then
+			if (HasSpell('Conjure Water') and CastSpellByName('Conjure Water')) then
 				return true;
 			end
 		end
@@ -290,64 +206,10 @@ function script_mage:rest()
 			break;
 		end
 	end
-	if (foodIndex == -1 and HasSpell('Conjure Food') and not AreBagsFull()) then 
-		if (IsMoving()) then
-			StopMoving();
-			script_grind:restOn();
-			return true;
-		end
-		if (not IsStanding()) then
-			StopMoving();
-			script_grind:restOn();
-			return true;
-		end
-		if (localMana > 10 and not IsDrinking() and not IsEating() and not AreBagsFull()) then
-			CastSpellByName('Conjure Food');
-			script_grind:restOn();
-			return true;
-		end
-	end
-
-	--Create Mana Gem
-	local gemIndex = -1;
-	for i=0,self.numGem do
-		if (HasItem(self.manaGem[i])) then
-			gemIndex = i;
-			break;
-		end
-	end
-	if (gemIndex == -1 and (HasSpell('Conjure Mana Ruby') 
-				or HasSpell('Conjure Mana Citrine') 
-				or HasSpell('Conjure Mana Jade')
-				or HasSpell('Conjure Mana Agate'))) then 
-		self.message = "Conjuring mana gem...";
-		if (IsMoving()) then
-			script_grind:restOn();
-			StopMoving();
-			return;
-		end
-		if (not IsStanding()) then
-			StopMoving();
-			script_grind:restOn();
-			return;
-		end
-		if (localMana > 20 and not IsDrinking() and not IsEating() and not AreBagsFull()) then
-			if (HasSpell('Conjure Mana Ruby')) then
-				CastSpellByName('Conjure Mana Ruby')
-				script_grind:restOn();
-				return;
-			elseif (HasSpell('Conjure Mana Citrine')) then
-				CastSpellByName('Conjure Mana Citrine')
-				script_grind:restOn();
-				return;
-			elseif (HasSpell('Conjure Mana Jade')) then
-				CastSpellByName('Conjure Mana Jade')
-				script_grind:restOn();
-				return;
-			elseif (HasSpell('Conjure Mana Agate')) then
-				CastSpellByName('Conjure Mana Agate')
-				script_grind:restOn();
-				return;
+	if (foodIndex == -1) then 
+		if (localMana > 10) then
+			if (HasSpell('Conjure Food') and CastSpellByName('Conjure Food')) then
+				return true;
 			end
 		end
 	end
@@ -356,88 +218,58 @@ function script_mage:rest()
 	if (not IsDrinking() and localMana < self.drinkMana) then
 		if (IsMoving()) then
 			StopMoving();
-			script_grind:restOn();
 			return true;
 		end
 
-		if(script_helper:drinkWater()) then
-			script_grind:restOn();
+		if(HasItem(self.water[waterIndex])) then
+			UseItem(self.water[waterIndex]);
 			return true;
 		end
 	end
-
-	if (not IsEating() and localHealth < self.eatHealth) then	
+	if (not IsEating() and localHealth < self.eatHeath) then	
 		if (IsMoving()) then
 			StopMoving();
-			script_grind:restOn();
 			return true;
 		end
 		
-		if(script_helper:eat()) then
-			script_grind:restOn();
+		if(HasItem(self.food[foodIndex])) then
+			UseItem(self.food[foodIndex]);
 			return true;
 		end
 	end
-
-	if(localMana < self.drinkMana or localHealth < self.eatHealth) then
+	
+	if(localMana < self.drinkMana or localHealth < self.eatHeath) then
 		if (IsMoving()) then
 			StopMoving();				
 		end
-		script_grind:restOn();
 		return true;
-	end
-
-	if(IsDrinking() and localMana < 98) then
-		script_grind:restOn();
-		return true;
-	end
-
-	if(IsEating() and localHealth < 98) then
-		script_grind:restOn();
-		return true;
-	end
-
-	-- Do Buff
-	if (Buff('Arcane Intellect', localObj)) then
-		return true;
-	elseif (Buff('Dampen Magic', localObj)) then
-		return true;
-	end
-	if (HasSpell('Ice Armor')) then
-		if (Buff('Ice Armor', localObj)) then
-			return true;
-		end
-	
-	else
-		if (Buff('Frost Armor', localObj)) then
-			return true;
-		end
 	end
 	
-	script_grind:restOff();
 	return false;
+end
+
+function script_mage:mount()
+
 end
 
 function script_mage:menu()
 
-	if (CollapsingHeader('[Mage - Frostbite')) then
+	if (CollapsingHeader("[Mage")) then
+		Text('Mage Settings ' .. self.version);
+		
 		local wasClicked = false;	
-		Text('Skills options:');
+		wasClicked, self.classType = RadioButton("Frost", self.classType, self.FROST);	
+		wasClicked, self.classType = RadioButton("Fire", self.classType, self.FIRE);
+		
 		Separator();
-		wasClicked, self.useWand = Checkbox('Use Wand', self.useWand);
-		wasClicked, self.useFireBlast = Checkbox('Use Fire Blast', self.useFireBlast);
-		wasClicked, self.useManaShield = Checkbox('Use Mana Shield', self.useManaShield);
-		Separator();
-		Text('Evocation above health percent');
-		self.evocationHealth = SliderInt('EH', 1, 90, self.evocationHealth);
-		Text('Evocation below mana percent');
-		self.evocationMana = SliderInt('EM', 1, 90, self.evocationMana);
-		Text('Ice Block below health percent');
-		self.iceBlockHealth = SliderInt('IBH', 5, 90, self.iceBlockHealth);
-		Text('Ice Block below mana percent');
-		self.iceBlockMana = SliderInt('IBM', 5, 90, self.iceBlockMana);
-		Text('Mana Gem below mana percent');
-		self.manaGemMana = SliderInt('MG', 1, 90, self.manaGemMana);
+		
+		self.drinkMana = SliderFloat("Drink", 1, 100, self.drinkMana);
+		self.eatHeath = SliderFloat("Eat", 1, 100, self.eatHeath);
+	
+		if (Button("LOAD")) then
+			if (not LoadPath("Paths\\test.xml", 0)) then 
+				DEFAULT_CHAT_FRAME:AddMessage('Failed to load TestGatherPath.xml');
+			end
+		end
 	end
-
 end

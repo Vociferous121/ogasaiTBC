@@ -4,11 +4,22 @@ script_grindMenu = {
 function script_grindMenu:menu()
 	local wasClicked = false;
 	if (script_grind.pause) then
-		if (Button("Resume Bot")) then script_grind.pause = false; end
+		if (Button("Resume Bot")) then
+			script_grind.pause = false;
+		end
 	else
-		if (Button("Pause Bot")) then script_grind.pause = true; end end
-	SameLine(); if (Button("Reload Scripts")) then menu:reload(); end
-	SameLine(); if (Button("Exit Bot")) then StopBot(); end
+		if (Button("Pause Bot")) then
+			script_grind.pause = true;
+		end
+	end
+	SameLine();
+	if (Button("Reload Scripts")) then
+		menu:reload();
+	end
+	SameLine();
+	if (Button("Exit Bot")) then
+		StopBot();
+	end
 	Separator();
 
 	-- Load combat menu by class
