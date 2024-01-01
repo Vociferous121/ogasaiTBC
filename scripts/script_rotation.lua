@@ -212,6 +212,7 @@ function script_rotation:runRest()
 				and (not IsDrinking())
 				and (not IsCasting())
 				and (not IsChanneling())
+				and (not IsMoving())
 			then
 				script_helper:drinkWater();
 				self.waitTimer = GetTimeEX() + 2000;
@@ -221,6 +222,7 @@ function script_rotation:runRest()
 				and (not IsEating())
 				and (not IsCasting())
 				and (not IsChanneling())
+				and (not IsMoving())
 			then
 				script_helper:eat();
 				self.waitTimer = GetTimeEX() + 2000;
