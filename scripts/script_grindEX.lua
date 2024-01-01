@@ -60,7 +60,7 @@ function script_grindEX:draw()
 			DrawText("Grinder", pX, pY, 0, 190, 45);
 			DrawText('Current Hotspot: ' .. script_path.hName, pX, pY+10, 255, 128, 0);
 			DrawText('Status: ' .. (script_grind.message or " "), pX, pY+20, 255, 255, 0);
-			DrawText('Script Idle: ' .. math.max(script_grind.waitTimer - GetTimeEX(), 0) .. ' ms', pX, pY+30, 255, 255, 255);
+			DrawText('Script Speed: ' .. math.max((script_grind.waitTimer - GetTimeEX()), 0) .. ' ms', pX, pY+30, 255, 255, 255);
 			DrawText('Unstuck in: ' .. 10-math.floor(((GetTimeEX()-(script_path.savedPos['time'] or GetTimeEX()))/1000), 0) .. ' second(s)', pX, pY+40, 0, 255, 0);
 			if (AreBagsFull()) then
 			DrawText('Warning bags are full...', pX, pY+50, 255, 0, 0);

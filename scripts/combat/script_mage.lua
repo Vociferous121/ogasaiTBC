@@ -124,14 +124,18 @@ function script_mage:run(targetObj)
 		if (not IsInCombat()) then
 			
 			--Cast Spell
-			if (Cast('Frostbolt', targetGUID)) then
-				script_grind.waitTimer = GetTimeEX() + 3000;
-				return;
+			if (not IsMoving()) and (localMana >= 20) then
+				if (Cast('Frostbolt', targetGUID)) then
+					script_grind.waitTimer = GetTimeEX() + 3000;
+					return;
+				end
 			end
 
-			if (Cast('Fireball', targetGUID)) then
-				script_grind.waitTimer = GetTimeEX() + 3000;
-				return;
+			if (not IsMoving()) and (localMana >= 20) then
+				if (Cast('Fireball', targetGUID)) then
+					script_grind.waitTimer = GetTimeEX() + 3000;
+					return;
+				end
 			end
 			
 		-- Combat
@@ -212,12 +216,14 @@ function script_mage:run(targetObj)
 			end
 
 			--Cast Spell
-			if (Cast('Frostbolt', targetGUID)) then
-				return;
+			if (not IsMoving()) and (localMana >= 10) then
+				if (Cast('Frostbolt', targetGUID)) then
+					return;
+				end
 			end
 			
 			-- Fireball at level 1
-			if (not HasSpell("Frostbolt")) then
+			if (not IsMoving()) and (not HasSpell("Frostbolt")) and (localMana >= 20) then
 				if (Cast('Fireball', targetGUID)) then
 					return;
 				end
@@ -420,24 +426,43 @@ end
 
 function script_mage:menu()
 
-	if (CollapsingHeader('[Mage - Frostbite')) then
+	local localObj = GetLocalPlayer();
+	if (CollapsingHeader('Mage Combat Options')) then
 		local wasClicked = false;	
 		Text('Skills options:');
 		Separator();
-		wasClicked, self.useWand = Checkbox('Use Wand', self.useWand);
-		wasClicked, self.useFireBlast = Checkbox('Use Fire Blast', self.useFireBlast);
-		wasClicked, self.useManaShield = Checkbox('Use Mana Shield', self.useManaShield);
-		Separator();
-		Text('Evocation above health percent');
-		self.evocationHealth = SliderInt('EH', 1, 90, self.evocationHealth);
-		Text('Evocation below mana percent');
-		self.evocationMana = SliderInt('EM', 1, 90, self.evocationMana);
-		Text('Ice Block below health percent');
-		self.iceBlockHealth = SliderInt('IBH', 5, 90, self.iceBlockHealth);
-		Text('Ice Block below mana percent');
-		self.iceBlockMana = SliderInt('IBM', 5, 90, self.iceBlockMana);
-		Text('Mana Gem below mana percent');
-		self.manaGemMana = SliderInt('MG', 1, 90, self.manaGemMana);
+
+		if (GetInventoryItemDurability(18) ~= nil) then
+			wasClicked, self.useWand = Checkbox('Use Wand', self.useWand);
+		end
+
+		if (HasSpell("Fireblast")) then
+			wasClicked, self.useFireBlast = Checkbox('Use Fire Blast', self.useFireBlast);
+		end
+
+		if (HasSpell("Mana Shield")) then
+			wasClicked, self.useManaShield = Checkbox('Use Mana Shield', self.useManaShield);
+		end
+
+		if (HasSpell("Evocation")) then
+			Separator();
+			Text('Evocation above health percent');
+			self.evocationHealth = SliderInt('EH', 1, 90, self.evocationHealth);
+			Text('Evocation below mana percent');
+			self.evocationMana = SliderInt('EM', 1, 90, self.evocationMana);
+		end
+
+		if (HasSpell("Ice Block")) then
+			Text('Ice Block below health percent');
+			self.iceBlockHealth = SliderInt('IBH', 5, 90, self.iceBlockHealth);
+			Text('Ice Block below mana percent');
+			self.iceBlockMana = SliderInt('IBM', 5, 90, self.iceBlockMana);
+		end
+
+		if (HasSpell("Mana Gem")) then
+			Text('Mana Gem below mana percent');
+			self.manaGemMana = SliderInt('MG', 1, 90, self.manaGemMana);
+		end
 	end
 
 end

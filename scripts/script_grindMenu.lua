@@ -46,19 +46,28 @@ function script_grindMenu:menu()
 	end
 	
 	if (CollapsingHeader("[Mount, Talents & Display options")) then 
+		if (GetLevel(GetLocalPlayer()) >= 40) then
 		wasClicked, script_grind.useMount = Checkbox("Use Mount", script_grind.useMount);
 		SameLine(); wasClicked, script_grind.jump = Checkbox("Jump while moving (unmounted)", script_grind.jump);
+		end
+
 		Separator();
+
 		wasClicked, script_grind.autoTalent = Checkbox("Spend talent points", script_grind.autoTalent);
 		Text("Change talents in script_talent.lua");
+
 		if (script_grind.autoTalent) then Text("Spending next talent point in: " .. (script_talent:getNextTalentName() or " ")); end 
-		Separator();
-		wasClicked, script_grindEX.drawWindow = Checkbox("Draw grinder menus in a window", script_grindEX.drawWindow);
-		wasClicked, script_grindEX.drawStatus = Checkbox("Draw grinder status window", script_grindEX.drawStatus);
-		wasClicked, script_grindEX.drawGather = Checkbox("Draw gather nodes", script_grindEX.drawGather);
-		wasClicked, script_grindEX.drawTarget = Checkbox("Draw info about units", script_grindEX.drawTarget);
-		wasClicked, script_grindEX.drawPath = Checkbox("Draw move path", script_grindEX.drawPath);
-		wasClicked, script_grindEX.drawAutoPath = Checkbox("Draw auto path nodes & hotspot", script_grindEX.drawAutoPath);
+		
+		if (|+| CollapsingHeader("Draw Windows")) then
+Separator();
+			wasClicked, script_grindEX.drawWindow = Checkbox("Draw grinder menus in a window", script_grindEX.drawWindow);
+			wasClicked, script_grindEX.drawStatus = Checkbox("Draw grinder status window", script_grindEX.drawStatus);
+			wasClicked, script_grindEX.drawGather = Checkbox("Draw gather nodes", script_grindEX.drawGather);
+			wasClicked, script_grindEX.drawTarget = Checkbox("Draw info about units", script_grindEX.drawTarget);
+			wasClicked, script_grindEX.drawPath = Checkbox("Draw move path", script_grindEX.drawPath);
+			wasClicked, script_grindEX.drawAutoPath = Checkbox("Draw auto path nodes & hotspot", script_grindEX.drawAutoPath);
+		end
+
 		Separator();
 	end
 	
