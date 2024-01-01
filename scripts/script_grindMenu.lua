@@ -1,4 +1,6 @@
 script_grindMenu = {
+
+	debug = false,
 }
 
 function script_grindMenu:menu()
@@ -16,6 +18,8 @@ function script_grindMenu:menu()
 		if (Button("Pause Bot")) then script_grind.pause = true; end end
 	SameLine(); if (Button("Reload Scripts")) then menu:reload(); end
 	SameLine(); if (Button("Exit Bot")) then StopBot(); end
+	SameLine();
+	wasClicked, self.debug = Checkbox("Debug", self.debug);
 	Separator();
 
 	-- Load combat menu by class
@@ -102,4 +106,10 @@ function script_grindMenu:menu()
 	script_target:lootMenu();
 
 	script_gatherMenu:menu();
+
+	if (script_grindMenu.debug) then
+	if(NewWindow("Debug", 100, 100)) then
+		script_debug:menu();
+	end
+	end
 end

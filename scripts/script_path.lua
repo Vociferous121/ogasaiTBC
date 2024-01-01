@@ -36,16 +36,19 @@ end
 
 function script_path:loadNavMesh()
 	if (not IsUsingNavmesh()) then
+		script_debug.debugPath = "loading nav true";
 		UseNavmesh(true);
 		return true;
 	end
 	
 	if (GetLoadNavmeshProgress() == 0) then
+		script_debug.debugPath = "check nav progress";
 		LoadNavmesh();
 		return true;
 	end
 
 	if (GetLoadNavmeshProgress() < 1) then
+		script_debug.debugPath = "return - wait for nav to load";
 		return true;
 	end
 
@@ -78,7 +81,6 @@ end
 
 function script_path:distToSavedPos()
 	local x, y, z = GetPosition(GetLocalPlayer());
-
 	return math.sqrt((x-self.savedPos['x'])^2 + (y-self.savedPos['y'])^2);
 end
 
@@ -116,6 +118,7 @@ function script_path:resetHotspot()
 	self.numSavedPathNodes = 0;
 	self.hotspotID = -1;
 	self.reachedHotspot = true;
+	script_debug.debugPath = "rest hotspot";
 end
 
 function script_path:updateHotspot()
@@ -129,6 +132,7 @@ function script_path:updateHotspot()
 		self.reachedHotspot = false;
 		self.hx, self.hy, self.hz = hotspot['pos']['x'], hotspot['pos']['y'], hotspot['pos']['z'];
 		self.hName = hotspot['name'];
+		script_debug.debugPath = "update hotspot";
 	end
 end
 
@@ -140,6 +144,7 @@ function script_path:autoPath()
 	-- No path nodes yet
 	if (self.numSavedPathNodes == 0 or not self.reachedHotspot) then
 		if (script_path:distanceToHotspot() <= 10) then
+			script_debug.debugPath = "waiting to reach hotspot";
 			self.reachedHotspot = true;	
 		end
 		
@@ -149,15 +154,17 @@ function script_path:autoPath()
 			else
 				script_pather:moveToTarget(self.hx, self.hy, self.hz);
 			end
+			script_debug.debugPath = "moving to hotspot";
 			return "Moving to hotspot...";
 		end
-		
+		script_debug.debugPath = "no target around";
 		return "Hotspot reached, no targets around?";
 	end
 
 	-- Reached the first node
 	if (self.currentPathNode < 0 and self.numSavedPathNodes > 1) then
 		if (script_path:distanceToPathNode(0) < 5) then
+			script_debug.debugPath = "reached first node";
 			self.currentPathNode = 0;
 			self.backwards = false;
 			return;
@@ -167,6 +174,7 @@ function script_path:autoPath()
 	-- Reached the end node
 	if (script_path:distanceToPathNode(self.numSavedPathNodes-1) < 5) then
 		if ((self.numSavedPathNodes-1) == self.currentPathNode) then
+			script_debug.debugPath = "reached end node";
 			self.currentPathNode = self.numSavedPathNodes - 1;
 			self.backwards = true;
 		end
@@ -174,11 +182,14 @@ function script_path:autoPath()
 
 	-- When close to the next path node swap to the next one
 	if (self.numSavedPathNodes > 2) then
+			script_debug.debugPath = "get next node - swap nodes";
 		if (script_path:distanceToPathNode(self.currentPathNode) < 5) then
 			if (self.currentPathNode < self.numSavedPathNodes) then
 				if (not self.backwards) then
+					script_debug.debugPath = "move fowards";
 					self.currentPathNode = self.currentPathNode + 1;
 				else
+					script_debug.debugPath = "move backwards";
 					self.currentPathNode = self.currentPathNode - 1;
 				end
 			end
@@ -189,10 +200,12 @@ function script_path:autoPath()
 	if (self.currentPathNode > -1 and self.numSavedPathNodes > 2) then
 
 		if (not script_grind.raycastPathing) then
+			script_debug.debugPath = "moving to path - no raycasting";
 			MoveToTarget(self.savedPathNodes[self.currentPathNode]['x'], 
 			self.savedPathNodes[self.currentPathNode]['y'], 
 			self.savedPathNodes[self.currentPathNode]['z']);
 		else
+			script_debug.debugPath = "moving to path"
 			script_pather:moveToTarget(self.savedPathNodes[self.currentPathNode]['x'], 
 			self.savedPathNodes[self.currentPathNode]['y'], 
 			self.savedPathNodes[self.currentPathNode]['z']);
@@ -225,6 +238,7 @@ function script_path:savePathNode()
 	-- Check: Don't save if we already saved a path node within self.pathNodeDist
 	local savePathNode = true;
 	if (self.numSavedPathNodes > 0) then
+			script_debug.debugPath = "don't save node";
 		for i = 0,self.numSavedPathNodes-1 do
 			local dist = math.sqrt((_tx-self.savedPathNodes[i]['x'])^2+(_ty-self.savedPathNodes[i]['y'])^2);
 			if (dist < self.pathNodeDist) then
@@ -240,6 +254,8 @@ function script_path:savePathNode()
 		self.savedPathNodes[self.numSavedPathNodes]['z'] = _tz;
 		self.numSavedPathNodes = self.numSavedPathNodes + 1;
 		-- Update current path node
+
+			script_debug.debugPath = "update path nodes";
 		self.currentPathNode = self.numSavedPathNodes - 1;
 		self.backwards = true;
 	end

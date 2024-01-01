@@ -69,7 +69,8 @@ function script_pather:moveToTarget(xx, yy, zz)
 
 	if (dist < self.nodeDist and self.pathSize == self.goToIndex) then
 		Move(xx, yy, zz);
-		script_grind.waitTimer = GetTimeEX() + 500;
+		script_debug.debugPather = "moving to next node in index";
+		script_grind.waitTimer = GetTimeEX() + 200;
 		return true;
 	end
 
@@ -80,6 +81,7 @@ function script_pather:moveToTarget(xx, yy, zz)
 	if (script_pathFlyingEX:canFly()) then
 		if ((dist > 150) and not IsMounted()) then
 			if (script_pathFlyingEX:useMount()) then
+				script_debug.debugPather = "using flying mount";
 				return true;
 			end
 		end
@@ -90,6 +92,7 @@ function script_pather:moveToTarget(xx, yy, zz)
 	if (GetDistance3D(self.dX, self.dY, self.dZ, xx, yy, zz) > 2) then
 		self.dX, self.dY, self.dZ = xx, yy, zz;
 		genNewPath = true;
+		script_debug.debugPather = "generate a new path";
 		self.path, self.pathSize = {}, 0;
 	end	
 	
@@ -97,6 +100,7 @@ function script_pather:moveToTarget(xx, yy, zz)
 		self.status = 1;
 		self.goToIndex = 1;
 		self.sx, self.sy, self.sz = x, y, z;
+		script_debug.debugPather = "go to index = 1";
 
 		if (IsMoving()) then
 			StopMoving();
@@ -110,6 +114,7 @@ function script_pather:moveToTarget(xx, yy, zz)
 		-- Generate a path
 		if (IsFlying() or script_pathFlyingEX:onMount()) then
 			_, self.path, self.pathSize = script_pathFlying:generatePath(x, y, z, xx, yy, zz);
+			script_debug.debugPather = "generate a flying path";
 			self.status = 0;
 			if (not IsFlying()) then
 				Jump();
@@ -125,6 +130,7 @@ function script_pather:moveToTarget(xx, yy, zz)
 				local trim = true;
 				while trim do
 					self.waypointPath, self.waypointPathSize, trim = script_patherEX:trimPath(self.waypointPath, self.waypointPathSize, self.goToIndex, self.nodeDist);
+				script_debug.debugPather = "create waypoint to move";
 				end	
 
 				self.path, self.pathSize = self.waypointPath, self.waypointPathSize;
@@ -137,6 +143,7 @@ function script_pather:moveToTarget(xx, yy, zz)
 				if (IsMoving()) then
 					StopMoving();
 				end
+				script_debug.debugPather = "failed to get path - reset!";
 				self.path = {};
 				self.pathSize = 0;
 				return false;
@@ -145,12 +152,14 @@ function script_pather:moveToTarget(xx, yy, zz)
 	end
 
 	if (self.pathSize == 0 or self.status == 1) then
+		script_debug.debugPather = "return until we have a path";
 		return true;
 	end
 
 	-- update path after some moved distance for collission detection
 	local cx, cy, cz = GetPosition(GetLocalPlayer());
 	if (GetDistance3D(cx, cy, cz, self.sx, self.sy, self.sz) > self.updatePathDist) then
+		script_debug.debugPather = "update path - target moved";
 		self.status = 2;
 		return;
 	end
@@ -159,11 +168,12 @@ function script_pather:moveToTarget(xx, yy, zz)
 
 	-- Moving through path logic
 	if (self.goToIndex > 1 and self.goToIndex < self.pathSize) then
+		script_debug.debugPather = "moving through path logic";
 		nodeDistance = GetDistance3D(self.path[self.goToIndex-1]['x'], self.path[self.goToIndex-1]['y'], self.path[self.goToIndex-1]['z'], self.path[self.goToIndex]['x'], self.path[self.goToIndex]['y'], self.path[self.goToIndex]['z'])
 	end
 
 	if (self.path[self.goToIndex]['x'] ~= nil) then
-		
+		script_debug.debugPather = "update go-to index";
 		if (GetDistance3D(x, y, z, self.path[self.goToIndex]['x'], self.path[self.goToIndex]['y'], self.path[self.goToIndex]['z']) > nodeDistance*3 and nodeDistance > 5) then
 			self.status = 2;
 			self.pathSize = 0;
@@ -171,6 +181,7 @@ function script_pather:moveToTarget(xx, yy, zz)
 		end
 
 		if (GetDistance3D(x, y, z, self.path[self.pathSize]['x'], self.path[self.pathSize]['y'], self.path[self.pathSize]['z']) < 2 and self.pathSize > 2) then
+			script_debug.debugPather = "update go-to index 2";
 			if (IsMoving()) then
 				StopMoving();
 			end
@@ -184,28 +195,33 @@ function script_pather:moveToTarget(xx, yy, zz)
 			if (not IsDead(GetLocalPlayer())) then
 				if (IsFlying() and GetDistance3D(x, y, z, self.path[self.goToIndex]['x'], self.path[self.goToIndex]['y'], self.path[self.goToIndex]['z']) < 7) then
 					self.goToIndex = self.goToIndex + 1;
+					script_debug.debugPather = "next node";
 				else
 					if (GetDistance3D(x, y, z, self.path[self.goToIndex]['x'], self.path[self.goToIndex]['y'], self.path[self.goToIndex]['z']) < math.min(nodeDistance/2, 4)) then
 						self.goToIndex = self.goToIndex + 1;
+						script_debug.debugPather = "next node";
 					end
 				end
 			else
 				local dist = math.sqrt((self.path[self.goToIndex]['x']-x)^2 + (self.path[self.goToIndex]['y']-y)^2);
 				if (dist < math.min(nodeDistance/2, 4)) then
 					self.goToIndex = self.goToIndex + 1;
+					script_debug.debugPather = "next node";
 				end
 			end
 		end
 	end
 
 	Move(self.path[self.goToIndex]['x'], self.path[self.goToIndex]['y'], self.path[self.goToIndex]['z']);
-			script_grind.waitTimer = GetTimeEX() + 500;
+			script_debug.debugPather = "move to node";
+			script_grind.waitTimer = GetTimeEX() + 200;
 
 end
 
 function script_pather:jumpObstacles()
 	if ( (script_patherEX:getObsMin(1) > 0.3 and script_patherEX:getObsMax(1) < 2.3) or 
 		(script_patherEX:getObsMin(2) > 0.3 and script_patherEX:getObsMax(2) < 2.3) ) then
+		script_debug.debugPather = "jump over obstacles";
 		Jump();
 		StopJump();
 	end

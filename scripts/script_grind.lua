@@ -10,6 +10,7 @@ script_grind = {
 	info = include("scripts\\script_info.lua"),
 	gather = include("scripts\\script_gather.lua"),
 	rayPather = include("scripts\\script_pather.lua"),
+	debugincluded = include("scripts\\script_debug.lua"),
 	message = 'Starting the grinder...',
 	alive = true,
 	target = 0,
@@ -114,6 +115,7 @@ function script_grind:run()
 	-- Run the setup function once
 	if (not self.isSetup) then
 		script_grind:setup();
+		script_debug.debugGrind = "setup";
 		return;
 	end
 
@@ -121,6 +123,7 @@ function script_grind:run()
 	if (self.useNavMesh) then
 		if (script_path:loadNavMesh()) then
 			self.message = "Loading the oGasai maps...";
+			script_debug.debugGrind = "loading nav";
 			return;
 		end
 	end
@@ -137,6 +140,7 @@ function script_grind:run()
 	if (progress ~= nil and progress ~= 0) then
 		if ((progress/1000) < 35) then
 			self.message = "Let's not drown...";
+			script_debug.debugGrind = "using jump out of water";
 			Jump();
 			return;
 		end
@@ -146,6 +150,11 @@ function script_grind:run()
 
 	-- Check: jump over obstacles
 	if (IsMoving()) then
+
+		if (not IsInCombat()) then
+			script_debug.debugGrind = "checking jump over obstacles";
+		end
+
 		script_pather:jumpObstacles();
 	end
 
@@ -153,7 +162,12 @@ function script_grind:run()
 	script_path:setNavNodeDist();
 
 	-- Check: Pause, Unstuck, Vendor, Repair, Buy and Sell etc
-	if (script_grindEX:doChecks()) then return; end
+	if (script_grindEX:doChecks()) then
+		if (not IsInCombat()) and (not IsMoving()) then
+			script_debug.debugGrind = "doing grindEX checks";
+		end
+		return;
+	end
 
 	-- Check: wait for timer
 	if(self.waitTimer > GetTimeEX()) then
@@ -166,10 +180,12 @@ function script_grind:run()
 		-- Keep saving path nodes at dead target's locations
 		if (script_path.reachedHotspot) then
 			script_path:savePathNode();
+			script_debug.debugGrind = "hotspot reached save path node";
 		end
 		-- Add dead target to the loot list
 		if (not self.skipLoot) then
 			script_target:addLootTarget(self.target);
+			script_debug.debugGrind = "add target to loot";
 		end
 		self.target = nil; 
 		ClearTarget();
@@ -179,6 +195,7 @@ function script_grind:run()
 	-- Dead
 	if (IsDead(GetLocalPlayer())) then
 		if (self.alive) then
+			script_debug.debugGrind = "we are dead repopme";
 			self.alive = false;
 			RepopMe();
 			self.message = "Releasing spirit...";
@@ -189,6 +206,7 @@ function script_grind:run()
 		self.message = script_helper:ress(GetCorpsePosition()); 
 		script_path:savePos(false); -- SAVE FOR UNSTUCK
 		self.waitTimer = GetTimeEX() + 500;
+		script_debug.debugGrind = "using script_helper:ress";
 		return;
 
 	else
@@ -204,12 +222,15 @@ function script_grind:run()
 
 	-- Stand up after resting
 	if (self.useMana) then
+		script_debug.debugGrind = "stand up after resting";
 		if (hp > 98 and mana > 98 and not IsStanding()) then
 			StopMoving();
 			self.shouldRest = false;
 		return;
+
 		else
 			if (IsDrinking() or IsEating()) then
+				script_debug.debugGrind = "we should drink";
 				self.shouldRest = true;
 			end
 		end
@@ -220,6 +241,7 @@ function script_grind:run()
 		return;
 		else
 			if (IsEating()) then
+			script_debug.debugGrind = "we should eat";
 				self.shouldRest = true;
 			end
 		end
@@ -227,6 +249,7 @@ function script_grind:run()
 
 	-- Rest out of combat
 	if (not IsInCombat() or script_info:nrTargetingMe() == 0) then
+		script_debug.debugGrind = "resting";
 		if ((not IsSwimming()) and (not IsFlying())) then
 			RunRestScript();
 		else
@@ -239,9 +262,11 @@ function script_grind:run()
 		-- Use Potions in combat
 		if (hp < self.potHp) then
 			script_helper:useHealthPotion();
+			script_debug.debugGrind = "using potion";
 		end
 		if (mana < self.potMana and self.useMana) then
 			script_helper:useHealthPotion();
+			script_debug.debugGrind = "using potion";
 		end
 		-- Dismount in combat
 		if (IsMounted()) then
@@ -250,17 +275,21 @@ function script_grind:run()
 		end 
 		ResetNavigate();
 		script_pather:resetPath()
+		script_debug.debugGrind = "reset navigate";
 	end
 
 	-- Loot
 	if (script_target:isThereLoot() and not IsInCombat() and not AreBagsFull() and not self.bagsFull) then
 		self.message = "Looting... (enable auto loot)";
 		script_target:doLoot();
+	script_debug.debugGrind = "trying to loot";
 	return;
 	end
 
 	-- Wait for group members
 	if (GetNumPartyMembers() > 2) then
+
+		script_debug.debugGrind = "waiting for group memebrs";
 
 		if (script_followEX:getTarget() ~= 0) then
 			local targetGUID = script_followEX:getTarget();
@@ -279,12 +308,14 @@ function script_grind:run()
 	if (self.gather and not IsInCombat() and not AreBagsFull() and not self.bagsFull) then
 		if (script_gather:gather()) then
 			self.message = 'Gathering ' .. script_gather:currentGatherName() .. '...';
+			script_debug.debugGrind = "using gatherer";
 			return;
 		end
 	end
 
 	-- Fetch a new target
 	if (self.skipMobTimer < GetTimeEX() or (IsInCombat() and script_info:nrTargetingMe() > 0)) then	
+			script_debug.debugGrind = "fetching a new target";
 		if (script_path.reachedHotspot or (not IsUsingNavmesh() and not self.raycastPathing) or IsInCombat()) then
 			local targetGUID = script_target:getTarget();
 			self.target = GetGUIDTarget(targetGUID);
@@ -296,8 +327,10 @@ function script_grind:run()
 		-- Move away from unvalid targets
 		if (IsUsingNavmesh() or self.raycastPathing) then 
 			script_path:autoPath();
+			script_debug.debugGrind = "auto pathing move away from invalid target";
 		else 
 			Navigate();
+			script_debug.debugGrind = "navigate to target";
 		end
 		return;
 	end
@@ -307,6 +340,7 @@ function script_grind:run()
 		local mx, my, mz = GetPosition(self.target);
 		local mobDistFromHotSpot = math.sqrt((mx - script_path.hx)^2+(my - script_path.hy)^2);
 		if (mobDistFromHotSpot > script_path.grindingDist) then
+			script_debug.debugGrind = "moving to hotspot before we pull";
 			self.target = nil;
 			self.skipMobTimer = GetTimeEX() + 15000; -- 15 sec to move back to waypoints
 			ClearTarget();
@@ -315,11 +349,13 @@ function script_grind:run()
 
 	-- Dont fight if we are swimming
 	if (IsSwimming()) then
+		script_debug.debugGrind = "we are swimming don't attack";
 		self.target = nil;
 		if (IsUsingNavmesh() or self.raycastPathing) then 
 			script_path:autoPath();
 		else 
 			Navigate();
+			script_debug.debugGrind = "navigate while swimming";
 		end
 		script_target:resetLoot(); -- reset loot while swimming
 		self.skipMobTimer = GetTimeEX() + 15000; -- 15 sec to move back to waypoints
@@ -329,6 +365,7 @@ function script_grind:run()
 
 	-- If we have a valid target attack it
 	if (self.target ~= 0 and self.target ~= nil) then
+		script_debug.debugGrind = "attack valid target";
 		if (GetDistance(self.target) < self.pullDistance and IsInLineOfSight(self.target)) then
 			FaceTarget(self.target);
 			if (IsMoving()) then StopMoving();  return; end
@@ -339,25 +376,25 @@ function script_grind:run()
 				self.target = nil;
 				self.message = "Can't move to the target..";
 				if (IsUsingNavmesh() or self.raycastPathing) then 
+					script_debug.debugGrind = "auto path to target";
 					script_path:autoPath();
-				else 
-					Navigate();
 				end
 				return;
 			end
 			
 			self.message = "Moving to target...";
 			if (not self.raycastPathing) then
-				MoveToTarget(self.target);
-			else
+				local xp, yp, zp = GetPosition(self.target);
+				script_pather:moveToTarget(xp, yp, zp);
+			elseif (self.raycastPathing) then
 				local cx, cy, cz = GetPosition(self.target);
 				script_pather:moveToTarget(cx, cy, cz);
 			end
-			return;
+			return true;
 		end
 
 		self.message = 'Attacking target...';
-
+		script_debug.debugGrind = "Attacking the target";
 		script_path:resetAutoPath();
 		script_pather:resetPath();
 		ResetNavigate();
@@ -367,6 +404,7 @@ function script_grind:run()
 		if (GetTarget() ~= 0 and GetTarget() ~= nil) then
 			if (GetHealthPercentage(GetTarget()) < 98) then
 				script_path:savePos(true); -- SAVE FOR UNSTUCK 
+				script_debug.debugGrind = "Using unstuck feature";
 			end
 		end
 
@@ -380,9 +418,13 @@ function script_grind:run()
 	end
 
 	-- When no valid targets around, run auto pathing
-	if (not IsInCombat() and (IsUsingNavmesh() or self.raycastPathing)) then self.message = script_path:autoPath(); end
+	if (not IsInCombat() and (IsUsingNavmesh() or self.raycastPathing)) then
+		script_debug.debugGrind = "no valid enemy, auto pathing";
+		self.message = script_path:autoPath(); end
 
-	if (not IsUsingNavmesh() and not self.raycastPathing) then self.message = "Navigating the walk path..."; Navigate(); end
+	if (not IsUsingNavmesh() and not self.raycastPathing) then
+		script_debug.debugGrind = "not using nav or raycast pathing - walk path";
+		self.message = "Navigating the walk path..."; Navigate(); end
 end
 
 function script_grind:turnfOffLoot(reason)

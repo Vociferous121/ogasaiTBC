@@ -64,7 +64,7 @@ function script_mage:run(targetObj)
 		return;
 	end
 
-	-- Check: move away from targets affected by frost nova
+	-- Check: F away from targets affected by frost nova
 	if (script_target:hasDebuff('Frost Nova') or script_target:hasDebuff('Frostbite')) then
 			local xT, yT, zT = GetPosition(targetObj);
  			local xP, yP, zP = GetPosition(localObj);
