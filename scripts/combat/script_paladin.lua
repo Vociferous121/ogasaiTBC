@@ -11,7 +11,8 @@ script_paladin = {
 	lohHealth = 8,
 	consecrationMana = 50,
 	aura = " ",
-	blessing = 0
+	blessing = 0,
+	useRotation = false,
 }
 
 function script_paladin:draw()
@@ -95,7 +96,7 @@ function script_paladin:run(targetObj)
 
 			-- Check: Melee range
 			-- If too far away move to the target then stop
-			if (GetDistance(targetObj) > 5) then 
+			if (GetDistance(targetObj) > 5) and (not self.useRotation) then 
 				if (script_grind.combatStatus ~= nil) then
 					script_grind.combatStatus = 1;
 				end
@@ -107,10 +108,6 @@ function script_paladin:run(targetObj)
 				end
 				FaceTarget(targetObj);
 				AutoAttack(targetObj);
-				CastSpellByName('Attack');
-				if (Cast('Attack', targetGUID)) then 
-					return; 
-				end
 			end
 			
 			return;
@@ -120,13 +117,13 @@ function script_paladin:run(targetObj)
 
 			-- Check: Melee range
 			-- If too far away move to the target then stop
-			if (GetDistance(targetObj) > 5) then 
+			if (GetDistance(targetObj) > 5) and (not self.useRotation) then 
 				if (script_grind.combatStatus ~= nil) then
 					script_grind.combatStatus = 1;
 				end
 				MoveToTarget(targetObj); 
 				return; 
-			else 
+			elseif (not self.useRotation) then
 				if (script_grind.combatStatus ~= nil) then
 					script_grind.combatStatus = 0;
 				end

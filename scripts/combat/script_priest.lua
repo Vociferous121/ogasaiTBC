@@ -231,7 +231,12 @@ function script_priest:run(targetObj)
 
 			-- Auto Attack if no mana
 			if (localMana < 5) then
-				UnitInteract(targetObj);
+				if (not self.useRotation) then
+					UnitInteract(targetObj);
+				elseif (self.useRotation) then
+					FaceTarget(targetObj);
+					AutoAttack(targetObj);
+				end
 			end
 
 			-- Cast: Mind Blast

@@ -5,7 +5,8 @@ script_warrior = {
 	isSetup = false,
 	timer = 0,
 	useCharge = true,
-	useThrow = false
+	useThrow = false,
+	useRotation = false,
 }
 
 function script_warrior:setup()
@@ -77,20 +78,22 @@ function script_warrior:run(targetObj)
 		if (IsInCombat()) then
 
 			-- If too far away move to the target then stop
-			if (GetDistance(targetObj) > 5) then 
-				if (script_grind.combatStatus ~= nil) then
-					script_grind.combatStatus = 1;
-				end
-				MoveToTarget(targetObj); 
-				return; 
-			else 
-				if (script_grind.combatStatus ~= nil) then
-					script_grind.combatStatus = 0;
-				end
-				if (IsMoving()) then 
-					StopMoving(); 
+			if (not self.useRotation) then
+				if (GetDistance(targetObj) > 5) then 
+					if (script_grind.combatStatus ~= nil) then
+						script_grind.combatStatus = 1;
+					end
+					MoveToTarget(targetObj); 
+					return; 
+				else 
+					if (script_grind.combatStatus ~= nil) then
+						script_grind.combatStatus = 0;
+					end
+					if (IsMoving()) then 
+						StopMoving(); 
+					end 
 				end 
-			end 
+			end
 
 			-- Check: Keep Battle Shout up
 			if (HasSpell("Battle Shout")) then 
@@ -108,11 +111,19 @@ function script_warrior:run(targetObj)
 				end 
 			end
 
+			if (self.useRotation) and (GetDistance(targetObj) < 7)  then
+				FaceTarget(targetObj);
+				AutoAttack(targetObj);
+			end
+
 			-- Check: If we are in meele range
 			if (GetDistance(targetObj) < 5) then 
 
 				-- Auto attack
-				UnitInteract(targetObj);
+				if (not self.useRotation) then
+					UnitInteract(targetObj);
+				end
+				
 
 				local add = script_info:addTargetingMe(targetObj);
 
@@ -191,16 +202,21 @@ function script_warrior:run(targetObj)
 				end
 			end
 			
-			if (GetDistance(targetObj) > 5) then
-				-- Set the grinder to wait for momvement
-				if (script_grind.waitTimer ~= 0) then
-					script_grind.waitTimer = GetTimeEX()+1250;
+			if (not self.useRotation) then
+				if (GetDistance(targetObj) > 5) then
+					-- Set the grinder to wait for momvement
+					if (script_grind.waitTimer ~= 0) then
+						script_grind.waitTimer = GetTimeEX()+1250;
+					end
+					MoveToTarget(targetObj);
+					return;
+				else
+					-- Auto attack
+					UnitInteract(targetObj);
 				end
-				MoveToTarget(targetObj);
-				return;
-			else
-				-- Auto attack
-				UnitInteract(targetObj);
+			elseif (self.useRotation) and (GetDistance(targetObj) < 6) then
+				FaceTarget(targetObj);
+				AutoAttack(targetObj);
 			end
 
 			return;

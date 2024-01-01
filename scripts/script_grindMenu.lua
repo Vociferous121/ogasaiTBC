@@ -3,6 +3,13 @@ script_grindMenu = {
 
 function script_grindMenu:menu()
 	local wasClicked = false;
+
+	--nav mesh progress
+	local qqq = math.floor(GetLoadNavmeshProgress()*100);
+	if (qqq ~= 100) then
+		Text("Navmesh Loading Progress... " ..qqq);
+	end
+
 	if (script_grind.pause) then
 		if (Button("Resume Bot")) then script_grind.pause = false; end
 	else

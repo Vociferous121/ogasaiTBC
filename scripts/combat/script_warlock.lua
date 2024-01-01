@@ -18,7 +18,8 @@ script_warlock = {
 	useVoid = true,
 	useImp = false,
 	useLifeTap = true,
-	stoneTime = 0
+	stoneTime = 0,
+	useRotation = false,
 }
 
 function script_warlock:addHealthStone(name)
@@ -87,7 +88,7 @@ function script_warlock:run(targetObj)
 
 		-- Check: When channeling, cancel Health Funnel when low HP
 		if (hasPet) then
-			if (HasBuff(GetPet(), "Health Funnel") and localHealth < 40) then
+			if (HasBuff(GetPet(), "Health Funnel") and localHealth < 40) and (not self.useRotation) then
 				local _x, _y, _z = GetPosition(localObj);
 				MoveToTarget(_x + 1, _y + 1, _z); 
 				return;
@@ -145,7 +146,7 @@ function script_warlock:run(targetObj)
 			local petHP = 0; 
 			if (hasPet) then local petHP = GetHealthPercentage(GetPet()); end
 			if (hasPet and petHP > 0 and petHP < 50 and HasSpell("Health Funnel") and localHealth > 50) then
-				if (GetDistance(GetPet()) > 20 or not IsInLineOfSight(GetPet())) then
+				if (GetDistance(GetPet()) > 20 or not IsInLineOfSight(GetPet())) and (not self.useRotation) then
 					MoveToTarget(GetPet()); 
 					script_grind.waitTimer = GetTimeEX() + 2000;
 					return;
@@ -203,9 +204,11 @@ function script_warlock:run(targetObj)
 					if (IsMoving()) then StopMoving(); return; end
 					if (Cast('Drain Life', targetGUID)) then return; end
 				else
-					MoveToTarget(targetObj); 
-					script_grind.waitTimer = GetTimeEX() + 1250;
-					return;
+					if (not self.useRotation) then
+						MoveToTarget(targetObj); 
+						script_grind.waitTimer = GetTimeEX() + 1250;
+						return;
+					end
 				end
 			else	
 				-- Cast: Shadow Bolt
@@ -214,7 +217,11 @@ function script_warlock:run(targetObj)
 
 			-- Auto Attack if no mana
 			if (localMana < 5) then
-				UnitInteract(targetObj);
+				if (not self.useRotation) then
+					UnitInteract(targetObj);
+				elseif (self.useRotation) then
+					AutoAttack(targetObj);
+				end
 			end
 			
 			return;	

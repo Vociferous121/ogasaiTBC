@@ -123,7 +123,7 @@ function script_shaman:run(targetObj)
 			end
 
 			-- Check move into meele range
-			if (GetDistance(targetObj) > 5) then
+			if (GetDistance(targetObj) > 5) and (not self.useRotation) then
 				if (script_grind.waitTimer ~= 0) then
 					script_grind.waitTimer = GetTimeEX() + 1250;
 				end
@@ -132,9 +132,6 @@ function script_shaman:run(targetObj)
 			else
 				FaceTarget(targetObj);
 				AutoAttack(targetObj);
-				if (Cast('Attack', targetGUID)) then 
-					return; 
-				end
 			end
 			
 			
@@ -157,13 +154,13 @@ function script_shaman:run(targetObj)
 			end
 
 			-- If too far away move to the target then stop
-			if (GetDistance(targetObj) > 5) then 
+			if (GetDistance(targetObj) > 5) and (not self.useRotation) then 
 				if (script_grind.waitTimer ~= 0) then
 					script_grind.waitTimer = GetTimeEX()+1250;
 				end
 				MoveToTarget(targetObj); 
 				return; 
-			else 
+			elseif (not self.useRotation) then
 				if (IsMoving()) then 
 					StopMoving(); 
 				end 
