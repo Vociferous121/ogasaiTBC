@@ -1,10 +1,12 @@
 # oGasai Scripts for WoW TBC 2.4.3
 
+https://wowprogramming.com/docs/api.html
+
 Bot made by DarkLinux @ OwnedCore
 
 https://www.ownedcore.com/forums/world-of-warcraft/world-of-warcraft-emulator-servers/wow-emu-programs/600785-ogasai-d-j-vu-wow-1-12-1-vanilla-bot.html
 
-Scripts in this repository by Logitech2k17 @ OwnedCore
+Update to scripts created by Logitech2k17 @ OwnedCore
 
 Requirements
 - Nav Mesh Map Files : https://mega.nz/#!g0U2xI4a!aoJICAY34DLvMnWPqgIqygDWIy_91tuoyXz4J3rg9dM
