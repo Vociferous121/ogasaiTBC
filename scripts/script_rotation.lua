@@ -12,12 +12,16 @@ script_rotation = {
 	useRestFeature = false,
 	
 }
+function script_rotation:draw()
+
+end
 
 function script_rotation:setup()
 	
 	SetPVE(true);
 	SetAutoLoot();
 	self.waitTimer = GetTimeEX();
+	script_rogue.useRotation = true;
 
 	-- Classes that doesn't use mana
 	local class, classFileName = UnitClass("player");

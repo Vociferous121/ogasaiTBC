@@ -21,7 +21,7 @@ script_grind = {
 	restMana = 60,
 	potHp = 10,
 	potMana = 10,
-	pause = false,
+	pause = true,
 	stopWhenFull = false,
 	hsWhenFull = false,
 	shouldRest = false,
@@ -93,6 +93,8 @@ function script_grind:setup()
 	script_talent:setup();
 	script_pathFlyingEX:setup();
 	self.isSetup = true;
+
+	script_rogue.useRotation = false;
 end
 
 function script_grind:draw() 

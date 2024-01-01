@@ -7,7 +7,8 @@ script_rogue = {
 	useStealth = false,
 	useThrow = true,
 	mainhandPoison = "Instant Poison",
-	offhandPoison = "Instant Poison"
+	offhandPoison = "Instant Poison",
+	useRotation = false,
 }
 
 function script_rogue:setup()
@@ -91,10 +92,6 @@ function script_rogue:run(targetObj)
 		return;
 	end
 
-	if (targetObj == 0) then
-		targetObj = GetTarget();
-	end
-
 	local targetGUID = GetTargetGUID(targetObj);
 
 	-- Set pull range
@@ -123,20 +120,22 @@ function script_rogue:run(targetObj)
 		if (IsInCombat()) then
 
 			-- If too far away move to the target then stop
-			if (GetDistance(targetObj) > 5) then 
-				if (script_grind.combatStatus ~= nil) then
-					script_grind.combatStatus = 1;
-				end
-				MoveToTarget(targetObj); 
-				return; 
-			else 
-				if (script_grind.combatStatus ~= nil) then
-					script_grind.combatStatus = 0;
-				end
-				if (IsMoving()) then 
-					StopMoving(); 
+			if (not self.useRotation) then
+				if (GetDistance(targetObj) > 5) then 
+					if (script_grind.combatStatus ~= nil) then
+						script_grind.combatStatus = 1;
+					end
+					MoveToTarget(targetObj); 
+					return; 
+				else 
+					if (script_grind.combatStatus ~= nil) then
+						script_grind.combatStatus = 0;
+					end
+					if (IsMoving()) then 
+						StopMoving(); 
+					end 
 				end 
-			end 
+			end
 
 			-- Check: Use Evasion
 			if (HasSpell('Evasion') and not IsSpellOnCD('Evasion')) then
@@ -161,7 +160,9 @@ function script_rogue:run(targetObj)
 			if (GetDistance(targetObj) < 5) then 
 
 				-- Auto attack
-				UnitInteract(targetObj);
+				if (not self.useRotation) then
+					UnitInteract(targetObj);
+				end
 
 				local add = script_info:addTargetingMe(targetObj);
 
@@ -238,25 +239,31 @@ function script_rogue:run(targetObj)
 				end
 			end
 			
-			if (GetDistance(targetObj) > 5) then
-				-- Set the grinder to wait for momvement
-				if (script_grind.waitTimer ~= 0) then
-					script_grind.waitTimer = GetTimeEX()+1250;
+			if (not self.useRotation) then
+				if (GetDistance(targetObj) > 5) then
+					-- Set the grinder to wait for momvement
+					if (script_grind.waitTimer ~= 0) then
+						script_grind.waitTimer = GetTimeEX()+1250;
+					end
+					MoveToTarget(targetObj);
+					return;
+				else
+					-- Auto attack
+					UnitInteract(targetObj);
+	
+					if (Cast('Sinister Strike', targetGUID)) then 
+						return; 
+					end
+					
 				end
-				MoveToTarget(targetObj);
-				return;
-			else
-				-- Auto attack
-				UnitInteract(targetObj);
-
-				if (Cast('Sinister Strike', targetGUID)) then 
-					return; 
+			elseif (self.useRotation) then
+				if (GetDistance(targetObj) < 7) then
+					if (Cast('Sinister Strike', targetGUID)) then
+						return;
+					end
 				end
-				
 			end
-
-			return;
-			
+		return;	
 		end
 	end
 end
