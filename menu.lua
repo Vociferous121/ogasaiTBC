@@ -26,16 +26,19 @@ function menu:draw()
 	
 		-- Mode scripts
 		LoadScript("Grinder", "scripts\\script_grind.lua");
-		AddScriptToMode("Logitech's Grinder", "script_grind");
+		AddScriptToMode("Grinder", "script_grind");
+
+		LoadScript("Rotation", "scripts\\script_rotation.lua");
+		AddScriptToMode("Rotation", "script_rotation");
 
 		LoadScript("Follow", "scripts\\script_follow.lua");
-		AddScriptToMode("Logitech's Follow", "script_follow");
+		AddScriptToMode("Follow", "script_follow");
 
 		LoadScript("Gather", "scripts\\script_gatherMode.lua");
-		AddScriptToMode("Logitech's Gather", "script_gatherMode");
+		AddScriptToMode("Gather", "script_gatherMode");
 
 		LoadScript("Fish", "scripts\\script_fish.lua");
-		AddScriptToMode("Logitech's Fishing", "script_fish");
+		AddScriptToMode("Fishing", "script_fish");
 
 		-- Combat scripts
 		LoadScript("Mage", "scripts\\combat\\script_mage.lua");

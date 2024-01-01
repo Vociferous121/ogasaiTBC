@@ -69,6 +69,7 @@ function script_pather:moveToTarget(xx, yy, zz)
 
 	if (dist < self.nodeDist and self.pathSize == self.goToIndex) then
 		Move(xx, yy, zz);
+		script_grind.waitTimer = GetTimeEX() + 500;
 		return true;
 	end
 
@@ -198,6 +199,8 @@ function script_pather:moveToTarget(xx, yy, zz)
 	end
 
 	Move(self.path[self.goToIndex]['x'], self.path[self.goToIndex]['y'], self.path[self.goToIndex]['z']);
+			script_grind.waitTimer = GetTimeEX() + 500;
+
 end
 
 function script_pather:jumpObstacles()
