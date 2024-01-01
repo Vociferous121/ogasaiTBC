@@ -8,6 +8,9 @@ script_rotation = {
 	restHp = 60,
 	restMana = 60,
 	useRestFeature = false,
+	enemyObj = 0,
+
+
 	helperLoaded = include("scripts\\script_helper.lua"),
 	targetLoaded = include("scripts\\script_target.lua"),
 	pathLoaded = include("scripts\\script_path.lua"), 
@@ -18,7 +21,6 @@ script_rotation = {
 	info = include("scripts\\script_info.lua"),
 	gather = include("scripts\\script_gather.lua"),
 	rayPather = include("scripts\\script_pather.lua"),
-
 	
 }
 function script_rotation:draw()
@@ -89,6 +91,8 @@ function script_rotation:run()
 	-- if have a target in UI then run combat script
 	if(GetTarget() ~= 0) then
 
+			self.enemyObj = GetTarget();
+
 		-- run combat scripts...
 		RunCombatScript(GetTarget());
 
@@ -100,6 +104,9 @@ function script_rotation:run()
 
 		-- run rest scripts for combat scripts...
 		RunRestScript();
+
+		--reset enemyobj
+		self.enemyObj = 0;
 
 	end
 
