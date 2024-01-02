@@ -391,7 +391,7 @@ function script_grind:run()
 	-- If we have a valid target attack it
 	if (self.target ~= 0 and self.target ~= nil) then
 		script_debug.debugGrind = "attack valid target";
-		if (GetDistance(self.target) < self.pullDistance and IsInLineOfSight(self.target)) then
+		if (GetDistance(self.target) < self.pullDistance and IsInLineOfSight(self.target)) and (not IsMoving() or GetDistance(self.target) <= 5) then
 			FaceTarget(self.target);
 	
 		else
@@ -408,6 +408,7 @@ function script_grind:run()
 			end
 
 			if (IsInCombat()) and (GetPet() == 0) and (GetUnitsTarget(GetLocalPlayer()) == 0) then
+				script_debug.debugGrind = "Stuck in combat - no target";
 				return;
 			end
 
@@ -419,18 +420,24 @@ function script_grind:run()
 
 			self.message = "Moving to target...";
 			if (not self.raycastPathing) then
-				if (GetDistance(self.target) >= 6) then
+				if (not HasSpell("Fireball") or not HasSpell("Shadowbolt") or not HasSpell("Smite") or not HasSpell("Raptor Strike")) and (GetDistance(self.target) >= 6) then
+					MoveToTarget(self.target);
+				else
 					MoveToTarget(self.target);
 				end
+				return true;
 			end
 			if (self.raycastPathing) then
 				local tarPos = GetPosition(self.target);
 				local cx, cy, cz = GetPosition(self.target);
-				if (tarPos >= 6) then
+				if (not HasSpell("Fireball") or not HasSpell("Shadowbolt") or not HasSpell("Smite") or not HasSpell("Raptor Strike")) and(tarPos >= 6) then
+					script_pather:moveToTarget(cx, cy, cz);
+				else
 					script_pather:moveToTarget(cx, cy, cz);
 				end
+				return true;
 			end
-			return true;
+		
 		end
 		
 		-- Loot
