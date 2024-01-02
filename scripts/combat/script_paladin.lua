@@ -41,7 +41,9 @@ function script_paladin:run(targetObj)
 	local localLevel = GetLevel(localObj);
 
 	-- Pre Check
-	if (IsChanneling() or IsCasting() or self.waitTimer > GetTimeEX()) then return; end
+	if (IsChanneling() or IsCasting() or self.timer > GetTimeEX()) then
+		return;
+	end
 
 	if (targetObj == 0) then
 		targetObj = GetTarget();
@@ -121,15 +123,14 @@ function script_paladin:run(targetObj)
 				if (script_grind.combatStatus ~= nil) then
 					script_grind.combatStatus = 1;
 				end
-				MoveToTarget(targetObj); 
+				local ax, ay, az = GetPosition(targetObj); 
+				Move(ax, ay, az);
 				return; 
 			elseif (not self.useRotation) then
 				if (script_grind.combatStatus ~= nil) then
 					script_grind.combatStatus = 0;
 				end
-				if (IsMoving()) then 
-					StopMoving(); 
-				end 
+				
 			end 
 
 			FaceTarget(targetObj);
@@ -179,6 +180,7 @@ function script_paladin:run(targetObj)
 				
 				if (Buff('Holy Light', localObj)) then 
 					self.waitTimer = GetTimeEX() + 5000;
+					script_grind.waitTimer = GetTimeEX() + 3000;
 					self.message = "Healing: Holy Light...";
 					return;
 				end

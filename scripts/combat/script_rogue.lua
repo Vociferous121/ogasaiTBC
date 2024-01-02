@@ -5,7 +5,7 @@ script_rogue = {
 	isSetup = false,
 	timer = 0,
 	useStealth = false,
-	useThrow = true,
+	useThrow = false,
 	mainhandPoison = "Instant Poison",
 	offhandPoison = "Instant Poison",
 	useRotation = false,
@@ -121,16 +121,18 @@ function script_rogue:run(targetObj)
 
 			-- If too far away move to the target then stop
 			if (not self.useRotation) then
-				if (GetDistance(targetObj) > 5) then 
+				if (GetDistance(targetObj) > 6) then 
 					if (script_grind.combatStatus ~= nil) then
 						script_grind.combatStatus = 1;
 					end
+					script_debug.debugCombat = "Moving to target";
 					MoveToTarget(targetObj); 
 					return; 
 				else 
 					if (script_grind.combatStatus ~= nil) then
 						script_grind.combatStatus = 0;
 					end
+					script_debug.debugCombat = "Reached target and in combat - stop moving";
 					if (IsMoving()) then 
 						StopMoving(); 
 					end 
@@ -140,6 +142,7 @@ function script_rogue:run(targetObj)
 			-- Check: Use Evasion
 			if (HasSpell('Evasion') and not IsSpellOnCD('Evasion')) then
 				if (localHealth < targetHealth and localHealth < 50) then
+					script_debug.debugCombat = "use evasion";
 					CastSpellByName('Evasion');
 					return; 
 				end
@@ -149,6 +152,7 @@ function script_rogue:run(targetObj)
 			if (HasSpell('Kick')) then
 			local name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo("target");
 				if (name ~= nil) then
+					script_debug.debugCombat = "use kick";
 					if (Cast('Kick', targetGUID)) then 
 						return;
 					end 
@@ -161,6 +165,7 @@ function script_rogue:run(targetObj)
 
 				-- Auto attack
 				if (not self.useRotation) then
+					script_debug.debugCombat = "unit interact";
 					UnitInteract(targetObj);
 				end
 
@@ -168,6 +173,7 @@ function script_rogue:run(targetObj)
 
 				if (add ~= nil and HasSpell('Blade Flurry') and not IsSpellOnCD('Blade Flurry')) then
 					if (GetDistance(add) < 5) then
+					script_debug.debugCombat = "blade flurry";
 						CastSpellByName("Blade Flurry");
 						return;
 					end
@@ -175,12 +181,14 @@ function script_rogue:run(targetObj)
 
 				if (script_info:nrTargetingMe() >= 3) then
 					if (HasSpell('Adrenaline Rush') and not IsSpellOnCD('Adrenaline Rush')) then
+						script_debug.debugCombat = "adrenaline rush";
 						CastSpellByName('Adrenaline Rush');
 					end
 				end
 
 				-- Use Riposte when we can
 				if(script_rogue:canRiposte() and HasSpell("Riposte")) then
+				script_debug.debugCombat = "Use riposte";
 					CastSpellByName("Riposte");
 					return;
 				end
@@ -190,9 +198,11 @@ function script_rogue:run(targetObj)
 				-- Eviscerate
 				if (HasSpell('Eviscerate') and ((cp == 5) or targetHealth <= cp*10)) then 
 					if (localEnergy >= 35) then
+						script_debug.debugCombat = "eviscerate";
 						CastSpellByName('Eviscerate');
 						return;
 					else
+						script_debug.debugCombat = "saving energy for eviscerate";
 						-- save energy
 						return;
 					end
@@ -202,12 +212,17 @@ function script_rogue:run(targetObj)
 				if (cp < 5 and cp > 0 and HasSpell('Slice and Dice') and targetHealth > 50) then 
 					-- Keep Slice and Dice up
 					if (not HasBuff(localObj, 'Slice and Dice') and targetHealth > 50 and localEnergy >= 25) then
+						script_debug.debugCombat = "slice and dice";
+
 						CastSpellByName('Slice and Dice'); 
 					end 
 				end
 
 				-- Sinister Strike
-				if (localEnergy >= 25) then CastSpellByName('Sinister Strike'); end 
+				if (localEnergy >= 25) then
+					script_debug.debugCombat = "sinister strike";
+					CastSpellByName('Sinister Strike');
+				end 
 			
 				return;
 			end
@@ -215,16 +230,21 @@ function script_rogue:run(targetObj)
 		-- Oponer
 		else	
 			-- Apply poisons 
-			if (script_rogue:checkPoisons()) then return; end
+			if (script_rogue:checkPoisons()) then
+				script_debug.debugCombat = "applying poisons";
+				return;
+			end
 
 			-- Check: Use Stealth before oponer
 			if (self.useStealth and HasSpell('Stealth') and not HasBuff(localObj, 'Stealth')) then
+				script_debug.debugCombat = "using stealth";
 				CastSpellByName('Stealth');
 				return;
 			else
 				-- Check: Use Throw	
 				if (self.useThrow and script_rogue:hasThrow()) then
 					if (IsSpellOnCD('Throw')) then
+						script_debug.debugCombat = "using throw";
 						self.timer = GetTimeEX() + 4000;
 						return;	
 					end
@@ -240,18 +260,21 @@ function script_rogue:run(targetObj)
 			end
 			
 			if (not self.useRotation) then
-				if (GetDistance(targetObj) > 5) then
+				if (GetDistance(targetObj) > 6) then
 					-- Set the grinder to wait for momvement
 					if (script_grind.waitTimer ~= 0) then
 						script_grind.waitTimer = GetTimeEX()+1250;
 					end
+					script_debug.debugCombat = "moving to target";
 					MoveToTarget(targetObj);
 					return;
 				else
 					-- Auto attack
 					UnitInteract(targetObj);
+					script_debug.debugCombat = "unit interact";
 	
 					if (Cast('Sinister Strike', targetGUID)) then 
+						script_debug.debugCombat = "sinister strike";
 						return; 
 					end
 					
@@ -281,7 +304,8 @@ function script_rogue:rest()
 	end
 
 	--Eat 
-	if (not IsEating() and localHealth < self.eatHealth) then	
+	if (not IsEating() and localHealth < self.eatHealth) then
+		script_debug.debugCombat = "rest eat";
 		if (IsMoving()) then
 			StopMoving();
 			script_grind:restOn();
@@ -289,6 +313,7 @@ function script_rogue:rest()
 		end
 		
 		if(script_helper:eat()) then
+			script_debug.debugCombat = "use script_helper:eat";
 			script_grind:restOn();
 			return true;
 		end
@@ -303,6 +328,7 @@ function script_rogue:rest()
 	end
 
 	if(IsEating() and localHealth < 98) then
+		script_debug.debugCombat = "eating... waiting for health";
 		script_grind:restOn();
 		return true;
 	end

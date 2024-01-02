@@ -7,6 +7,7 @@ script_warrior = {
 	useCharge = true,
 	useThrow = false,
 	useRotation = false,
+	meleeDistance = 3.5,
 }
 
 function script_warrior:setup()
@@ -77,14 +78,29 @@ function script_warrior:run(targetObj)
 		-- Combat
 		if (IsInCombat()) then
 
+			if (not self.useRotation) then
+				if (GetDistance(targetObj) <= self.meleeDistance) then
+					if (IsMoving()) then
+						StopMoving();
+					end
+				end
+			end
+
 			-- If too far away move to the target then stop
 			if (not self.useRotation) then
-				if (GetDistance(targetObj) > 5) then 
+				if (GetDistance(targetObj) > self.meleeDistance) then 
 					if (script_grind.combatStatus ~= nil) then
 						script_grind.combatStatus = 1;
 					end
+					if (GetDistance(targetObj) <= self.meleeDistance) then
+						if (IsMoving()) then
+							StopMoving();
+						end
+					end
 					MoveToTarget(targetObj); 
+					
 					return; 
+
 				else 
 					if (script_grind.combatStatus ~= nil) then
 						script_grind.combatStatus = 0;
@@ -111,16 +127,16 @@ function script_warrior:run(targetObj)
 				end 
 			end
 
-			if (self.useRotation) and (GetDistance(targetObj) < 7)  then
+			if (self.useRotation) and (GetDistance(targetObj) < self.meleeDistance)  then
 				FaceTarget(targetObj);
 				AutoAttack(targetObj);
 			end
 
 			-- Check: If we are in meele range
-			if (GetDistance(targetObj) < 5) then 
+			if (GetDistance(targetObj) < self.meleeDistance) then 
 
 				-- Auto attack
-				if (not self.useRotation) then
+				if (not self.useRotation) and (not IsMoving()) then
 					UnitInteract(targetObj);
 				end
 				
@@ -168,8 +184,16 @@ function script_warrior:run(targetObj)
 				end
 
 				-- Heroic Strike
-				if (localRage >= 15) then 
+				if (not IsMoving()) then
+					if (GetHealthPercentage(targetObj) <= 90)
+						and (localRage >= 15)
+						and (GetDistance(targetObj) <= self.meleeDistance)
+					then
+				
+					FaceTarget(targetObj);
 					CastSpellByName('Heroic Strike');
+					StopMoving();
+					end
 				end 
 			
 				return;
@@ -203,18 +227,30 @@ function script_warrior:run(targetObj)
 			end
 			
 			if (not self.useRotation) then
-				if (GetDistance(targetObj) > 5) then
+				if (GetDistance(targetObj) > self.meleeDistance) then
 					-- Set the grinder to wait for momvement
 					if (script_grind.waitTimer ~= 0) then
 						script_grind.waitTimer = GetTimeEX()+1250;
+					end
+					if (GetDistance(targetObj) < self.meleeDistance) then
+						if (IsMoving()) then
+							StopMoving();
+						end
 					end
 					MoveToTarget(targetObj);
 					return;
 				else
 					-- Auto attack
+					if (not IsMoving()) then
 					UnitInteract(targetObj);
+					end
 				end
-			elseif (self.useRotation) and (GetDistance(targetObj) < 6) then
+				if (GetDistance(targetObj) <= self.meleeDistance) then
+					if (IsMoving()) then
+						StopMoving();
+					end
+				end
+			elseif (self.useRotation) and (GetDistance(targetObj) < self.meleeDistance) then
 				FaceTarget(targetObj);
 				AutoAttack(targetObj);
 			end
@@ -278,6 +314,7 @@ end
 function script_warrior:menu()
 
 	if (CollapsingHeader("[Warrior - Fury")) then
+		self.meleeDistance = SliderFloat("Melee Distance", 2, 8, self.meleeDistance);
 		local clickCharge = false;
 		local clickThrow = false;
 		Text('Pull options:');

@@ -9,6 +9,7 @@ script_debug = {
 
 function script_debug:menu()
 
+	wasClicked, script_grind.adjustTickRate = Checkbox("Adjust Tick Rate", script_grind.adjustTickRate);
 	script_grind.tickRate = SliderInt("Grinder Tick Rate", 0, 5000, script_grind.tickRate);
 	if (CollapsingHeader("Debug")) then
 		Text("Grinder Debug - ");

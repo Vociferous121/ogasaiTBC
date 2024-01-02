@@ -41,6 +41,10 @@ script_pather = {
 
 function script_pather:moveToTarget(xx, yy, zz)
 
+	if (self.timer > GetTimeEX()) then
+		return true;
+	end
+
 	if (IsMounted()) then
 		self.nodeDist = self.nodeDistMounted;
 	else

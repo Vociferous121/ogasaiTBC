@@ -18,6 +18,7 @@ script_grind = {
 	pullDistance = 30,
 	waitTimer = 0,
 	tickRate = 550,
+	adjustTickRate = false,
 	restHp = 60,
 	restMana = 60,
 	potHp = 10,
@@ -31,7 +32,7 @@ script_grind = {
 	skipLoot = false,
 	skipReason = 'user selected...',
 	stopIfMHBroken = false,
-	useVendor = true,
+	useVendor = false,
 	sellWhenFull = true,
 	repairWhenYellow = true,
 	bagsFull = false,
@@ -117,6 +118,16 @@ function script_grind:run()
 		script_grind:setup();
 		script_debug.debugGrind = "setup";
 		return;
+	end
+
+	if (not self.adjustTickRate) then
+	
+		if (not IsInCombat()) then
+			self.tickRate = 50;
+		end
+		if (not IsMoving()) and (IsInCombat()) then
+			self.tickRate = 650;
+		end
 	end
 
 	-- Load nav mesh
@@ -224,7 +235,7 @@ function script_grind:run()
 	if (self.useMana) then
 		script_debug.debugGrind = "stand up after resting";
 		if (hp > 98 and mana > 98 and not IsStanding()) then
-			StopMoving();
+			--StopMoving();
 			self.shouldRest = false;
 		return;
 
@@ -236,7 +247,7 @@ function script_grind:run()
 		end
 	else
 		if (hp > 98 and not IsStanding()) then
-			StopMoving();
+			--StopMoving();
 			self.shouldRest = false;
 		return;
 		else
@@ -313,6 +324,16 @@ function script_grind:run()
 		end
 	end
 
+	if (IsInCombat()) and (GetPet() == 0) and (GetUnitsTarget(GetLocalPlayer()) == 0) then
+		return;
+	end
+
+	if (GetDistance(self.target) <= 5) and (GetHealthPercentage(self.target) > 30) then
+		if (IsMoving()) then
+			StopMoving();
+		end
+	end
+
 	-- Fetch a new target
 	if (self.skipMobTimer < GetTimeEX() or (IsInCombat() and script_info:nrTargetingMe() > 0)) then	
 			script_debug.debugGrind = "fetching a new target";
@@ -363,12 +384,16 @@ function script_grind:run()
 		return;
 	end
 
+	if (IsInCombat()) and (GetPet() == 0) and (GetUnitsTarget(GetLocalPlayer()) == 0) then
+		return;
+	end
+	
 	-- If we have a valid target attack it
 	if (self.target ~= 0 and self.target ~= nil) then
 		script_debug.debugGrind = "attack valid target";
 		if (GetDistance(self.target) < self.pullDistance and IsInLineOfSight(self.target)) then
 			FaceTarget(self.target);
-			if (IsMoving()) then StopMoving();  return; end
+	
 		else
 			-- If we can't move to the target keep on grinding	
 			local x, y, z = GetPosition(self.target);
@@ -381,16 +406,39 @@ function script_grind:run()
 				end
 				return;
 			end
-			
+
+			if (IsInCombat()) and (GetPet() == 0) and (GetUnitsTarget(GetLocalPlayer()) == 0) then
+				return;
+			end
+
+			if (GetDistance(self.target) <= 5) and (GetHealthPercentage(self.target) > 30) then
+				if (IsMoving()) then
+					StopMoving();
+				end
+			end
+
 			self.message = "Moving to target...";
 			if (not self.raycastPathing) then
-				local xp, yp, zp = GetPosition(self.target);
-				script_pather:moveToTarget(xp, yp, zp);
-			elseif (self.raycastPathing) then
+				if (GetDistance(self.target) >= 6) then
+					MoveToTarget(self.target);
+				end
+			end
+			if (self.raycastPathing) then
+				local tarPos = GetPosition(self.target);
 				local cx, cy, cz = GetPosition(self.target);
-				script_pather:moveToTarget(cx, cy, cz);
+				if (tarPos >= 6) then
+					script_pather:moveToTarget(cx, cy, cz);
+				end
 			end
 			return true;
+		end
+		
+		-- Loot
+		if (script_target:isThereLoot() and not IsInCombat() and not AreBagsFull() and not self.bagsFull) then
+			self.message = "Looting... (enable auto loot)";
+			script_target:doLoot();
+			script_debug.debugGrind = "trying to loot";
+		return;
 		end
 
 		self.message = 'Attacking target...';
@@ -398,8 +446,9 @@ function script_grind:run()
 		script_path:resetAutoPath();
 		script_pather:resetPath();
 		ResetNavigate();
-		RunCombatScript(self.target);
+		RunCombatScript(self.target)
 		
+
 		-- Unstuck feature on valid "working" targets
 		if (GetTarget() ~= 0 and GetTarget() ~= nil) then
 			if (GetHealthPercentage(GetTarget()) < 98) then
