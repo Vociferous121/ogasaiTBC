@@ -9,12 +9,12 @@ script_pather = {
 	qualityZ = 1,
 	zMin = 0.8,
 	zMax = 1.6,
-	qualityAngle = 10,
+	qualityAngle = 16,
 	timer = GetTimeEX(),
 	message = "Raycast navigation by Logitech",
 	meshSize = 25,
 	nodeDist = 10,
-	nodeDistUnmounted = 10,
+	nodeDistUnmounted = 12,
 	nodeDistMounted = 15,
 	waypointPath = {},
 	waypointPathSize = 0,
@@ -193,7 +193,9 @@ function script_pather:moveToTarget(xx, yy, zz)
 		end
 	end
 
-	Move(self.path[self.goToIndex]['x'], self.path[self.goToIndex]['y'], self.path[self.goToIndex]['z']);
+	if (Move(self.path[self.goToIndex]['x'], self.path[self.goToIndex]['y'], self.path[self.goToIndex]['z'])) then
+		return true;
+	end
 end
 
 function script_pather:jumpObstacles()

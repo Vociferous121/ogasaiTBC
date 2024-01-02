@@ -107,9 +107,13 @@ function script_grindMenu:menu()
 
 	script_gatherMenu:menu();
 
-	if (script_grindMenu.debug) then
-	if(NewWindow("Debug", 100, 100)) then
-		script_debug:menu();
+	if (CollapsingHeader("Display Options")) then
+		wasClicked, script_aggro.drawAggro = Checkbox("Draw Aggro Ranges", script_aggro.drawAggro);
 	end
+	
+	if (script_grindMenu.debug) then
+		if(NewWindow("Debug", 100, 100)) then
+			script_debug:menu();
+		end
 	end
 end

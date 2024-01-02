@@ -124,17 +124,25 @@ function script_mage:run(targetObj)
 		--Opener
 		if (not IsInCombat()) then
 			
+			if (not IsInCombat()) and (not self.useRotation) and (IsInLineOfSight(self.target))
+				and (IsSpellInRange(self.target, "Frost Bolt")) and (GetDistance(self.target) <= 27) then
+				if (IsMoving()) then
+					StopMoving();
+					return true;
+				end
+			end
+
 			--Cast Spell
-			if (not IsMoving()) and (localMana >= 20) then
+			if (not IsMoving()) and (localMana >= 20) and (not IsDrinking()) and (not IsEating()) then
 				if (Cast('Frostbolt', targetGUID)) then
-					script_grind.waitTimer = GetTimeEX() + 3000;
+					script_grind.waitTimer = GetTimeEX() + 2500;
 					return;
 				end
 			end
 
-			if (not IsMoving()) and (localMana >= 20) then
+			if (not IsMoving()) and (localMana >= 20) and (not IsDrinking()) and (not IsEating()) then
 				if (Cast('Fireball', targetGUID)) then
-					script_grind.waitTimer = GetTimeEX() + 3000;
+					script_grind.waitTimer = GetTimeEX() + 2500;
 					return;
 				end
 			end
@@ -152,14 +160,14 @@ function script_mage:run(targetObj)
 				end
 			end
 			
-			if (targetHealth <= 15 and HasSpell('Fire Blast') and self.useFireBlast) then
+			if (targetHealth <= 15 or targetHealth >= 65) and (HasSpell('Fire Blast')) and (self.useFireBlast) then
 				if (Cast('Fire Blast', targetGUID)) then
 					return;
 				end
 			end
 	
 			-- Check: Frostnova when the target is close
-			if (GetDistance(targetObj) < 5 and not script_target:hasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova") and targetHealth > 20) then
+			if (GetDistance(targetObj) < 5 and not script_target:hasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova") and targetHealth > 12) then
 				self.message = "Frost nova the target(s)...";
 				CastSpellByName("Frost Nova");
 				return;
@@ -212,8 +220,8 @@ function script_mage:run(targetObj)
 			-- Auto Attack if no mana
 			if (localMana < 5) and (not self.useRotation) then
 				UnitInteract(targetObj);
-				self.interactTimer = GetTimeEX() + 5000;
-				return;
+				self.interactTimer = GetTimeEX() + 2500;
+				
 			elseif (localMana < 5) and (self.useRotation) then
 				FaceTarget(targetObj);
 				AutoAttack(targetObj);
@@ -440,7 +448,7 @@ function script_mage:menu()
 			wasClicked, self.useWand = Checkbox('Use Wand', self.useWand);
 		end
 
-		if (HasSpell("Fireblast")) then
+		if (HasSpell("Fire Blast")) then
 			wasClicked, self.useFireBlast = Checkbox('Use Fire Blast', self.useFireBlast);
 		end
 

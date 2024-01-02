@@ -11,6 +11,7 @@ script_grind = {
 	gather = include("scripts\\script_gather.lua"),
 	rayPather = include("scripts\\script_pather.lua"),
 	debugincluded = include("scripts\\script_debug.lua"),
+	aggroincluded = include("scripts\\script_aggro.lua"),
 	message = 'Starting the grinder...',
 	alive = true,
 	target = 0,
@@ -118,6 +119,10 @@ function script_grind:run()
 		script_grind:setup();
 		script_debug.debugGrind = "setup";
 		return;
+	end
+
+	if (script_aggro.drawAggro) then
+		script_aggro:drawAggroCircles(65);
 	end
 
 	if (not self.adjustTickRate) then
@@ -305,7 +310,7 @@ function script_grind:run()
 		if (script_followEX:getTarget() ~= 0) then
 			local targetGUID = script_followEX:getTarget();
 			self.target = GetGUIDTarget(targetGUID);
-			UnitInteract(self.target);
+			--UnitInteract(self.target);
 		else
 			if (script_info:waitGroup() and not IsInCombat()) then
 				self.message = 'Waiting for group (rest & movement)...';
@@ -327,8 +332,16 @@ function script_grind:run()
 	if (IsInCombat()) and (GetPet() == 0) and (GetUnitsTarget(GetLocalPlayer()) == 0) then
 		return;
 	end
+	
+	if (HasSpell("Fireball") or HasSpell("Smite") or HasSpell("Shadowbolt") or HasSpell("Raptor Strike")) then
+		if (script_pather.reachedHotspot) and (not IsInCombat()) and (GetDistance(self.target) <= 27) and (IsInLineOfSight(self.target)) then
+			if (IsMoving()) then
+				StopMoving();
+			end
+		end
+	end
 
-	if (GetDistance(self.target) <= 5) and (GetHealthPercentage(self.target) > 30) then
+	if (script_pather.reachedHotspot) and (not IsInCombat()) and (GetDistance(self.target) <= 5) then
 		if (IsMoving()) then
 			StopMoving();
 		end
@@ -341,7 +354,8 @@ function script_grind:run()
 			local targetGUID = script_target:getTarget();
 			self.target = GetGUIDTarget(targetGUID);
 			if (GetTarget() ~= self.target) then
-				UnitInteract(self.target);	
+				--UnitInteract(self.target);
+				AutoAttack(self.target);
 			end	
 		end
 	else
@@ -349,7 +363,7 @@ function script_grind:run()
 		if (IsUsingNavmesh() or self.raycastPathing) then 
 			script_path:autoPath();
 			script_debug.debugGrind = "auto pathing move away from invalid target";
-		else 
+		else
 			Navigate();
 			script_debug.debugGrind = "navigate to target";
 		end
@@ -412,6 +426,13 @@ function script_grind:run()
 				return;
 			end
 
+			if (HasSpell("Fireball") or HasSpell("Smite") or HasSpell("Shadowbolt") or HasSpell("Raptor Strike")) then
+				if (GetDistance(self.target) <= 27) and (IsInLineOfSight(self.target)) then
+					if (IsMoving()) then
+						StopMoving();
+					end
+				end
+			end
 			if (GetDistance(self.target) <= 5) and (GetHealthPercentage(self.target) > 30) then
 				if (IsMoving()) then
 					StopMoving();
@@ -422,20 +443,20 @@ function script_grind:run()
 			if (not self.raycastPathing) then
 				if (not HasSpell("Fireball") or not HasSpell("Shadowbolt") or not HasSpell("Smite") or not HasSpell("Raptor Strike")) and (GetDistance(self.target) >= 6) then
 					MoveToTarget(self.target);
-				else
+				elseif (GetDistance(self.target) > 27) or (not IsInLineOfSight(self.target)) then
 					MoveToTarget(self.target);
 				end
-				return true;
+				return;
 			end
 			if (self.raycastPathing) then
 				local tarPos = GetPosition(self.target);
 				local cx, cy, cz = GetPosition(self.target);
-				if (not HasSpell("Fireball") or not HasSpell("Shadowbolt") or not HasSpell("Smite") or not HasSpell("Raptor Strike")) and(tarPos >= 6) then
+				if (not HasSpell("Fireball") or not HasSpell("Shadowbolt") or not HasSpell("Smite") or not HasSpell("Raptor Strike")) and (tarPos >= 6) then
 					script_pather:moveToTarget(cx, cy, cz);
-				else
+				elseif (GetDistance(self.target) > 27) or (not IsInLineOfSight(self.target)) then
 					script_pather:moveToTarget(cx, cy, cz);
 				end
-				return true;
+				return;
 			end
 		
 		end
