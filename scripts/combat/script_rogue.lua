@@ -4,11 +4,12 @@ script_rogue = {
 	eatHealth = 50,
 	isSetup = false,
 	timer = 0,
-	useStealth = false,
+	useStealth = true,
 	useThrow = false,
 	mainhandPoison = "Instant Poison",
 	offhandPoison = "Instant Poison",
 	useRotation = false,
+	stealthRange = 100,
 }
 
 function script_rogue:setup()
@@ -115,6 +116,12 @@ function script_rogue:run(targetObj)
 		
 		-- Dismount
 		DismountEX();
+
+		if (not IsInCombat()) and (script_rogue.useStealth) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) then
+			if (CastSpellByName("Stealth")) then
+				return;
+			end
+		end
 		
 		-- Combat
 		if (IsInCombat()) then
@@ -219,16 +226,21 @@ function script_rogue:run(targetObj)
 				end
 
 				-- Sinister Strike
-				if (localEnergy >= 25) then
+				if (localEnergy >= 45) then
 					script_debug.debugCombat = "sinister strike";
 					CastSpellByName('Sinister Strike');
+					script_grind.waitTimer = GetTimeEX() + 1250;
 				end 
 			
 				return;
 			end
+
 			
-		-- Oponer
+			
+		-- Opener
 		else	
+
+
 			-- Apply poisons 
 			if (script_rogue:checkPoisons()) then
 				script_debug.debugCombat = "applying poisons";
@@ -236,10 +248,11 @@ function script_rogue:run(targetObj)
 			end
 
 			-- Check: Use Stealth before oponer
-			if (self.useStealth and HasSpell('Stealth') and not HasBuff(localObj, 'Stealth')) then
+			if (self.useStealth and HasSpell('Stealth') and not HasBuff(localObj, 'Stealth')) and (GetDistance(self.target) <= self.stealthRange) then
 				script_debug.debugCombat = "using stealth";
-				CastSpellByName('Stealth');
-				return;
+				if (CastSpellByName('Stealth')) then
+					return;
+				end
 			else
 				-- Check: Use Throw	
 				if (self.useThrow and script_rogue:hasThrow()) then
@@ -273,16 +286,40 @@ function script_rogue:run(targetObj)
 					UnitInteract(targetObj);
 					script_debug.debugCombat = "unit interact";
 	
-					if (Cast('Sinister Strike', targetGUID)) then 
-						script_debug.debugCombat = "sinister strike";
-						return; 
+					if (localEnergy >= 45) then
+						if (not HasSpell("Cheap Shot")) and (HasSpell("BackStab")) then
+							if (Cast("BackStab", self.target)) then
+								self.waitTimer = GetTimeEX() + 500;
+							end
+						elseif (HasSpell("Cheap Shot")) then
+							if (Cast("Cheap Shot", self.target)) then
+								self.waitTimer = GetTimeEX() + 500;
+							end
+						else
+							if (Cast('Sinister Strike', targetGUID)) then 
+								script_grind.waitTimer = GetTimeEX() + 1250;
+								script_debug.debugCombat = "sinister strike";
+								return; 
+							end
+						end
 					end
-					
 				end
 			elseif (self.useRotation) then
-				if (GetDistance(targetObj) < 7) then
-					if (Cast('Sinister Strike', targetGUID)) then
-						return;
+				if (GetDistance(targetObj) < 7) and (localEnergy >= 45) then
+					if (not HasSpell("Cheap Shot")) and (HasSpell("BackStab")) then
+						if (Cast("BackStab", self.target)) then
+							self.waitTimer = GetTimeEX() + 500;
+						end
+					elseif (HasSpell("Cheap Shot")) then
+						if (Cast("Cheap Shot", self.target)) then
+							self.waitTimer = GetTimeEX() + 500;
+						end
+					else
+						if (Cast('Sinister Strike', targetGUID)) then 
+							script_grind.waitTimer = GetTimeEX() + 1250;
+							script_debug.debugCombat = "sinister strike";
+							return; 
+						end
 					end
 				end
 			end
@@ -304,7 +341,7 @@ function script_rogue:rest()
 	end
 
 	--Eat 
-	if (not IsEating() and localHealth < self.eatHealth) then
+	if (not IsInCombat()) and (not IsEating() and localHealth < self.eatHealth) then
 		script_debug.debugCombat = "rest eat";
 		if (IsMoving()) then
 			StopMoving();
@@ -312,14 +349,16 @@ function script_rogue:rest()
 			return true;
 		end
 		
-		if(script_helper:eat()) then
-			script_debug.debugCombat = "use script_helper:eat";
-			script_grind:restOn();
-			return true;
+		if (not IsInCombat()) then
+			if(script_helper:eat()) then
+				script_debug.debugCombat = "use script_helper:eat";
+				script_grind:restOn();
+				return true;
+			end
 		end
 	end
 
-	if(localHealth < self.eatHealth) then
+	if (not IsInCombat()) and (localHealth < self.eatHealth) then
 		if (IsMoving()) then
 			StopMoving();				
 		end
@@ -327,7 +366,7 @@ function script_rogue:rest()
 		return true;
 	end
 
-	if(IsEating() and localHealth < 98) then
+	if (IsEating() and localHealth < 98) then
 		script_debug.debugCombat = "eating... waiting for health";
 		script_grind:restOn();
 		return true;
@@ -339,16 +378,31 @@ end
 
 function script_rogue:menu()
 	if (CollapsingHeader("[Rogue - Combat")) then
+
 		Separator();
-		local clickStealth = false;
-		local clickThrow = false;
+
 		Text('Pull options:');
-		clickStealth, self.useStealth = Checkbox("Use Stealth", self.useStealth);
+
+		wasClicked, self.useStealth = Checkbox("Use Stealth", self.useStealth);
+
 		SameLine();
-		clickThrow, self.useThrow = Checkbox("Use Throw", self.useThrow);
-		if (clickStealth) then self.useThrow = false; end
-		if (clickThrow) then self.useStealth = false; end
+
+		wasClicked, self.useThrow = Checkbox("Use Throw", self.useThrow);
+
+		if (self.useStealth) then
+			Text("Stealth Range To Target");
+			self.stealthRange = SliderInt("(yds)", 5, 100, self.stealthRange);
+		end
+
+		if (self.useStealth) then
+			self.useThrow = false;
+		end
+		if (self.useThrow) then
+			self.useStealth = false;
+		end
+
 		Separator();
+
 		Text("Poison on Main Hand");
 		self.mainhandPoison = InputText("PMH", self.mainhandPoison);
 		Text("Poison on Off Hand");

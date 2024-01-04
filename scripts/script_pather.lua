@@ -93,7 +93,7 @@ function script_pather:moveToTarget(xx, yy, zz)
 		self.goToIndex = 1;
 		self.sx, self.sy, self.sz = x, y, z;
 
-		if (IsMoving()) then
+		if (IsMoving()) and (GetUnitsTarget(GetLocalPlayer()) == 0) then
 			StopMoving();
 			MoveForwardStop();
 			DescendStop();

@@ -18,7 +18,7 @@ script_target = {
 	currentLootTarget = 0,
 	lootTargets = {},
 	numLoot = 0,
-	lootDistance = 3,
+	lootDistance = 3.5,
 	lootRange = 60,
 	lootTimer = 0,
 	skin = true,
@@ -218,6 +218,8 @@ end
 
 function script_target:lootMenu()
 	if (CollapsingHeader("[Loot options")) then
+
+		self.lootDistance = SliderFloat("Loot Distance", 1, 4, self.lootDistance);
 		wasClicked, script_grind.skipLoot = Checkbox("Skip Looting", script_grind.skipLoot);
 		if (Button("Reset Loot Targets")) then script_target:resetLoot(); end
 		Text('Loot corpses within range (yd)');

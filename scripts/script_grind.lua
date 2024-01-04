@@ -52,7 +52,19 @@ script_grind = {
 	combatStatus = 0 -- 0 = in range, 1 = not in range
 }
 
+
 function script_grind:setup()
+
+	--ZoneNames1 = { GetMapZones(1) } ;
+	--ZoneNames2 = { GetMapZones(2) } ;
+	--ZoneNames3 = { GetMapZones(3) } ;
+
+	--for i = 1, ZoneNames3 do
+
+	
+	--if (GetCurrentMapAreaID() == 1941) then
+	--	self.raycastPathing = true;
+	--end
 
 	SetPVE(true);
 	SetAutoLoot();
@@ -237,31 +249,31 @@ function script_grind:run()
 	local mana = GetManaPercentage(GetLocalPlayer());
 
 	-- Stand up after resting
-	if (self.useMana) then
-		script_debug.debugGrind = "stand up after resting";
-		if (hp > 98 and mana > 98 and not IsStanding()) then
-			--StopMoving();
-			self.shouldRest = false;
-		return;
-
-		else
-			if (IsDrinking() or IsEating()) then
-				script_debug.debugGrind = "we should drink";
-				self.shouldRest = true;
-			end
-		end
-	else
-		if (hp > 98 and not IsStanding()) then
-			--StopMoving();
-			self.shouldRest = false;
-		return;
-		else
-			if (IsEating()) then
-			script_debug.debugGrind = "we should eat";
-				self.shouldRest = true;
-			end
-		end
-	end
+	--if (self.useMana) then
+	--	script_debug.debugGrind = "stand up after resting";
+	--	if (hp >= 92 and mana >= 92 and not IsStanding()) then
+	--		--StopMoving();
+	--		self.shouldRest = false;
+	--	return;
+		
+	--	else
+	--		if (IsDrinking() or IsEating()) then
+	--			script_debug.debugGrind = "we should drink";
+	--			self.shouldRest = true;
+	--		end
+	--	end
+	--else
+		--if (hp >= 92 and not IsStanding()) then
+		--	--StopMoving();
+		--	self.shouldRest = false;
+		--return;
+		--else
+		--	if (IsEating()) then
+		--	script_debug.debugGrind = "we should eat";
+		--		self.shouldRest = true;
+		--	end
+		--end
+	--end
 
 	-- Rest out of combat
 	if (not IsInCombat() or script_info:nrTargetingMe() == 0) then
@@ -405,9 +417,14 @@ function script_grind:run()
 	-- If we have a valid target attack it
 	if (self.target ~= 0 and self.target ~= nil) then
 		script_debug.debugGrind = "attack valid target";
-		if (GetDistance(self.target) < self.pullDistance and IsInLineOfSight(self.target)) and (not IsMoving() or GetDistance(self.target) <= 5) then
-			FaceTarget(self.target);
-	
+		if (GetDistance(self.target) < self.pullDistance and IsInLineOfSight(self.target)) and (not IsMoving() or GetDistance(self.target) <= 4) then
+			if (IsMoving()) then
+				StopMoving();
+				return true;
+			end
+			if (not IsMoving()) then
+				FaceTarget(self.target);
+			end
 		else
 			-- If we can't move to the target keep on grinding	
 			local x, y, z = GetPosition(self.target);
@@ -421,11 +438,13 @@ function script_grind:run()
 				return;
 			end
 
+			-- stuck in combat wait for combat phase to end
 			if (IsInCombat()) and (GetPet() == 0) and (GetUnitsTarget(GetLocalPlayer()) == 0) then
 				script_debug.debugGrind = "Stuck in combat - no target";
 				return;
 			end
 
+			-- stop when we get close enough to target and we are a ranged class
 			if (HasSpell("Fireball") or HasSpell("Smite") or HasSpell("Shadowbolt") or HasSpell("Raptor Strike")) then
 				if (GetDistance(self.target) <= 27) and (IsInLineOfSight(self.target)) then
 					if (IsMoving()) then
@@ -433,28 +452,60 @@ function script_grind:run()
 					end
 				end
 			end
-			if (GetDistance(self.target) <= 5) and (GetHealthPercentage(self.target) > 30) then
+
+			-- stop when we get close enough to target and we are a melee class
+			if (GetDistance(self.target) <= 4) and (GetHealthPercentage(self.target) > 30) then
 				if (IsMoving()) then
 					StopMoving();
 				end
 			end
 
 			self.message = "Moving to target...";
+
+			-- force rogue stealth
+			if (not IsInCombat())
+				and (GetDistance(self.target) <= script_rogue.stealthRange)
+				and (GetHealthPercentage(GetLocalPlayer()) > script_rogue.eatHealth)
+				and (script_rogue.useStealth)
+				and (HasSpell("Stealth"))
+				and (not IsSpellOnCD("Stealth"))
+				and (not HasBuff(localObj, "Stealth"))
+			then
+				if (CastSpellByName("Stealth")) then
+					return;
+				end
+			end
+
+			-- move to target...
 			if (not self.raycastPathing) then
-				if (not HasSpell("Fireball") or not HasSpell("Shadowbolt") or not HasSpell("Smite") or not HasSpell("Raptor Strike")) and (GetDistance(self.target) >= 6) then
-					MoveToTarget(self.target);
+				if (not HasSpell("Fireball") or not HasSpell("Shadowbolt") or not HasSpell("Smite") or not HasSpell("Raptor Strike")) and (GetDistance(self.target) > 2) then
+					if (MoveToTarget(self.target)) then
+					else
+						if (GetDistance(self.target) <= 2) then
+							if (IsMoving()) then
+								StopMoving();
+							end
+						end
+					end
 				elseif (GetDistance(self.target) > 27) or (not IsInLineOfSight(self.target)) then
 					MoveToTarget(self.target);
 				end
 				return;
 			end
-			if (self.raycastPathing) then
+			if (self.raycastPathing) and (not HasDebuff(self.target, "Frost Nova")) then
 				local tarPos = GetPosition(self.target);
 				local cx, cy, cz = GetPosition(self.target);
-				if (not HasSpell("Fireball") or not HasSpell("Shadowbolt") or not HasSpell("Smite") or not HasSpell("Raptor Strike")) and (tarPos >= 6) then
+				if (not HasSpell("Fireball") or not HasSpell("Shadowbolt") or not HasSpell("Smite") or not HasSpell("Raptor Strike")) and (tarPos > 2) then
 					script_pather:moveToTarget(cx, cy, cz);
+					if (GetDistance(self.target) <= 2) then
+						if (IsMoving()) then
+							StopMoving();
+						end
+					end
+
 				elseif (GetDistance(self.target) > 27) or (not IsInLineOfSight(self.target)) then
 					script_pather:moveToTarget(cx, cy, cz);
+					self.waitTimer = GetTimeEX() + 50;
 				end
 				return;
 			end

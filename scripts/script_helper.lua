@@ -313,9 +313,11 @@ end
 
 function script_helper:eat()
 	for i=0,self.numFood do
-		if (HasItem(self.food[i])) then
-			if (UseItem(self.food[i])) then
-				return true;
+		if (not IsInCombat()) then
+			if (HasItem(self.food[i])) then
+				if (UseItem(self.food[i])) then
+					return true;
+				end
 			end
 		end
 	end

@@ -4,6 +4,7 @@ script_grindMenu = {
 }
 
 function script_grindMenu:menu()
+
 	local wasClicked = false;
 
 	--nav mesh progress

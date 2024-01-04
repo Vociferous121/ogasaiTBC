@@ -58,8 +58,13 @@ function script_followEX:healAndBuff()
 	-- Priest heal and buff
 	for i = 1, GetNumPartyMembers()+1 do
 		local partyMember = GetPartMember(i);
-		if (i == GetNumPartyMembers()+1) then partyMember = GetLocalPlayer(); end
+
+		if (i == GetNumPartyMembers()+1) then
+			partyMember = GetLocalPlayer();
+		end
+
 		local partyMembersHP = GetHealthPercentage(partyMember);
+
 		if (partyMembersHP > 0 and partyMembersHP < 90 and localMana > 5) then
 			
 			-- Move in line of sight and in range of the party member

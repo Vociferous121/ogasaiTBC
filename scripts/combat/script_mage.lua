@@ -22,6 +22,7 @@ script_mage = {
 	gemTimer = 0,
 	timer = 0,
 	useRotation = false,
+	useFrostNova = true,
 }
 
 function script_mage:setup()
@@ -133,16 +134,16 @@ function script_mage:run(targetObj)
 			end
 
 			--Cast Spell
-			if (not IsMoving()) and (localMana >= 20) and (not IsDrinking()) and (not IsEating()) then
+			if (not IsMoving()) and (localMana >= 10) and (not IsDrinking()) and (not IsEating()) then
 				if (Cast('Frostbolt', targetGUID)) then
-					script_grind.waitTimer = GetTimeEX() + 2500;
+					script_grind.waitTimer = GetTimeEX() + 3000;
 					return;
 				end
 			end
 
-			if (not IsMoving()) and (localMana >= 20) and (not IsDrinking()) and (not IsEating()) then
+			if (not IsMoving()) and (localMana >= 10) and (not IsDrinking()) and (not IsEating()) then
 				if (Cast('Fireball', targetGUID)) then
-					script_grind.waitTimer = GetTimeEX() + 2500;
+					script_grind.waitTimer = GetTimeEX() + 3000;
 					return;
 				end
 			end
@@ -167,7 +168,7 @@ function script_mage:run(targetObj)
 			end
 	
 			-- Check: Frostnova when the target is close
-			if (GetDistance(targetObj) < 5 and not script_target:hasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova") and targetHealth > 12) then
+			if (self.useFrostNova) and (GetDistance(targetObj) < 5 and not script_target:hasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova") and targetHealth > 12) then
 				self.message = "Frost nova the target(s)...";
 				CastSpellByName("Frost Nova");
 				return;
@@ -405,29 +406,34 @@ function script_mage:rest()
 		return true;
 	end
 
-	if(IsDrinking() and localMana < 98) then
-		script_grind:restOn();
-		return true;
-	end
-
-	if(IsEating() and localHealth < 98) then
-		script_grind:restOn();
-		return true;
+	if (IsDrinking() and localMana < 92) or (IsEating() and localHealth < 92) then
+		return;
+	elseif (not IsStanding()) then
+		local x, y, z = GetPosition(GetLocalPlayer());
+		Move(x-1, y, z)
 	end
 
 	-- Do Buff
 	if (Buff('Arcane Intellect', localObj)) then
+		self.waitTimer = GetTimeEX() + 1650;
+		script_grind.waitTimer = GetTimeEX() + 1650;
 		return true;
 	elseif (Buff('Dampen Magic', localObj)) then
+		self.waitTimer = GetTimeEX() + 1650;
+		script_grind.waitTimer = GetTimeEX() + 1650;
 		return true;
 	end
 	if (HasSpell('Ice Armor')) then
 		if (Buff('Ice Armor', localObj)) then
+			self.waitTimer = GetTimeEX() + 1650;
+			script_grind.waitTimer = GetTimeEX() + 1650;
 			return true;
 		end
 	
 	else
 		if (Buff('Frost Armor', localObj)) then
+			self.waitTimer = GetTimeEX() + 1650;
+			script_grind.waitTimer = GetTimeEX() + 1650;
 			return true;
 		end
 	end
@@ -435,6 +441,7 @@ function script_mage:rest()
 	script_grind:restOff();
 	return false;
 end
+
 
 function script_mage:menu()
 
@@ -450,6 +457,15 @@ function script_mage:menu()
 
 		if (HasSpell("Fire Blast")) then
 			wasClicked, self.useFireBlast = Checkbox('Use Fire Blast', self.useFireBlast);
+		end
+
+		--if (script_path.raycastPathing) then
+		--	self.frostNova = false;
+		--end
+
+		if (HasSpell("Frost Nova")) then
+			SameLine();
+			wasClicked, self.useFrostNova = Checkbox("Use Frost Nova", self.useFrostNova);
 		end
 
 		if (HasSpell("Mana Shield")) then
