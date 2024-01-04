@@ -474,6 +474,7 @@ function script_grind:run()
 			-- move to target...
 			if (not self.raycastPathing) then
 				if (not HasSpell("Fireball") or not HasSpell("Shadowbolt") or not HasSpell("Smite") or not HasSpell("Raptor Strike")) and (GetDistance(self.target) > 2) then
+					script_grind.tickRate = 50;
 					if (MoveToTarget(self.target)) then
 					else
 						if (GetDistance(self.target) <= 2) then
@@ -483,6 +484,7 @@ function script_grind:run()
 						end
 					end
 				elseif (GetDistance(self.target) > 27) or (not IsInLineOfSight(self.target)) then
+					script_grind.tickRate = 50;
 					MoveToTarget(self.target);
 				end
 				return;
