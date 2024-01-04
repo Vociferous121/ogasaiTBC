@@ -15,7 +15,7 @@ function script_grindMenu:menu()
 
 	--nav mesh progress
 	local qqq = math.floor(GetLoadNavmeshProgress()*100);
-	if (qqq ~= 100) and (qqq ~= 200) and (not qqq > 200) then
+	if (qqq ~= nil) and (qqq ~= 100) and (qqq ~= 200) and (not qqq > 200) then
 		Text("Navmesh Loading Progress Percent... " ..qqq);
 	end
 	if (qqq > 200) then

@@ -123,7 +123,7 @@ function script_rogue:run(targetObj)
 			end
 		end
 
-		if (not script_grind.adjustTickRate) and (GetDistance(self.target) > 4) then
+		if (not script_grind.adjustTickRate) and (GetDistance(self.target) > 4) or (IsMoving()) then
 			script_grind.tickRate = 50;
 		end
 		
@@ -165,6 +165,16 @@ function script_rogue:run(targetObj)
 				if (name ~= nil) then
 					script_debug.debugCombat = "use kick";
 					if (Cast('Kick', targetGUID)) then 
+						return;
+					end 
+				end
+			end
+			-- Check: Kick Spells
+			if (HasSpell('Gouge')) then
+			local name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo("target");
+				if (name ~= nil) then
+					script_debug.debugCombat = "use gouge";
+					if (Cast('Gouge', targetGUID)) then 
 						return;
 					end 
 				end
@@ -252,7 +262,7 @@ function script_rogue:run(targetObj)
 			end
 
 			-- Check: Use Stealth before oponer
-			if (self.useStealth and HasSpell('Stealth') and not HasBuff(localObj, 'Stealth')) and (GetDistance(self.target) <= self.stealthRange) then
+			if (self.useStealth and HasSpell('Stealth')) and (not script_checkDebuffs:hasPoison()) and (not HasBuff(localObj, 'Stealth')) and (GetDistance(self.target) <= self.stealthRange) then
 				script_debug.debugCombat = "using stealth";
 				if (CastSpellByName('Stealth')) then
 					return;
@@ -290,7 +300,7 @@ function script_rogue:run(targetObj)
 					UnitInteract(targetObj);
 					script_debug.debugCombat = "unit interact";
 	
-					if (localEnergy >= 45) and (GetDistance(self.target) <= 7) then
+					if (localEnergy >= 45) and (GetDistance(self.target) <= 9) then
 						if (not HasSpell("Cheap Shot")) and (HasSpell("BackStab")) then
 							if (Cast("BackStab", self.target)) then
 								self.waitTimer = GetTimeEX() + 500;

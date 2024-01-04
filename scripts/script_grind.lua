@@ -13,6 +13,7 @@ script_grind = {
 	rayPather = include("scripts\\script_pather.lua"),
 	debugincluded = include("scripts\\script_debug.lua"),
 	aggroincluded = include("scripts\\script_aggro.lua"),
+	checkDebuffsLoaded = include("scripts\\script_checkDebuffs.lua"),
 	message = 'Starting the grinder...',
 	alive = true,
 	target = 0,
@@ -366,7 +367,7 @@ function script_grind:run()
 			local targetGUID = script_target:getTarget();
 			self.target = GetGUIDTarget(targetGUID);
 			if (GetTarget() ~= self.target) then
-				--UnitInteract(self.target);
+				UnitInteract(self.target);
 				AutoAttack(self.target);
 			end	
 		end
@@ -465,7 +466,7 @@ function script_grind:run()
 			self.message = "Moving to target...";
 
 			-- force rogue stealth
-			if (not IsInCombat())
+			if (not IsInCombat()) and (not script_checkDebuffs:hasPoison())
 				and (GetDistance(self.target) <= script_rogue.stealthRange)
 				and (GetHealthPercentage(GetLocalPlayer()) > script_rogue.eatHealth)
 				and (script_rogue.useStealth)
@@ -501,9 +502,9 @@ function script_grind:run()
 				return;
 			end
 			if (self.raycastPathing) and (not HasDebuff(self.target, "Frost Nova")) then
-				local tarPos = GetPosition(self.target);
+				local tarDist = GetDistance(self.target);
 				local cx, cy, cz = GetPosition(self.target);
-				if (not HasSpell("Fireball") or not HasSpell("Shadowbolt") or not HasSpell("Smite") or not HasSpell("Raptor Strike")) and (tarPos > 2) then
+				if (not HasSpell("Fireball") or not HasSpell("Shadowbolt") or not HasSpell("Smite") or not HasSpell("Raptor Strike")) and (tarDist > 2) then
 					script_pather:moveToTarget(cx, cy, cz);
 					if (GetDistance(self.target) <= 2) then
 						if (IsMoving()) then
@@ -635,24 +636,6 @@ end
 function script_grind:isTargetBlacklisted(targetGUID) 
 	for i=0,self.blacklistedNum do
 		if (targetGUID == self.blacklistedTargets[i]) then
-			return true;
-		end
-	end
-	return false;
-end
-
--- add target to hard blacklist table by GUID
-function script_grind:addTargetToHardBlacklist(targetGUID)
-	if (targetGUID ~= nil and targetGUID ~= 0 and targetGUID ~= '') then	
-		self.hardBlacklistedTargets[self.hardBlacklistedNum] = targetGUID;
-		self.hardBlacklistedNum = self.hardBlacklistedNum + 1;
-	end
-end
-
--- check if target is hard blacklisted by table GUID
-function script_grind:isTargetHardBlacklisted(targetGUID) 
-	for i=0,self.hardBlacklistedNum do
-		if (targetGUID == self.hardBlacklistedTargets[i]) then
 			return true;
 		end
 	end

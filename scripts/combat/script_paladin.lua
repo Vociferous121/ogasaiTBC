@@ -13,6 +13,7 @@ script_paladin = {
 	aura = " ",
 	blessing = 0,
 	useRotation = false,
+	timer = GetTimeEX(),
 }
 
 function script_paladin:draw()
@@ -104,7 +105,7 @@ function script_paladin:run(targetObj)
 				end
 				MoveToTarget(targetObj); 
 				return; 
-			else
+			elseif (self.useRotation) then
 				if (script_grind.combatStatus ~= nil) then
 					script_grind.combatStatus = 0;
 				end
@@ -126,7 +127,7 @@ function script_paladin:run(targetObj)
 				local ax, ay, az = GetPosition(targetObj); 
 				Move(ax, ay, az);
 				return; 
-			elseif (not self.useRotation) then
+			elseif (self.useRotation) then
 				if (script_grind.combatStatus ~= nil) then
 					script_grind.combatStatus = 0;
 				end

@@ -125,7 +125,7 @@ function script_mage:run(targetObj)
 		--Opener
 		if (not IsInCombat()) then
 			
-			if (not IsInCombat()) and (not self.useRotation) and (IsInLineOfSight(self.target))
+			if (not IsInCombat()) and (not self.useRotation)
 				and (IsSpellInRange(self.target, "Frost Bolt")) and (GetDistance(self.target) <= 27) then
 				if (IsMoving()) then
 					StopMoving();
