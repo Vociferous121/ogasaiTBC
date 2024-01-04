@@ -14,8 +14,12 @@ script_gather = {
 	lootDistance = 3,
 	timer = 0,
 	nodeID = 0,
-	menu = include("scripts\\script_gatherMenu.lua"),
-	gatherAllPossible = true
+	gatherAllPossible = true,
+	blacklistedNode = {},
+	blacklistedNum = 0,
+	blacklistTime = GetTimeEX(),
+	timerSet = false;
+	nodeGUID = 0,
 }
 
 function script_gather:addHerb(name, id, use, req)
@@ -37,10 +41,10 @@ function script_gather:addMineral(name, id, use, req)
 end
 
 function script_gather:setup()
+	
 	self.collectMinerals = HasSpell('Find Minerals');
 	self.collectHerbs = HasSpell('Find Herbs');
-	script_path.skin = HasSpell('Skinning');
-
+	
 	script_gather:addHerb('Peacebloom', 269, false, 1);
 	script_gather:addHerb('Silverleaf', 270, false, 1);
 	script_gather:addHerb('Earthroot', 414, false, 15);
@@ -69,18 +73,6 @@ function script_gather:setup()
 	script_gather:addHerb('Plaguebloom', 4632, false, 285);
 	script_gather:addHerb('Icecap', 4634, false, 290);
 	script_gather:addHerb('Black Lotus', 4636, false, 300);
-	script_gather:addHerb('Mana Thistle', 6945, false, 300, 300);
-	script_gather:addHerb('Nightmare Vine', 6946, false, 300);
-	script_gather:addHerb('Netherbloom', 6947, false, 300);
-	script_gather:addHerb('Dreaming Glory', 6948, false, 300);
-	script_gather:addHerb('Ragveil', 6949, false, 300);
-	script_gather:addHerb('Flame Cap', 6966, false, 300);
-	script_gather:addHerb('Ancient Lichen', 6967, false, 300);
-	script_gather:addHerb('Felweed', 6968, false, 300);
-	script_gather:addHerb('Terocone', 6969, false, 300);
-	script_gather:addHerb('Goldclover', 7844, false, 300);
-	script_gather:addHerb('Talandras Rose', 7865, false, 300);
-	script_gather:addHerb('Adders Tongue', 8084, false, 300);
 
 	script_gather:addMineral('Copper Vein', 310, false, 1);
 	script_gather:addMineral('Incendicite Mineral Vein', 384, false, 65);
@@ -95,20 +87,46 @@ function script_gather:setup()
 	script_gather:addMineral('Dark Iron Deposit', 2571, false, 230);
 	script_gather:addMineral('Small Thorium Vein', 3951, false, 230);
 	script_gather:addMineral('Rich Thorium Vein', 3952, false, 255);
-	script_gather:addMineral('Fel Iron Deposit', 6799, false, 275);
-	script_gather:addMineral('Adamantite Deposit', 6798, false, 325);
-	script_gather:addMineral('Khorium Deposit', 6800, false, 375);
-	script_gather:addMineral('Nethercite Deposit', 6650, false, 375);
 
+	
 	self.timer = GetTimeEX();
 
 	self.isSetup = true;
 end
 
+function script_gather:getHerbSkill()
+	local herbSkill = 0;
+	for skillIndex = 1, GetNumSkillLines() do
+  		skillName, isHeader, isExpanded, skillRank, numTempPoints, skillModifier,
+    		skillMaxRank, isAbandonable, stepCost, rankCost, minLevel, skillCostType,
+    		skillDescription = GetSkillLineInfo(skillIndex)
+    		if (skillName == 'Herbalism') then
+			herbSkill = skillRank;
+		end
+	end
+
+	return herbSkill;
+end
+
+function script_gather:getMiningSkill()
+	local miningSkill = 0;
+	for skillIndex = 1, GetNumSkillLines() do
+  		skillName, isHeader, isExpanded, skillRank, numTempPoints, skillModifier,
+    		skillMaxRank, isAbandonable, stepCost, rankCost, minLevel, skillCostType,
+    		skillDescription = GetSkillLineInfo(skillIndex)
+    		if (skillName == 'Mining') then
+			miningSkill = skillRank;
+		end
+	end
+
+	return miningSkill;
+end
+
+
 function script_gather:ShouldGather(id)
 
-	local herbSkill = script_gatherMenu:getHerbSkill();
-	local miningSkill = script_gatherMenu:getMiningSkill();
+	local herbSkill = script_gather:getHerbSkill();
+	local miningSkill = script_gather:getMiningSkill();
 
 	if(self.collectMinerals) then
 		for i=0,self.numMinerals - 1 do
@@ -120,7 +138,7 @@ function script_gather:ShouldGather(id)
 	
 	if(self.collectHerbs) then
 		for i=0,self.numHerbs - 1 do
-			if(self.herbs[i][1] == id and (self.herbs[i][2]or ((self.herbs[i][3] <= herbSkill) and self.gatherAllPossible) )) then			
+			if(self.herbs[i][1] == id and (self.herbs[i][2]or ((self.herbs[i][3] <= herbSkill) and self.gatherAllPossible))) then			
 				return true;		
 			end
 		end	
@@ -133,10 +151,10 @@ function script_gather:GetNode()
 	local bestTarget = nil;
 	while targetObj ~= 0 do
 		if (targetType == 5) then --GameObject
-			if(script_gather:ShouldGather(GetObjectDisplayID(targetObj))) then
-				local dist = GetDistance(targetObj);
+			if(script_gather:ShouldGather(targetObj:GetObjectDisplayID()))  then
+				local dist = targetObj:GetDistance();
 				if(dist < self.gatherDistance and bestDist > dist) then
-					local _x, _y, _z = GetPosition(targetObj);
+					local _x, _y, _z = targetObj:GetPosition();
 					if(not IsNodeBlacklisted(_x, _y, _z, 5)) then
 						bestDist = dist;
 						bestTarget = targetObj;
@@ -153,10 +171,10 @@ function script_gather:drawGatherNodes()
 
 local targetObj, targetType = GetFirstObject();
 	while targetObj ~= 0 do
-		if (targetType == 5 and IsGatherNode(targetObj)) then 
-			local id = GetObjectDisplayID(targetObj);
+		if (targetType == 5 and targetObj:IsGatherNode()) then 
+			local id = targetObj:GetObjectDisplayID();
 			local name = 'Gather Node';
-			local _x, _y, _z = GetPosition(targetObj);
+			local _x, _y, _z = targetObj:GetPosition();
 			local _tX, _tY, onScreen = WorldToScreen(_x, _y, _z);
 			if(onScreen) then
 				for i=0,self.numHerbs - 1 do
@@ -206,38 +224,141 @@ function script_gather:gather()
 	if (self.timer > GetTimeEX()) then
 		return true;
 	end
+	--if (not self.timerSet) then
+	--self.blacklistTime = GetTimeEX() + 5000;
+	--self.timerSet = true;
+	--end
 	
 	local tempNode = script_gather:GetNode();
 	local newNode = (self.nodeObj == tempNode);
 	self.nodeObj = script_gather:GetNode();
-	self.nodeID = GetObjectDisplayID(self.nodeObj);
-		
+	--self.nodeGUID = self.nodeObj:GetGUID();
+	
 	if(self.nodeObj ~= nil and self.nodeObj ~= 0) then
-		
-		local _x, _y, _z = GetPosition(self.nodeObj);
-		local dist = GetDistance(self.nodeObj);		
-			
-		if(dist < self.lootDistance) then
-			script_path:savePos(true); -- SAVE FOR UNSTUCK
+	-- and (not script_gather:isNodeBlacklisted(self.nodeGUID))
+
+		local _x, _y, _z = self.nodeObj:GetPosition();
+		local dist = self.nodeObj:GetDistance();	
+		self.nodeID = self.nodeObj:GetObjectDisplayID();
+		--self.nodeGUID = self.nodeObj:GetGUID();
+
+
+		if(dist <= self.lootDistance) then
 			if(IsMoving()) then
 				StopMoving();
-				self.timer = GetTimeEX() + 150;
+				self.timer = GetTimeEX() + 950;
+				return true;
 			end
 
-			if(not IsLooting() and not IsChanneling()) then
-				GameObjectInteract(self.nodeObj);
-				self.timer = GetTimeEX() + 1250;
+			if(not IsLooting() and not IsChanneling()) and (not IsMoving()) then
+				self.nodeObj:GameObjectInteract();
+				self.timer = GetTimeEX() + 1650;
+				return true;
 			end
 
+			if (not LootTarget()) and (self.nodeObj:GameObjectInteract()) and (not IsMoving()) then
+				self.timer = GetTimeEX() + 4550;
+			end
+
+			if (IsLooting()) then
+				if (LootTarget()) then
+					if (self.collectHerbs) then
+						self.waitTimer = GetTimeEX() + 1200;
+						script_grind:setWaitTimer(5000);
+					end
+				end
+				LootTarget();
+
+				--if (self.timerSet) then
+				--	self.timerSet = false;
+				--end
+			end
+			self.waitTimer = GetTimeEX() + 450;
 		else
 			if (_x ~= 0) then
+
+				--if (IsMoving()) then
+					--if (self.timerSet) then
+					--	self.timerSet = false;
+					--end
+				--end
+
+		--if (self.nodeObj ~= nil) and (self.nodeObj ~= 0) and (self.timerSet) then
+		--	if (GetTimeEX() > self.blacklistTime) then
+		--		script_gather:addNodeToBlacklist(self.nodeGUID);
+		--		self.timerSet = false;
+		--		return false;
+		--	end
+		--end
 				MoveToTarget(_x, _y, _z);
-				self.timer = GetTimeEX() + 150;
+				self.timer = GetTimeEX() + 250;
 			end
 		end
 
 		return true;
 	end
 
+	return false;
+end
+
+function script_gather:menu()
+
+	if(not self.isSetup) then
+		script_gather:setup();
+	end
+
+	local wasClicked = false;
+	
+	if (CollapsingHeader("Gather options")) then
+		wasClicked, script_grind.gather = Checkbox("Gather on/off", script_grind.gather);
+		
+		wasClicked, self.collectMinerals = Checkbox("Mining", self.collectMinerals);
+		SameLine();
+		wasClicked, self.collectHerbs = Checkbox("Herbalism", self.collectHerbs);
+
+		Text('Gather Search Distance');
+		self.gatherDistance = SliderFloat("GSD", 1, 250, self.gatherDistance);
+		
+		if (script_gather.collectMinerals or script_gather.collectHerbs) then
+			wasClicked, script_gather.gatherAllPossible = Checkbox("Gather All Possible", script_gather.gatherAllPossible);
+		end
+
+		if(self.collectMinerals and not script_gather.gatherAllPossible) then
+			Separator();
+			Text('Minerals');
+			
+			for i=0,self.numMinerals - 1 do
+				wasClicked, self.minerals[i][2] = Checkbox(self.minerals[i][0], self.minerals[i][2]);
+				SameLine(); Text('(' .. self.minerals[i][3] .. ')');
+			end
+		end
+		
+		if(self.collectHerbs and not script_gather.gatherAllPossible) then
+			Separator();
+			Text('Herbs');
+			
+			for i=0,self.numHerbs - 1 do
+				wasClicked, self.herbs[i][2] = Checkbox(self.herbs[i][0], self.herbs[i][2]);
+				SameLine(); Text('(' .. self.herbs[i][3] .. ')');
+			end
+		end
+	end
+end
+
+function script_gather:addNodeToBlacklist(nodeGUID)
+	nodeGUID = self.nodeGUID;
+	if (self.nodeID ~= nil and self.nodeID ~= 0 and self.nodeID ~= '') then	
+		self.blacklistedNode[self.blacklistedNum] = self.nodeGUID;
+		self.blacklistedNum = self.blacklistedNum + 1;
+	end
+end
+
+function script_gather:isNodeBlacklisted(nodeGUID) 
+	nodeGUID = self.nodeGUID;
+	for i=0,self.blacklistedNum do
+		if (self.nodeGUID == self.blacklistedNode[i]) then
+			return true;
+		end
+	end
 	return false;
 end

@@ -17,7 +17,7 @@ script_talent = {
 function script_talent:setup()
 	if (not self.isSetup) then
 
-		-- Paladin ret talent points in order 1-41, (3; = ret tab, 1; would be holy tab etc)
+		-- Paladin ret talent points in order 1-31, (3; = ret tab, 1; would be holy tab etc)
 		self.palaTalents = { 
 			"3;Benediction", "3;Benediction", "3;Benediction", "3;Benediction", "3;Benediction",
 			"3;Improved Judgement", "3;Improved Judgement",
@@ -28,33 +28,24 @@ function script_talent:setup()
 			"3;Deflection",
 			"3;Sanctity Aura",
 			"3;Two-Handed Weapon Specialization", "3;Two-Handed Weapon Specialization", "3;Two-Handed Weapon Specialization",
-			"3;Improved Sanctity Aura",
-			"3;Vengeance", "3;Vengeance", "3;Vengeance", "3;Vengeance", "3;Vengeance",
-			"3;Sanctified Judgement", "3;Sanctified Judgement", "3;Sanctified Judgement",
-			"3;Repentance",
-			"3;Improved Sanctity Aura",
-			"3;Fanaticism", "3;Fanaticism", "3;Fanaticism", "3;Fanaticism", "3;Fanaticism",
-			"3;Crusader Strike"
+			"3;Deflection",
+			"3;Vengeance", "3;Vengeance", "3;Vengeance", "3;Vengeance", "3;Vengeance"
 		}
 
-		-- Warrior fury talent points in order 1-41
+		-- Warrior fury talent points in order 1-31
 		self.warTalents = {
 			"2;Cruelty", "2;Cruelty", "2;Cruelty", "2;Cruelty", "2;Cruelty",
 			"2;Unbridled Wrath", "2;Unbridled Wrath", "2;Unbridled Wrath", "2;Unbridled Wrath", "2;Unbridled Wrath",
 			"2;Blood Craze", "2;Blood Craze", "2;Blood Craze",
-			"2;Commanding Presence", "2;Commanding Presence",
+			"2;Improved Battle Shout", "2;Improved Battle Shout",
 			"2;Enrage", "2;Enrage", "2;Enrage", "2;Enrage", "2;Enrage",
 			"2;Dual Wield Specialization", "2;Dual Wield Specialization", "2;Dual Wield Specialization", "2;Dual Wield Specialization",
-			"2;Sweeping Strikes",
+			"2;Death Wish",
 			"2;Flurry",  "2;Flurry", "2;Flurry", "2;Flurry", "2;Flurry",
-			"2;Bloodthirst",
-			"2;Precision", "2;Precision", "2;Precision", 
-			"2;Dual Wield Specialization",
-			"2;Improved Berserker Stance", "2;Improved Berserker Stance", "2;Improved Berserker Stance",  "2;Improved Berserker Stance",  "2;Improved Berserker Stance",
-			"2;Rampage"
+			"2;Bloodthirst"
 		}
 
-		-- Rogue combat talent points in order 1-41
+		-- Rogue combat talent points in order 1-31
 		self.rogueTalents = {
 			"2;Improved Sinister Strike", "2;Improved Sinister Strike",
 			"2;Lightning Reflexes", "2;Lightning Reflexes", "2;Lightning Reflexes",
@@ -66,53 +57,48 @@ function script_talent:setup()
 			"2;Sword Specialization", "2;Sword Specialization", "2;Sword Specialization", "2;Sword Specialization",
 			"2;Weapon Expertise", "2;Weapon Expertise",
 			"2;Aggression", "2;Aggression", "2;Aggression", 
-			"2;Adrenaline Rush",
-			"2;Vitality", "2;Vitality",
-			"2;Sword Specialization",
-			"2;Dual Wield Specialization",
-			"2;Combat Potency", "2;Combat Potency", "2;Combat Potency", "2;Combat Potency", "2;Combat Potency",
-			"2;Surprise Attacks"
+			"2;Adrenaline Rush"
 		}
 
-		-- Druid feral talent points in order 1-41
+		-- Druid feral talent points in order 1-31
 		self.druidTalents = {
 			"2;Ferocity", "2;Ferocity", "2;Ferocity", "2;Ferocity", "2;Ferocity",
-			"2;Feral Aggression", "2;Feral Aggression", "2;Feral Aggression", "2;Feral Aggression", "2;Feral Aggression", 
-			"2;Feral Swiftness", "2;Feral Swiftness",
+			"2;Feral Instinct", "2;Feral Instinct", "2;Feral Instinct", "2;Feral Instinct", "2;Feral Instinct", 
+			"2;Feline Swiftness", "2;Feline Swiftness", "2;Feral Charge",
 			"2;Sharpened Claws", "2;Sharpened Claws", "2;Sharpened Claws",
-			"2;Primal Fury", "2;Primal Fury",
+			"2;Blood Frenzy", "2;Blood Frenzy",
 			"2;Predatory Strikes", "2;Predatory Strikes", "2;Predatory Strikes",
-			"2;Faerie Fire (Feral)",
+		"2;Faerie Fire (Feral)",
 			"2;Savage Fury", "2;Savage Fury",
-			"2;Shredding Attacks", "2;Shredding Attacks",
-			"2;Survival of the Fittest", "2;Survival of the Fittest", "2;Survival of the Fittest",
-			"2;Nurturing Instinct", "2;Nurturing Instinct",
-			"2;Leader of the Pack", 
-			"2;Improved Leader of the Pack", "2;Improved Leader of the Pack",
-			"2;Heart of the Wild", "2;Heart of the Wild",
-			"2;Predatory Instincts", "2;Predatory Instincts", "2;Predatory Instincts", "2;Predatory Instincts", "2;Predatory Instincts",
-			"2;Mangle"
+			"2;Heart of the Wild", "2;Heart of the Wild", "2;Heart of the Wild", "2;Heart of the Wild", "2;Heart of the Wild",
+			"2;Leader of the Pack"
 		}
 		
-		-- Priest shadow talent points in order 1-41
+		-- Priest talent points in order 1-31
 		self.priestTalents = {
-			"3;Blackout", "3;Blackout", "3;Blackout", "3;Blackout", "3;Blackout", 
-			"3;Improved Shadow Word: Pain", "3;Improved Shadow Word: Pain", 
-			"3;Shadow Focus", "3;Shadow Focus", "3;Shadow Focus", 
-			"3;Mind Flay",
-			"3;Improved Mind Blast", "3;Improved Mind Blast", "3;Improved Mind Blast", "3;Improved Mind Blast", 
+
+			"1;Wand Specialization", "1;Wand Specialization", "1;Wand Specialization", "1;Wand Specialization", "1;Wand Specialization", 
+			
+			"3;Spirit Tap", "3;Spirit Tap", "3;Spirit Tap", "3;Spirit Tap", "3;Spirit Tap",
+
+			"3;Improved Shadow Word: Pain", "3;Improved Shadow Word: Pain", "3;Shadow Focus", "3;Shadow Focus ", "3;Shadow Focus", 
+
+			"3;Mind Flay", "3;Improved Mind Blast","3;Improved Mind Blast","3;Improved Mind Blast","3;Improved Mind Blast",
+
 			"3;Shadow Weaving", "3;Shadow Weaving", "3;Shadow Weaving", "3;Shadow Weaving", "3;Shadow Weaving", 
-			"3;Vampiric Embrace",
-			"3;Improved Vampiric Embrace", "3;Improved Vampiric Embrace", 
-			"3;Shadow Focus", "3;Shadow Focus", 
+
+			"3;Vampiric Embrace", "3;Improved Vampiric Embrace", "3;Improved Vampiric Embrace", "3;Shadow Focus", "3;Shadow Focus", 
+
 			"3;Darkness", "3;Darkness", "3;Darkness", "3;Darkness", "3;Darkness", 
-			"3;Shadowform",
-			"3;Shadow Power", "3;Shadow Power", "3;Shadow Power", "3;Shadow Power", "3;Shadow Power", 
-			"3;Misery", "3;Misery", "3;Misery", "3;Misery",
-			"3;Vampiric Touch"
+
+			"3;Shadowform", "3;Shadow Reach", "3;Shadow Reach", "3;Shadow Reach"
+
+
+
+			
 		}
 		
-		-- Mage frost talent points in order 1-41
+		-- Mage frost talent points in order 1-31
 		self.mageTalents = {
 			"3;Elemental Precision", "3;Elemental Precision", "3;Elemental Precision",
 			"3;Improved Frostbolt", "3;Improved Frostbolt",
@@ -121,17 +107,13 @@ function script_talent:setup()
 			"3;Ice Shards", "3;Ice Shards", "3;Ice Shards", "3;Ice Shards", "3;Ice Shards", 
 			"3;Shatter", "3;Shatter", "3;Shatter", "3;Shatter", "3;Shatter", 
 			"3;Cold Snap",
+			"3;Ice Block",
 			"3;Piercing Ice", "3;Piercing Ice", "3;Piercing Ice",
-			"3;Icy Veins",
 			"3;Winter's Chill", "3;Winter's Chill", "3;Winter's Chill", "3;Winter's Chill", "3;Winter's Chill", 
-			"3;Ice Barrier",
-			"3;Frost Channeling", "3;Frost Channeling", "3;Frost Channeling",
-			"3;Improved Frostbolt", 
-			"3;Empowered Frostbolt", "3;Empowered Frostbolt", "3;Empowered Frostbolt", "3;Empowered Frostbolt", "3;Empowered Frostbolt",
-			"3;Summon Water Elemental"
+			"3;Ice Barrier"
 		}
 		
-		-- Hunter beastmaster talent points in order 1-41
+		-- Hunter beastmaster talent points in order 1-31
 		self.hunterTalents = {
 			"1;Endurance Training", "1;Endurance Training", "1;Endurance Training", "1;Endurance Training", "1;Endurance Training",
 			"1;Thick Hide", "1;Thick Hide", "1;Thick Hide",
@@ -142,25 +124,19 @@ function script_talent:setup()
 			"1;Intimidation",
 			"1;Spirit Bond", "1;Spirit Bond",
 			"1;Bestial Discipline", "1;Bestial Discipline",
-			"1;Animal Handler", "1;Animal Handler",
-			"1;Frenzy", "1;Frenzy", "1;Frenzy",
-			"1;Bestial Wrath",
-			"1;Ferocious Inspiration", "1;Ferocious Inspiration", "1;Ferocious Inspiration",
-			"1;Frenzy",
-			"1;Serpent's Swiftness", "1;Serpent's Swiftness", "1;Serpent's Swiftness", "1;Serpent's Swiftness", "1;Serpent's Swiftness", 
-			"1;The Beast Within"
+			"1;Frenzy", "1;Frenzy", "1;Frenzy", "1;Frenzy", "1;Frenzy",
+			"1;Bestial Wrath"
 		}
 		
-		-- Warlock talent points 1-21 Affliction, 22-52 Demonology
+		-- Warlock talent points 1-21 Affliction, 22-51 Demonology
 		self.lockTalents = {
 			"1;Improved Corruption", "1;Improved Corruption", "1;Improved Corruption", "1;Improved Corruption", "1;Improved Corruption",
 			"1;Suppression", "1;Suppression", "1;Suppression", "1;Suppression", "1;Suppression",
-			"1;Improved Curse of Agony", "1;Improved Curse of Agony",
-			"1;Soul Siphon", "1;Soul Siphon",
-			"1;Improved Life Tap",
+			"1;Improved Curse of Agony", "1;Improved Curse of Agony", "1;Improved Curse of Agony",
+			"1;Fel Concentration", "1;Fel Concentration",  
 			"1;Nightfall", "1;Nightfall",
 			"1;Improved Life Tap",
-			"1;Grim Reach", "1;Grim Reach",
+			"1;Fel Concentration", "1;Fel Concentration", "1;Fel Concentration", 
 			"1;Siphon Life",
 			"2;Demonic Embrace", "2;Demonic Embrace", "2;Demonic Embrace", "2;Demonic Embrace", "2;Demonic Embrace",
 			"2;Improved Voidwalker", "2;Improved Voidwalker", "2;Improved Voidwalker", 
@@ -171,27 +147,22 @@ function script_talent:setup()
 			"2;Demonic Sacrifice",
 			"2;Fel Intellect", "2;Fel Intellect", "2;Fel Intellect", 
 			"2;Fel Domination",
-			"2;Master Demonologist", "2;Master Demonologist", "2;Master Demonologist", "2;Master Demonologist", "2;Master Demonologist", 
-			"2;Soul Link"			
+			"2;Master Demonologist", "2;Master Demonologist", "2;Master Demonologist", "2;Master Demonologist", "2;Master Demonologist"		
 		}
 
-		-- Shaman Enhancement talent points in order 1-41
+		-- Shaman Enhancement talent points in order 1-31
 		self.shamTalents = {
-			"2;Shield Specialization", "2;Shield Specialization", "2;Shield Specialization", "2;Shield Specialization", "2;Shield Specialization", 
+			"2;Ancestral Knowledge", "2;Ancestral Knowledge", "2;Ancestral Knowledge", "2;Ancestral Knowledge", "2;Ancestral Knowledge", 
 			"2;Thundering Strikes", "2;Thundering Strikes", "2;Thundering Strikes", "2;Thundering Strikes", "2;Thundering Strikes", 
-			"2;Shamanistic Focus",
+			"2;Two-Handed Axes and Maces",
 			"2;Improved Ghost Wolf", "2;Improved Ghost Wolf", 
 			"2;Improved Lightning Shield", "2;Improved Lightning Shield",
 			"2;Flurry", "2;Flurry", "2;Flurry", "2;Flurry", "2;Flurry", 
 			"2;Elemental Weapons", "2;Elemental Weapons", "2;Elemental Weapons", 
-			"2;Spirit Weapons", 
+			"2;Parry", 
 			"2;Improved Lightning Shield",
 			"2;Weapon Mastery", "2;Weapon Mastery", "2;Weapon Mastery", "2;Weapon Mastery", "2;Weapon Mastery", 
-			"2;Stormstrike",
-			"2;Dual Wield",
-			"2;Dual Wield Specialization", "2;Dual Wield Specialization", "2;Dual Wield Specialization", 
-			"2;Unleashed Rage", "2;Unleashed Rage", "2;Unleashed Rage", "2;Unleashed Rage", "2;Unleashed Rage", 
-			"2;Shamanistic Rage"
+			"2;Stormstrike"
 		}
 
 		-- Set talent table depending on the class
@@ -223,13 +194,12 @@ function script_talent:setup()
 
 	self.talentTimer = GetTimeEX();	
 
-	DEFAULT_CHAT_FRAME:AddMessage('script_talent: loaded...');
 	self.isSetup = true;
 end
 
 function script_talent:learnTalents()
 
-	local level = GetLevel(GetLocalPlayer());
+	local level = GetLocalPlayer():GetLevel();
 	local lastTalentPointNr = (level-9);
 
 	-- Do nothing if we are below level 10 
@@ -354,12 +324,31 @@ function script_talent:learnClassTalents()
 
 end
 
-function script_talent:stringSplit(talentString)
-        local t={}
+function script_talent:stringSplit(str)
 
-        for str in string.gmatch(talentString, "([^;]+)") do
-                table.insert(t, str)
-        end
+  	 if string.find(str, ";") == nil then
+     		 return { str }
+  	 end
 
-        return t;
+	local result = {}
+	local pat = "(.-)" .. ";" .. "()"
+	local nb = 0
+	local lastPos
+	local maxNb = 2
+
+	for part, pos in string.gfind(str, pat) do
+		nb = nb + 1
+		result[nb] = part
+		lastPos = pos
+		if nb == maxNb then
+			break
+		end
+	end
+
+	-- Handle the last field
+	if nb ~= maxNb then
+		result[nb + 1] = string.sub(str, lastPos)
+	end
+
+	return result
 end

@@ -1,70 +1,163 @@
 script_pather = {
-	updatePathDist = 200,
-	movedDist = 0,
-	maxDist = 2000,
-	straightPathSize = 200,
-	charWidth = 0.3,
-	maxZSlopeUp = 0.60,
-	maxZSlopeDown = -0.80,
-	qualityZ = 1,
-	zMin = 0.8,
-	zMax = 1.6,
-	qualityAngle = 16,
-	timer = GetTimeEX(),
-	message = "Raycast navigation by Logitech",
-	meshSize = 25,
-	nodeDist = 10,
-	nodeDistUnmounted = 12,
-	nodeDistMounted = 15,
-	waypointPath = {},
-	waypointPathSize = 0,
+	timer = 0,
+	message = "Left Click to test path generation...",
+	nodeDist = 5,
 	path = {},
 	pathSize = 0,
-	drawMesh = false,
-	sx = 0,
-	sy = 0,
-	sz = 0,
+	maxZSlope = 0.5,
 	dX = 0,
 	dY = 0,
 	dZ = 0,
 	dx = 0,
 	dy = 0,
 	dz = 0,
-	status = 0, -- 0 idle 1 generating 2 reset 
-	goToIndex = 1,
-	patherExtra = include("scripts\\script_patherEX.lua"),
-	straightPath = include("scripts\\script_pathStraight.lua"),
-	circlePath = include("scripts\\script_pathCircle.lua"),
-	flyPath = include("scripts\\script_pathFlying.lua"),
-	flyPathExtra = include("scripts\\script_pathFlyingEX.lua")
+	status = 0, -- 0 idle 1 generating 2 gen new path
+	goToIndex = 1;
 }
 
-function script_pather:moveToTarget(xx, yy, zz)
+function script_pather:DeBugInfo()
+	DrawRectFilled(100, 100, 450, 116, 0, 0, 0, 100, 10, -10);
+	DrawText(self.message, 110, 100, 255, 255, 0);
+end
 
-	if (IsMounted()) then
-		self.nodeDist = self.nodeDistMounted;
-	else
-		self.nodeDist = self.nodeDistUnmounted;
-	end
+function script_pather:draw()
 
-	local x, y, z = GetPosition(GetLocalPlayer());
-	local dist = GetDistance3D(x, y, z, xx, yy, zz);
-	local a = GetAngle(GetLocalPlayer());
-	local zDiff = math.abs(zz - z);
+	script_pather:DeBugInfo();
 
-	if (IsFlying() and dist < script_pathFlying.nodeDist and self.pathSize == self.goToIndex) then
-		if (zDiff > 2) then
-			SitStandOrDescendStart();
-			return true;
+	-- Draw path
+	script_pather:drawPath()
+end
+
+function script_pather:drawPath()
+	if (self.pathSize >= 3 and self.status == 0) then
+		for i = 1, self.pathSize-2 do
+			local x1, y1, ss = WorldToScreen(self.path[i]['x'], self.path[i]['y'], self.path[i]['z']);
+			local x2, y2, sss = WorldToScreen(self.path[i+1]['x'], self.path[i+1]['y'], self.path[i+1]['z']);
+			if (ss and sss) then
+				DrawText('PN: '.. i, x1, y1, 255, 255, 0);
+				DrawLine(x1, y1, x2, y2, 255, 255, 0, 2);
+			end	
+			if (i == self.pathSize-2 and self.pathSize > 3) then
+				if (sss) then
+					DrawText('PN: '.. i+1, x2, y2, 255, 255, 0)
+				end
+				local x3, y3, ssss = WorldToScreen(self.path[i+2]['x'], self.path[i+2]['y'], self.path[i+2]['z']);
+				if (ssss) then
+					DrawLine(x2, y2, x3, y3, 255, 255, 0, 2);
+					DrawText('PN: '.. i+2, x3, y3, 255, 255, 0)
+				end
+			end		
+
 		end
-		DescendStop()
-		Dismount();
-		self.status = 2;
-		return true;
+	end
+end
+
+function script_pather:floorNextZ(x, y, z, a, dist)
+
+	-- Destination x,y
+	local dx, dy = x+dist*math.cos(a), y+dist*math.sin(a);
+	local roofZ = z+30;
+	local floorZ = z;
+	
+	-- Check for roof and floor Z
+	for i = 1, 10 do
+		local dxx, dyy = x+i*dist/10*math.cos(a), y+i*dist/10*math.sin(a);
+		local hitF, _, _, hitZF = Raycast(dxx, dyy, floorZ+1, dxx, dyy, z-30);
+		local hitR, _, _, hitZR = Raycast(dxx, dyy, floorZ+1, dxx, dyy, z+30);
+		if (not hitF) then
+			floorZ = hitZF;
+		end
+		
+		if (not hitR) then
+			roofZ = hitZR;
+		end
+	end
+	
+	hit, _, _, hitZ = Raycast(dx, dy, roofZ-0.01, dx, dy, floorZ-30);
+	if (not hit) then
+		return hitZ;
 	end
 
-	if (dist < self.nodeDist and self.pathSize == self.goToIndex) then
-		Move(xx, yy, zz);
+
+	return z;
+end
+
+function script_pather:floorZ(x, y, z)
+
+	local hit, _, _, hitZ = Raycast(x, y, z+10, dx, dy, z-10);
+	if (not hit) then
+		return hitZ;
+	end
+
+	return z;
+end
+
+function script_pather:getNextNode(nX, nY, nZ, nA, dX, dY, dZ)
+
+	local pathNode = {};
+	pathNode['x'], pathNode['y'], pathNode['z'], pathNode['a'] = 0, 0, 0, 0;
+	
+	local closestDist = 9999;
+	local newAngle = 0;
+	local pathClear = true;
+
+	local dist = math.min(self.nodeDist, GetDistance3D(nX, nY, nZ, dX, dY, dZ));
+	
+	-- angle check
+	for y = 0, 64 do 
+
+		newAngle = nA - y*(2*math.pi/64);	
+		pathClear = true;
+
+		-- Z check
+		for i = 0, 10 do 
+
+			-- Start positions 
+			local mx, my, mz = nX, nY, nZ;
+			mz = mz + 0.8 + i*0.24;
+			local mlx, mly = mx+(0.5*math.cos(nA+3.14/2)), my+(0.5*math.sin(nA+3.14/2));
+			local mrx, mry = mx+(0.5*math.cos(nA-3.14/2)), my+(0.5*math.sin(nA-3.14/2));
+		
+			-- End positions
+			local pathNodeZ = script_pather:floorNextZ(nX, nY, nZ, newAngle, dist);
+			local endZ = pathNodeZ + 0.8 + i*0.24;
+
+			local _xpc, _ypc, _zpc = mx+self.nodeDist*math.cos(newAngle), my+self.nodeDist*math.sin(newAngle), endZ;
+			local _xpl, _ypl, _zpl = mlx+self.nodeDist*math.cos(newAngle), mly+self.nodeDist*math.sin(newAngle), endZ;
+			local _xpr, _ypr, _zpr = mrx+self.nodeDist*math.cos(newAngle), mry+self.nodeDist*math.sin(newAngle), endZ;
+
+			local hitC, cX, cY, cZ = Raycast(mx, my, mz, _xpc, _ypc, _zpc);
+			local hitL, lX, lY, lZ = Raycast(mlx, mly, mz, _xpl, _ypl, _zpl);	
+			local hitR, rX, rY, rZ = Raycast(mrx, mry, mz, _xpr, _ypr, _zpr);
+
+			local zDiff = math.abs(nZ-pathNodeZ);
+			local zSlope = zDiff/self.nodeDist;
+				
+			if ((not hitC) or (not hitL) or (not hitR)) then
+					pathClear = false;
+			end
+			
+			if (i == 10 and pathClear) then
+				if(zSlope < self.maxZSlope) then
+					--local currNodeDist = GetDistance3D(_xpc, _ypc, pathNodeZ, dX, dY, dZ);
+					currNodeDist = math.sqrt((_xpc-dX)^2+(_ypc-dY)^2);
+					if (currNodeDist < closestDist) then
+						closestDist = currNodeDist;
+						pathNode['x'], pathNode['y'], pathNode['z'], pathNode['a'] = _xpc, _ypc, pathNodeZ, newAngle;
+					end
+				end
+			end
+
+		end	
+
+	end
+	
+	return pathNode;
+end
+
+function script_pather:generatePath(dx, dy, dz)
+
+	if (self.status == 1) then
 		return true;
 	end
 
@@ -72,175 +165,137 @@ function script_pather:moveToTarget(xx, yy, zz)
 		self.dX, self.dY, self.dZ = 0, 0, 0;
 	end
 
-	if (script_pathFlyingEX:canFly()) then
-		if ((dist > 150) and not IsMounted()) then
-			if (script_pathFlyingEX:useMount()) then
-				return true;
-			end
-		end
-	end
-
-	local genNewPath = false;
-
-	if (GetDistance3D(self.dX, self.dY, self.dZ, xx, yy, zz) > 2) then
-		self.dX, self.dY, self.dZ = xx, yy, zz;
-		genNewPath = true;
-		self.path, self.pathSize = {}, 0;
-	end	
+	self.status = 1;
+	pathSize = 0;
+	local path = {};
+	local mx, my, mz = GetLocalPlayer():GetPosition();
+	local a = GetLocalPlayer():GetAngle();
 	
-	if (genNewPath) then
-		self.status = 1;
-		self.goToIndex = 1;
-		self.sx, self.sy, self.sz = x, y, z;
-
-		if (IsMoving()) and (GetUnitsTarget(GetLocalPlayer()) == 0) then
-			StopMoving();
-			MoveForwardStop();
-			DescendStop();
-			AscendStop();
-			self.dX, self.dY, self.dZ = 0, 0, 0;
-			return true;
-		end
-
-		-- Generate a path
-		if (IsFlying() or script_pathFlyingEX:onMount()) then
-			_, self.path, self.pathSize = script_pathFlying:generatePath(x, y, z, xx, yy, zz);
-			self.status = 0;
-			if (not IsFlying()) then
-				Jump();
-				StopJump();
-				return true;
-			end
-		else
-			local isWayPointPath, tempPath, size = script_pathCircle:generateMeshPath(x, y, z, xx, yy, zz);
-			if (isWayPointPath) then
-				self.waypointPath, self.waypointPathSize = tempPath, size;
-				
-				-- Trim the path
-				local trim = true;
-				while trim do
-					self.waypointPath, self.waypointPathSize, trim = script_patherEX:trimPath(self.waypointPath, self.waypointPathSize, self.goToIndex, self.nodeDist);
-				end	
-
-				self.path, self.pathSize = self.waypointPath, self.waypointPathSize;
-	
-				self.status = 0;
-
-				return true;
-			else
-				DEFAULT_CHAT_FRAME:AddMessage('script_pather: Path generation failed...');
-				if (IsMoving()) then
-					StopMoving();
-				end
-				self.path = {};
-				self.pathSize = 0;
-				return false;
-			end
-		end
-	end
-
-	if (self.pathSize == 0 or self.status == 1) then
+	if (GetDistance3D(self.dX, self.dY, self.dZ, dx, dy, dz) > 2) then
+		self.dX, self.dY, self.dZ = dx, dy, dz;
+	else
+		self.status = 0;
 		return true;
 	end
 
-	-- update path after some moved distance for collission detection
-	local cx, cy, cz = GetPosition(GetLocalPlayer());
-	if (GetDistance3D(cx, cy, cz, self.sx, self.sy, self.sz) > self.updatePathDist) then
+	local pathGen = false;
+
+	-- first node
+	path[1] = {};
+	path[1] = script_pather:getNextNode(mx, my, mz, a, dx, dy, dz);
+	
+	if (GetDistance3D(mx, my, mz, dx, dy, dz) < self.nodeDist) then
+		self.status = 0;
+		self.path = path;
+		self.pathSize = 1;
+		self.goToIndex = 1;
+		return true;
+	end
+
+	-- path all the rest nodes
+	for i = 2, 50 do
+		path[i] = {};
+		path[i] = script_pather:getNextNode(path[i-1]['x'], path[i-1]['y'], path[i-1]['z'], path[i-1]['a'], dx, dy, dz);
+		self.pathSize = i;
+
+		-- Couldn't find the next path node
+		if (path[i]['x'] == 0) then
+			self.status = 0;
+			pathGen = false;
+			break;
+		end
+
+		-- Reached the destination
+		if (GetDistance3D(path[i]['x'], path[i]['y'], path[i]['z'], dx, dy, dz) < self.nodeDist or i == 50) then
+			self.status = 0;
+			pathGen = true;
+			break;
+		end	
+
+	end
+
+	-- last node
+	pathSize = self.pathSize+1;
+	path[pathSize] = {};
+	path[pathSize]['x'], path[pathSize]['y'], path[pathSize]['z'] = dx, dy, dz;
+		
+	self.status = 0;
+
+	if (pathGen) then
+		self.path = path;
+		self.pathSize = pathSize;
+		self.goToIndex = 1;
+	else
+		self.path = {};
+		self.pathSize = 0;
+	end
+
+	return pathGen;
+end
+
+function script_pather:moveToTarget(x, y, z)
+
+	if (not script_pather:generatePath(x, y, z)) then
+		return false;
+	end
+
+	if (self.status == 1) then
+		return true;
+	end
+
+	if (self.pathSize == 0) then
+		return true;
+	end
+	
+	local x, y, z = GetLocalPlayer():GetPosition();	
+
+	-- If are far away from the go to node, generate a new path
+	if (GetDistance3D(x, y, z, self.path[self.goToIndex]['x'], self.path[self.goToIndex]['y'], self.path[self.goToIndex]['z']) > self.nodeDist*3) then
+		self.message = 'Generating a new path';
 		self.status = 2;
+		script_pather:generatePath(self.dX, self.dY, self.dZ);
 		return;
 	end
 
-	local nodeDistance = script_pather.nodeDist;
-
-	-- Moving through path logic
-	if (self.goToIndex > 1 and self.goToIndex < self.pathSize) then
-		nodeDistance = GetDistance3D(self.path[self.goToIndex-1]['x'], self.path[self.goToIndex-1]['y'], self.path[self.goToIndex-1]['z'], self.path[self.goToIndex]['x'], self.path[self.goToIndex]['y'], self.path[self.goToIndex]['z'])
-	end
-
-	if (self.path[self.goToIndex]['x'] ~= nil) then
-		
-		if (GetDistance3D(x, y, z, self.path[self.goToIndex]['x'], self.path[self.goToIndex]['y'], self.path[self.goToIndex]['z']) > nodeDistance*3 and nodeDistance > 5) then
-			self.status = 2;
-			self.pathSize = 0;
-			return;
-		end
-
-		if (GetDistance3D(x, y, z, self.path[self.pathSize]['x'], self.path[self.pathSize]['y'], self.path[self.pathSize]['z']) < 2 and self.pathSize > 2) then
-			if (IsMoving()) then
-				StopMoving();
-			end
+	-- If we are at destination
+	if (GetDistance3D(x, y, z, self.path[self.pathSize]['x'], self.path[self.pathSize]['y'], self.path[self.pathSize]['z']) < 2) then
+		if (IsMoving()) then
 			self.path = {};
 			self.pathSize = 0;
-			self.dX, self.dY, self.dZ = 0, 0, 0;
-			return;
+			self.message = 'Destination reached...';
+			StopMoving();
 		end
+		return;
+	end
 
-		if (self.pathSize > self.goToIndex) then
-			if (not IsDead(GetLocalPlayer())) then
-				if (IsFlying() and GetDistance3D(x, y, z, self.path[self.goToIndex]['x'], self.path[self.goToIndex]['y'], self.path[self.goToIndex]['z']) < 7) then
-					self.goToIndex = self.goToIndex + 1;
-				else
-					if (GetDistance3D(x, y, z, self.path[self.goToIndex]['x'], self.path[self.goToIndex]['y'], self.path[self.goToIndex]['z']) < math.min(nodeDistance/2, 4)) then
-						self.goToIndex = self.goToIndex + 1;
-					end
-				end
-			else
-				local dist = math.sqrt((self.path[self.goToIndex]['x']-x)^2 + (self.path[self.goToIndex]['y']-y)^2);
-				if (dist < math.min(nodeDistance/2, 4)) then
-					self.goToIndex = self.goToIndex + 1;
-				end
-			end
+	-- Increase go to index
+	if (self.pathSize > self.goToIndex) then
+		if (GetDistance3D(x, y, z, self.path[self.goToIndex]['x'], self.path[self.goToIndex]['y'], self.path[self.goToIndex]['z']) < math.min(self.nodeDist/2, 2)) then
+			self.goToIndex = self.goToIndex + 1;
+			self.message = 'Moving to path node ' .. self.goToIndex;
 		end
 	end
 
-	if (Move(self.path[self.goToIndex]['x'], self.path[self.goToIndex]['y'], self.path[self.goToIndex]['z'])) then
-		return true;
+	Move(self.path[self.goToIndex]['x'], self.path[self.goToIndex]['y'], self.path[self.goToIndex]['z']);
+end
+
+function script_pather:run()
+	local localObj = GetLocalPlayer();
+
+	if (self.timer == 0) then
+		self.timer = GetTimeEX();
 	end
-end
 
-function script_pather:jumpObstacles()
-	if ( (script_patherEX:getObsMin(1) > 0.3 and script_patherEX:getObsMax(1) < 2.3) or 
-		(script_patherEX:getObsMin(2) > 0.3 and script_patherEX:getObsMax(2) < 2.3) ) then
-		Jump();
-		StopJump();
+	if (self.timer > GetTimeEX()) then
+		return;
 	end
-end
 
-function script_pather:checkResetPath()
-	
-end
+	self.timer = GetTimeEX() + 250;
 
-function script_pather:resetPath()
-	self.goToIndex = script_patherEX:closestPathNode();
-end
+	local x, y, z = GetLocalPlayer():GetPosition();
+	local a = GetLocalPlayer():GetAngle();
 
-function script_pather:menu()
-	--if (CollapsingHeader("[Raycast pathing options")) then
-		Separator();
-		Text("Pather v 0.3 - by Logitech");
-		Text("Crashes when some values are changed...");
-		Separator();
-		local wasClicked = false;
-		wasClicked, script_pather.drawMesh = Checkbox("Draw Mesh", script_pather.drawMesh);
-		Text("Path accuracy");
-		self.qualityAngle = SliderInt("PS", 3, 64, self.qualityAngle);
-		Text("Maximum number of nodes in a straight path");
-		self.straightPathSize = SliderInt("MN", 10, 250, self.straightPathSize);
-		Text("Path node distance dismounted");
-		if (self.pathSize == 0) then
-			self.nodeDistUnmounted = SliderFloat("PND", 1, 20, self.nodeDistUnmounted);
-		else
-			self.nodeDistUnmounted = SliderFloat("PND", self.nodeDistUnmounted, 20, self.nodeDistUnmounted);
-		end
-		Text("Mounted path node distance");
-		self.nodeDistMounted = SliderFloat("PNM", 1, 20, self.nodeDistMounted);
-		Text("Maximum Z-slope uphill");
-		self.maxZSlopeUp = SliderFloat("ZSU", 0.1, 1, self.maxZSlopeUp);
-		Text("Maximum Z-slope downhill");
-		self.maxZSlopeDown = SliderFloat("ZSD", -3, -0.1, self.maxZSlopeDown);
-		Text("Obstacle Max Height (Z-axis)");
-		self.zMax = SliderFloat("Omax", 1, 3, self.zMax);
-		Text("Obstacle Min Height (Z-axis)");
-		self.zMin = SliderFloat("Omin", 0.1, 1.5, self.zMin);
-	--end
+	self.dx, self.dy, self.dz = GetTerrainClick();
+
+	script_pather:moveToTarget(self.dx, self.dy, self.dz);
 end
