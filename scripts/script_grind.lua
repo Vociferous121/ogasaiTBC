@@ -535,6 +535,14 @@ function script_grind:run()
 		script_pather:resetPath();
 		ResetNavigate();
 		RunCombatScript(self.target)
+
+		if (IsInCombat()) and (script_grind.enemiesAttackingUs() >= 2) then
+			if (HasSpell("Gift of the Naaru")) and (not IsSpellOnCD("Gift of the Naaru")) and (not HasBuff(GetLocalPlayer(), "Gift of the Naaru")) then
+				if (Buff(GetLocalPlayer(), "Gift of the Naaru")) then
+					self.waitTimer = GetTimeEX() + 1500;
+				end
+			end
+		end
 		
 
 		-- Unstuck feature on valid "working" targets
@@ -623,7 +631,6 @@ function script_grind:isAnyTargetTargetingMe()
 return false;
 end
 
-
 -- add target to blacklist table by GUID
 function script_grind:addTargetToBlacklist(targetGUID)
 	if (targetGUID ~= nil and targetGUID ~= 0 and targetGUID ~= '') then	
@@ -637,6 +644,38 @@ function script_grind:isTargetBlacklisted(targetGUID)
 	for i=0,self.blacklistedNum do
 		if (targetGUID == self.blacklistedTargets[i]) then
 			return true;
+		end
+	end
+	return false;
+end
+
+function script_grind:enemiesAttackingUs() -- returns number of enemies attacking us
+	local unitsAttackingUs = 0; 
+	local i, t = GetFirstObject(); 
+	while i ~= 0 do 
+    	if t == 3 then
+		if (CanAttack(i) and not IsDead(i)) then
+                	if (script_grind:isTargetingMe(i) or script_grind:isTargetingPet(i)) then 
+                		unitsAttackingUs = unitsAttackingUs + 1; 
+                	end 
+            	end 
+       	end
+	i, t = GetNextObject(i); 
+    end
+    return unitsAttackingUs;
+end
+
+function script_grind:isTargetingPet(i) 
+	local pet = GetPet();
+
+	-- if we have a pet
+	if (pet ~= nil and pet ~= 0 and not IsDead(pet)) then
+
+		-- if target is targeting pet then
+		if (GetUnitsTarget(i) ~= nil and GetUnitsTarget(i) ~= 0) then
+
+			-- return true
+			return GetUnitsTarget(GetGUID(i)) == GetGUID(pet);
 		end
 	end
 	return false;

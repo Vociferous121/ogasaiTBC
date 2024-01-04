@@ -14,13 +14,15 @@ function script_grindMenu:menu()
 	Text(gc);
 
 	--nav mesh progress
-	local qqq = math.floor(GetLoadNavmeshProgress()*100);
-	if (qqq ~= nil) and (qqq ~= 100) and (qqq ~= 200) and (not qqq > 200) then
-		Text("Navmesh Loading Progress Percent... " ..qqq);
-	end
-	if (qqq > 200) then
-		Text("Please Reload Game - Navmesm errors");
-	end
+	--if (GetLoadNavmeshProgress() ~= nil) then
+	--	local qqq = math.floor(GetLoadNavmeshProgress()*100);
+	--	if (qqq ~= nil) and (qqq ~= 100) and (qqq ~= 200) and (not qqq > 200) then
+	--		Text("Navmesh Loading Progress Percent... " ..qqq);
+	--	end
+	--	if (qqq > 200) then
+	--		Text("Please Reload Game - Navmesm errors");
+	--	end
+	--end
 
 	if (script_grind.pause) then
 		if (Button("Resume Bot")) then script_grind.pause = false; end
