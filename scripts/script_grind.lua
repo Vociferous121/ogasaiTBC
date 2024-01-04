@@ -537,10 +537,9 @@ function script_grind:run()
 		RunCombatScript(self.target)
 
 		if (IsInCombat()) and (script_grind.enemiesAttackingUs() >= 2) then
-			if (HasSpell("Gift of the Naaru")) and (not IsSpellOnCD("Gift of the Naaru")) and (not HasBuff(GetLocalPlayer(), "Gift of the Naaru")) then
-				if (Buff(GetLocalPlayer(), "Gift of the Naaru")) then
-					self.waitTimer = GetTimeEX() + 1500;
-				end
+			if (HasSpell("Gift of the Naaru")) and (not IsSpellOnCD("Gift of the Naaru")) and (not HasBuff(localObj, "Gift of the Naaru")) then
+				CastSpellByName("Gift of the Naaru", localObj);
+				
 			end
 		end
 		
@@ -651,15 +650,18 @@ end
 
 function script_grind:enemiesAttackingUs() -- returns number of enemies attacking us
 	local unitsAttackingUs = 0; 
+        local localPlayer = GetLocalPlayer();
 	local i, t = GetFirstObject(); 
 	while i ~= 0 do 
-    	if t == 3 then
-		if (CanAttack(i) and not IsDead(i)) then
-                	if (script_grind:isTargetingMe(i) or script_grind:isTargetingPet(i)) then 
-                		unitsAttackingUs = unitsAttackingUs + 1; 
-                	end 
-            	end 
-       	end
+    		if t == 3 then
+			if (CanAttack(i) and not IsDead(i)) then
+				if (localPlayer ~= nil and localPlayer ~= 0 and not IsDead(localPlayer)) then
+					if (GetUnitsTarget(i) ~= nil and GetUnitsTarget(i) ~= 0) then
+	                			unitsAttackingUs = unitsAttackingUs + 1; 
+	                		end 
+				end
+	            	end 
+	       	end
 	i, t = GetNextObject(i); 
     end
     return unitsAttackingUs;
