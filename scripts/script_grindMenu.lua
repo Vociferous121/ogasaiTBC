@@ -7,10 +7,19 @@ function script_grindMenu:menu()
 
 	local wasClicked = false;
 
+	--garbage data..
+	Text("Garbage Data Lost (object manager) ");
+	SameLine();
+	local gc = gcinfo();
+	Text(gc);
+
 	--nav mesh progress
 	local qqq = math.floor(GetLoadNavmeshProgress()*100);
-	if (qqq ~= 100) then
-		Text("Navmesh Loading Progress... " ..qqq);
+	if (qqq ~= 100) and (qqq ~= 200) and (not qqq > 200) then
+		Text("Navmesh Loading Progress Percent... " ..qqq);
+	end
+	if (qqq > 200) then
+		Text("Please Reload Game - Navmesm errors");
 	end
 
 	if (script_grind.pause) then

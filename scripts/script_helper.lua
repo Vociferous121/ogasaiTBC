@@ -316,6 +316,7 @@ function script_helper:eat()
 		if (not IsInCombat()) then
 			if (HasItem(self.food[i])) then
 				if (UseItem(self.food[i])) then
+					script_grind.waitTimer = GetTimeEX() + 1650;
 					return true;
 				end
 			end
@@ -328,6 +329,7 @@ function script_helper:drinkWater()
 	for i=0,self.numWater do
 		if (HasItem(self.water[i])) then
 			if (UseItem(self.water[i])) then
+				script_grind.waitTimer = GetTimeEX() + 1650;
 				return true;
 			end
 		end

@@ -140,7 +140,7 @@ function script_grind:run()
 
 	if (not self.adjustTickRate) then
 	
-		if (not IsInCombat()) then
+		if (not IsInCombat() or IsMoving()) then
 			self.tickRate = 50;
 		end
 		if (not IsMoving()) and (IsInCombat()) then
@@ -301,6 +301,11 @@ function script_grind:run()
 		script_debug.debugGrind = "reset navigate";
 	end
 
+	if (HasItem("Small Barnacled Clam")) then
+		UseItem("Small Barnacled Clam");
+		self.waitTimer = GetTimeEX() + 1650;
+	end
+
 	-- Loot
 	if (script_target:isThereLoot() and not IsInCombat() and not AreBagsFull() and not self.bagsFull) then
 		self.message = "Looting... (enable auto loot)";
@@ -434,7 +439,9 @@ function script_grind:run()
 			end
 
 			-- stuck in combat wait for combat phase to end
-			if (IsInCombat()) and (GetPet() == 0) and (GetUnitsTarget(GetLocalPlayer()) == 0) then
+			if (IsInCombat()) and (GetPet() == 0)
+				and (GetUnitsTarget(GetLocalPlayer()) == 0)
+				and (not script_grind:isAnyTargetTargetingMe()) then			
 				script_debug.debugGrind = "Stuck in combat - no target";
 				return;
 			end
@@ -474,7 +481,9 @@ function script_grind:run()
 			-- move to target...
 			if (not self.raycastPathing) then
 				if (not HasSpell("Fireball") or not HasSpell("Shadowbolt") or not HasSpell("Smite") or not HasSpell("Raptor Strike")) and (GetDistance(self.target) > 2) then
-					script_grind.tickRate = 50;
+					if (not self.adjustTickRate) then
+						script_grind.tickRate = 50;
+					end
 					if (MoveToTarget(self.target)) then
 					else
 						if (GetDistance(self.target) <= 2) then
@@ -484,7 +493,9 @@ function script_grind:run()
 						end
 					end
 				elseif (GetDistance(self.target) > 27) or (not IsInLineOfSight(self.target)) then
-					script_grind.tickRate = 50;
+					if (not self.adjustTickRate) then
+						script_grind.tickRate = 50;
+					end
 					MoveToTarget(self.target);
 				end
 				return;
@@ -594,6 +605,23 @@ function script_grind:isTargetingMe(i)
 	end
 	return false;
 end
+
+function script_grind:isAnyTargetTargetingMe() 
+	local localPlayer = GetLocalPlayer();
+	if (localPlayer ~= nil and localPlayer ~= 0 and not IsDead(localPlayer)) then
+		while i ~= 0 do
+			if (GetDistance(i) <= 45) and (not IsDead(i)) and (not IsCritter(i)) and (CanAttack(i)) then
+				if (GetUnitsTarget(i) ~= nil and GetUnitsTarget(i) ~= 0) then
+					if (GetUnitsTarget(GetGUID(i)) == GetGUID(localPlayer)) then
+						return true;
+					end
+				end
+			end
+		end
+	end
+return false;
+end
+
 
 -- add target to blacklist table by GUID
 function script_grind:addTargetToBlacklist(targetGUID)

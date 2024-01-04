@@ -122,6 +122,10 @@ function script_rogue:run(targetObj)
 				return;
 			end
 		end
+
+		if (not script_grind.adjustTickRate) and (GetDistance(self.target) > 4) then
+			script_grind.tickRate = 50;
+		end
 		
 		-- Combat
 		if (IsInCombat()) then
@@ -286,7 +290,7 @@ function script_rogue:run(targetObj)
 					UnitInteract(targetObj);
 					script_debug.debugCombat = "unit interact";
 	
-					if (localEnergy >= 45) then
+					if (localEnergy >= 45) and (GetDistance(self.target) <= 7) then
 						if (not HasSpell("Cheap Shot")) and (HasSpell("BackStab")) then
 							if (Cast("BackStab", self.target)) then
 								self.waitTimer = GetTimeEX() + 500;
@@ -352,6 +356,7 @@ function script_rogue:rest()
 		if (not IsInCombat()) then
 			if(script_helper:eat()) then
 				script_debug.debugCombat = "use script_helper:eat";
+				script_grind.waitTimer = GetTimeEX() + 1500;
 				script_grind:restOn();
 				return true;
 			end
