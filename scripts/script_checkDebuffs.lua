@@ -13,9 +13,9 @@ function script_checkDebuffs:hasCurse()
 
 	local player = GetLocalPlayer();
 
-	if (player:HasDebuff("Curse of Mending"))
-		or (player:HasDebuff("Curse of the Shadowhorn"))
-		or (player:HasDebuff("Curse of Recklessness"))
+	if (HasDebuff(player, "Curse of Mending"))
+		or (HasDebuff(player, "Curse of the Shadowhorn"))
+		or (HasDebuff(player, "Curse of Recklessness"))
 
 
 	then
@@ -33,14 +33,14 @@ function script_checkDebuffs:hasPoison()
 
 	local player = GetLocalPlayer();
 
-	if (player:HasDebuff("Weak Poison"))
-		or (player:HasDebuff("Corrosive Poison"))
-		or (player:HasDebuff("Poison"))
-		or (player:HasDebuff("Slowing Poison"))
-		or (player:HasDebuff("Poisoned Shot"))
-		or (player:HasDebuff("Venom Spit"))
-		or (player:HasDebuff("Bottle of Poison"))
-		or (player:HasDebuff("Venom Sting"))
+	if (HasDebuff(player, "Weak Poison"))
+		or (HasDebuff(player, "Corrosive Poison"))
+		or (HasDebuff(player, "Poison"))
+		or (HasDebuff(player, "Slowing Poison"))
+		or (HasDebuff(player, "Poisoned Shot"))
+		or (HasDebuff(player, "Venom Spit"))
+		or (HasDebuff(player, "Bottle of Poison"))
+		or (HasDebuff(player, "Venom Sting"))
 
 
 		then
@@ -56,16 +56,16 @@ function script_checkDebuffs:hasDisease()
 
 	local player = GetLocalPlayer();
 
-	if (player:HasDebuff("Rabies"))
-		or (player:HasDebuff("Fevered Fatigue"))
-		or (player:HasDebuff("Dark Sludge"))
-		or (player:HasDebuff("Infected Bite"))
-		or (player:HasDebuff("Wandering Plague"))
-		or (player:HasDebuff("Plague Mind"))
-		or (player:HasDebuff("Fevered Fatigue"))
-		or (player:HasDebuff("Tetanus")) 
-		or (player:HasDebuff("Creeping Mold"))
-		or (player:HasDebuff("Diseased Slime"))
+	if (HasDebuff(player, "Rabies"))
+		or (HasDebuff(player, "Fevered Fatigue"))
+		or (HasDebuff(player, "Dark Sludge"))
+		or (HasDebuff(player, "Infected Bite"))
+		or (HasDebuff(player, "Wandering Plague"))
+		or (HasDebuff(player, "Plague Mind"))
+		or (HasDebuff(player, "Fevered Fatigue"))
+		or (HasDebuff(player, "Tetanus")) 
+		or (HasDebuff(player, "Creeping Mold"))
+		or (HasDebuff(player, "Diseased Slime"))
 	
 		then
 
@@ -81,13 +81,13 @@ function script_checkDebuffs:hasMagic()
 
 	local player = GetLocalPlayer();
 
-	if (player:HasDebuff("Faerie Fire")) 
-		or (player:HasDebuff("Sleep"))
-		or (player:HasDebuff("Sap Might"))
-		or (player:HasDebuff("Frost Nova"))
-		or (player:HasDebuff("Fear"))
-		or (player:HasDebuff("Entangling Roots"))
-		or (player:HasDebuff("Sonic Burst"))
+	if (HasDebuff(player, "Faerie Fire")) 
+		or (HasDebuff(player, "Sleep"))
+		or (HasDebuff(player, "Sap Might"))
+		or (HasDebuff(player, "Frost Nova"))
+		or (HasDebuff(player, "Fear"))
+		or (HasDebuff(player, "Entangling Roots"))
+		or (HasDebuff(player, "Sonic Burst"))
 
 	
 	then
@@ -105,11 +105,11 @@ function script_checkDebuffs:hasDisabledMovement()
 
 	local player = GetLocalPlayer();
 
-	if (player:HasDebuff("Web"))
-		or (player:HasDebuff("Net"))
-		or (player:HasDebuff("Frost Nova"))
-		or (player:HasDebuff("Entangling Roots"))
-		or (player:HasDebuff("Slowing Poison"))
+	if (HasDebuff(player, "Web"))
+		or (HasDebuff(player, "Net"))
+		or (HasDebuff(player, "Frost Nova"))
+		or (HasDebuff(player, "Entangling Roots"))
+		or (HasDebuff(player, "Slowing Poison"))
 
 
 	then
@@ -149,9 +149,9 @@ function script_checkDebuffs:undeadForsaken()
 		
 		local player = GetLocalPlayer();
 	
-	if (player:HasDebuff("Sleep"))
-		or (player:HasDebuff("Fear"))
-		or (player:HasDebuff("Mind Control"))
+	if (HasDebuff(player, "Sleep"))
+		or (HasDebuff(player, "Fear"))
+		or (HasDebuff(player, "Mind Control"))
 
 	then
 
@@ -169,9 +169,9 @@ function script_checkDebuffs:hasSilence()
 
 		local player = GetLocalPlayer();
 
-	if (player:HasDebuff("Silence"))
-	or (player:HasDebuff("Sonic Burst"))
-	or (player:HasDebuff("Overwhelming Stench"))
+	if (HasDebuff(player, "Silence"))
+	or (HasDebuff(player, "Sonic Burst"))
+	or (HasDebuff(player, "Overwhelming Stench"))
 
 	then
 	

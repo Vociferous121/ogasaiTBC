@@ -20,7 +20,7 @@ script_unstuck = {
 	_angle = 0,
 	unstuckAngle = 0,
 	unstuckTime = GetTimeEX(),
-	turnSensitivity = 1.50,
+	turnSensitivity = 3,
 	
 	
 }
@@ -97,24 +97,34 @@ function script_unstuck:drawChecks()
 end
 
 function script_unstuck:turn(changeAngle)
-	_lx, _ly, _lz = GetLocalPlayer():GetPosition();
-	_angle = GetLocalPlayer():GetAngle() + changeAngle;
+	_lx, _ly, _lz = GetPosition(GetLocalPlayer());
+	_angle = GetAngle(GetLocalPlayer()) + changeAngle;
 	self.unstuckAngle = _angle;
-	FacePosition(_lx+math.cos(_angle), _ly+math.sin(_angle), _lz);
+	test = _lx+math.cos(_angle) + _ly+math.sin(_angle);
+	FaceAngle(test);
 end
 
 function script_unstuck:walkForward(yards)
-	_lx, _ly, _lz = GetLocalPlayer():GetPosition();
+	local localPlayer = GetLocalPlayer();
+	_lx, _ly, _lz = GetPosition(localPlayer);
+	local x =  _lx+yards*math.cos(self.unstuckAngle);
+	local y =  _ly+yards*math.sin(self.unstuckAngle);
+	local z =  _lz;
+
 	if (self.unstuckTime < GetTimeEX()) then
+
 		self.unstuckTime = GetTimeEX() + 2000;
-		script_navEX:moveToTarget(GetLocalPlayer(), _lx+yards*math.cos(self.unstuckAngle), _ly+yards*math.sin(self.unstuckAngle), _lz);
+
+		if (Move(x, y, z)) then
+			return true;
+		end
 	end
 end
 
 function script_unstuck:getSlope(yardsInfront)
 	-- our pos plus 5 yards
-	_lx, _ly, _lz = GetLocalPlayer():GetPosition();
-	_angle = GetLocalPlayer():GetAngle();	
+	_lx, _ly, _lz = GetPosition(GetLocalPlayer());
+	_angle = GetAngle(GetLocalPlayer());	
 	_lx, _ly = _lx+5*math.cos(_angle), _ly+5*math.sin(_angle);
 	
 	for i = 1, 100 do	
@@ -141,7 +151,7 @@ function script_unstuck:jumpObstacles()
 	if ( (script_unstuck:getObsMin(1) >= 0.24 and script_unstuck:getObsMax(1) < 2.2 and script_unstuck:getObsMax(1) > 1) or 
 		(script_unstuck:getObsMin(2) >= 0.3 and  script_unstuck:getObsMax(2) < 2.2 and script_unstuck:getObsMax(2) > 1) ) then
 		self.message = "Jumping over obstacle";
-		JumpOrAscendStart();
+		Jump();
 	end
 end
 
@@ -157,9 +167,9 @@ function script_unstuck:pathClearAuto(yardsInfront)
 	if (IsMoving()) then script_unstuck:jumpObstacles(); end
 
 	-- our pos
-	_lx, _ly, _lz = GetLocalPlayer():GetPosition();
+	_lx, _ly, _lz = GetPosition(GetLocalPlayer());
 
-	_angle = GetLocalPlayer():GetAngle();	
+	_angle = GetAngle(GetLocalPlayer());	
 	
 	for i = 1, 2 do	
 
@@ -214,9 +224,9 @@ end
 
 function script_unstuck:getObsMin(yardsInfront)
 
-	_lx, _ly, _lz = GetLocalPlayer():GetPosition();
+	_lx, _ly, _lz = GetPosition(GetLocalPlayer());
 
-	_angle = GetLocalPlayer():GetAngle();
+	_angle = GetAngle(GetLocalPlayer());
 
 	_x, _y, _z = _lx+(yardsInfront*math.cos(_angle)), _ly+(yardsInfront*math.sin(_angle)), _lz;	
 	
@@ -239,9 +249,9 @@ end
 
 function script_unstuck:getObsMax(yardsInfront)
 
-	_lx, _ly, _lz = GetLocalPlayer():GetPosition();
+	_lx, _ly, _lz = GetPosition(GetLocalPlayer());
 
-	_angle = GetLocalPlayer():GetAngle();
+	_angle = GetAngle(GetLocalPlayer());
 
 	_x, _y, _z = _lx+(yardsInfront*math.cos(_angle)), _ly+(yardsInfront*math.sin(_angle)), _lz;	
 	
