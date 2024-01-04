@@ -1,6 +1,7 @@
 script_aggro = {
 	
 	drawAggro = false,
+	drawRange = 65,
 }
 
 

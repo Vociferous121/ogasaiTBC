@@ -7,6 +7,7 @@ script_grind = {
 	grindExtra = include("scripts\\script_grindEX.lua"),
 	grindMenu = include("scripts\\script_grindMenu.lua"),
 	autoTalents = include("scripts\\script_talent.lua"),
+	safeRessLoaded = include("scripts\\script_safeRess.lua"),
 	info = include("scripts\\script_info.lua"),
 	gather = include("scripts\\script_gather.lua"),
 	rayPather = include("scripts\\script_pather.lua"),
@@ -49,7 +50,7 @@ script_grind = {
 	raycastPathing = false,
 	showRayMenu = false,
 	useNavMesh = true,
-	combatStatus = 0 -- 0 = in range, 1 = not in range
+	combatStatus = 0, -- 0 = in range, 1 = not in range
 }
 
 
@@ -223,22 +224,16 @@ function script_grind:run()
 	-- Dead
 	if (IsDead(GetLocalPlayer())) then
 		if (self.alive) then
-			script_debug.debugGrind = "we are dead repopme";
 			self.alive = false;
 			RepopMe();
 			self.message = "Releasing spirit...";
 			self.waitTimer = GetTimeEX() + 5000;
-		return;
+			return;
 		end
-
-		self.message = script_helper:ress(GetCorpsePosition()); 
-		script_path:savePos(false); -- SAVE FOR UNSTUCK
-		self.waitTimer = GetTimeEX() + 500;
-		script_debug.debugGrind = "using script_helper:ress";
+			self.message = script_helper:ress(GetCorpsePosition()); 
+			script_path:savePos(false); -- SAVE FOR UNSTUCK
 		return;
-
 	else
-
 	-- Alive
 		self.alive = true;
 		script_path:savePos(false); -- SAVE FOR UNSTUCK
@@ -572,4 +567,64 @@ end
 
 function script_grind:restOff()
 	self.shouldRest = false;
+end
+
+function script_grind:playersTargetingUs() -- returns number of players attacking us
+	local nrPlayersTargetingUs = 0; 
+	local i, type = GetFirstObject(); 
+	while i ~= 0 do 
+		if type == 4 then
+			if (script_grind:isTargetingMe(i)) then 
+                		nrPlayersTargetingUs = nrPlayersTargetingUs + 1;
+			end 
+		end
+		i, type = GetNextObject(i); 
+	end
+	return nrPlayersTargetingUs;
+end
+
+function script_grind:isTargetingMe(i) 
+	local localPlayer = GetLocalPlayer();
+	if (localPlayer ~= nil and localPlayer ~= 0 and not IsDead(localPlayer)) then
+		if (GetUnitsTarget(i) ~= nil and GetUnitsTarget(i) ~= 0) then
+			return GetUnitsTarget(GetGUID(i)) == GetGUID(localPlayer);
+		end
+	end
+	return false;
+end
+
+-- add target to blacklist table by GUID
+function script_grind:addTargetToBlacklist(targetGUID)
+	if (targetGUID ~= nil and targetGUID ~= 0 and targetGUID ~= '') then	
+		self.blacklistedTargets[self.blacklistedNum] = targetGUID;
+		self.blacklistedNum = self.blacklistedNum + 1;
+	end
+end
+
+-- check if target is blacklisted by table GUID
+function script_grind:isTargetBlacklisted(targetGUID) 
+	for i=0,self.blacklistedNum do
+		if (targetGUID == self.blacklistedTargets[i]) then
+			return true;
+		end
+	end
+	return false;
+end
+
+-- add target to hard blacklist table by GUID
+function script_grind:addTargetToHardBlacklist(targetGUID)
+	if (targetGUID ~= nil and targetGUID ~= 0 and targetGUID ~= '') then	
+		self.hardBlacklistedTargets[self.hardBlacklistedNum] = targetGUID;
+		self.hardBlacklistedNum = self.hardBlacklistedNum + 1;
+	end
+end
+
+-- check if target is hard blacklisted by table GUID
+function script_grind:isTargetHardBlacklisted(targetGUID) 
+	for i=0,self.hardBlacklistedNum do
+		if (targetGUID == self.hardBlacklistedTargets[i]) then
+			return true;
+		end
+	end
+	return false;
 end

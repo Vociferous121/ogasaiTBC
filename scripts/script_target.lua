@@ -18,7 +18,7 @@ script_target = {
 	currentLootTarget = 0,
 	lootTargets = {},
 	numLoot = 0,
-	lootDistance = 3.5,
+	lootDistance = 3.0,
 	lootRange = 60,
 	lootTimer = 0,
 	skin = true,
@@ -83,7 +83,7 @@ function script_target:doLoot()
 		return;
 	end
 
-	if (GetDistance(lootTarget) > self.lootDistance) then
+	if (GetDistance(lootTarget) >= self.lootDistance) then
 		script_path:savePos(false); -- SAVE FOR UNSTUCK
 		if (not script_grind.raycastPathing) then
 			MoveToTarget(lootTarget);
