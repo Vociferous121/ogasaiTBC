@@ -53,7 +53,7 @@ script_grind = {
 	showRayMenu = false,
 	useNavMesh = true,
 	combatStatus = 0, -- 0 = in range, 1 = not in range
-	drawPath = true,
+	drawPath = false,
 	useUnstuckScript = true,
 }
 
