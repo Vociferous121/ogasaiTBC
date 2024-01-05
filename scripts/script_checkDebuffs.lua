@@ -127,10 +127,11 @@ function script_checkDebuffs:petDebuff()
 
 		local class = UnitClass('player');
 
-	if (class == 'Hunter' or class == 'Warlock') and (GetLocalPlayer():GetLevel() >= 10) and (GetPet() ~= 0) then
+	if (class == 'Hunter' or class == 'Warlock') and (GetLevel(GetLocalPlayer()) >= 10) and (GetPet() ~= 0) then
+
 		local pet = GetPet();
 	
-		if (pet:HasDebuff("Web"))
+		if (HasDebuff(pet, "Web"))
 	
 	
 		then
@@ -186,12 +187,12 @@ end
 function script_checkDebuffs:enemyBuff()
 	
 	local localObj = GetLocalPlayer();
-	local hasTarget = localObj:GetUnitsTarget();
+	local myTarget = GetUnitsTarget(localObj);
 	
-	if (script_grind.enemyObj ~= 0 and script_grind.enemyObj ~= nil) then
-		if (hasTarget ~= 0) then
+	if ( script_target:getTarget() ~= 0 and  script_target:getTarget() ~= nil) then
+		if (mytarget ~= 0) then
 
-			local enemy = script_grind.enemyObj;
+			local enemy = GetUnitsTarget(localObj);
 	
 			if (enemy:HasBuff("Power Word:Shield")) 
 			or (enemy:HasBuff("Quick Flame Ward"))

@@ -102,7 +102,7 @@ function script_grind:setup()
 		self.useMount = false;
 	end
 
-	hotspotDB:setup(); 
+	hotspotDB:setup();
 
 	DEFAULT_CHAT_FRAME:AddMessage('script_grind: loaded...');
 	script_grindEX:setup();
@@ -367,8 +367,18 @@ function script_grind:run()
 		return;
 	end
 	
-	if (HasSpell("Fireball") or HasSpell("Smite") or HasSpell("Shadowbolt") or HasSpell("Raptor Strike")) then
+	if (HasSpell("Fireball") or HasSpell("Smite") or HasSpell("Shadowbolt")) then
 		if (script_pather.reachedHotspot) and (not IsInCombat()) and (GetDistance(self.target) <= 27) and (IsInLineOfSight(self.target)) then
+			if (IsMoving()) then
+				StopMoving();
+			end
+		end
+	end
+	
+	-- stop when we have reached hotspot to attack target if we are a hunter class
+	if (HasSpell("Raptor Strike")) then
+		if (script_pather.reachedHotspot) and (not IsInCombat())
+			and (GetDistance(self.target) <= 30) and (IsInLineOfSight(self.target)) then
 			if (IsMoving()) then
 				StopMoving();
 			end
@@ -469,8 +479,17 @@ function script_grind:run()
 			end
 
 			-- stop when we get close enough to target and we are a ranged class
-			if (HasSpell("Fireball") or HasSpell("Smite") or HasSpell("Shadowbolt") or HasSpell("Raptor Strike")) then
+			if (HasSpell("Fireball") or HasSpell("Smite") or HasSpell("Shadowbolt")) then
 				if (GetDistance(self.target) <= 27) and (IsInLineOfSight(self.target)) then
+					if (IsMoving()) then
+						StopMoving();
+					end
+				end
+			end
+
+			-- stop when we get close enough to target and we are a hunter class
+			if (HasSpell("Raptor Strike")) then
+				if (GetDistance(self.target) <= 30) and (IsInLineOfSight(self.target)) then
 					if (IsMoving()) then
 						StopMoving();
 					end

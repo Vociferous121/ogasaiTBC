@@ -46,54 +46,203 @@ end
 
 function vendorDB:setup()
 
+	-- dun morogh
+	vendorDB:addVendor("Rybrad Coldbank", 0, 0, 1, true, false, false, false, false, -6101.11, 390.56, 395.54);
+	vendorDB:addVendor("Rybrad Coldbank", 0, 0, 1, false, false, false, false, false, -6101.11, 390.56, 395.54);
+	vendorDB:addVendor("Adlin Pridedrift", 0, 0, 1, false, true, false, false, false, -6226.67, 320.05, 383.11);
+	vendorDB:addVendor("Adlin Pridedrift", 0, 0, 1, false, false, true, false, false, -6226.67, 320.05, 383.11);
+	vendorDB:addVendor("Adlin Pridedrift", 0, 0, 1, false, false, false, true, false, -6226.67, 320.05, 383.11);
+	vendorDB:addVendor("Adlin Pridedrift", 0, 0, 1, false, false, false, false, true, -6226.67, 320.05, 383.11);
+	vendorDB:addVendor("Kreg Bilmn", 0, 0, 1, false, false, false, true, false, -5597.67, -521.86, 399.65);
+	vendorDB:addVendor("Kreg Bilmn", 0, 0, 1, false, false, false, false, true, -5597.67, -521.86, 399.65);
+	vendorDB:addVendor("Kreg Bilmn", 0, 0, 1, false, true, false, false, false, -5597.67, -521.86, 399.65);
+	vendorDB:addVendor("Kreg Bilmn", 0, 0, 1, false, false, true, false, false, -5597.67, -521.86, 399.65);
+	vendorDB:addVendor("Grawn Thromwyn", 0, 0, 1, true, false, false, false, false, -5590.67, -428.42, 397.32);
+	vendorDB:addVendor("Grawn Thromwyn", 0, 0, 1, false, false, false, false, false, -5590.67, -428.42, 397.32);
+	vendorDB:addVendor("Frast Dokner", 0, 0, 1, true, false, false, false, false, -5712.23, -1596.21, 383.2);
+	vendorDB:addVendor("Frast Dokner", 0, 0, 1, false, false, false, false, false, -5712.23, -1596.21, 383.2);
+	vendorDB:addVendor("Kazan Mogosh", 0, 0, 1, false, true, false, false, false, -5665.09, -1567.93, 383.2);
+	vendorDB:addVendor("Kazan Mogosh", 0, 0, 1, false, false, true, false, false, -5665.09, -1567.93, 383.2);
+
+	-- Teldrassil
+	vendorDB:addVendor("Keina", 0, 1, 141, true, false, false, false, false, 10436.7, 794.83, 1322.7);
+	vendorDB:addVendor("Keina", 0, 1, 141, false, false, false, false, false, 10436.7, 794.83, 1322.7);
+	vendorDB:addVendor("Dellylah", 0, 1, 141, false, true, false, false, false, 10450.2, 779.85, 1322.66);
+	vendorDB:addVendor("Dellylah", 0, 1, 141, false, false, true, false, false, 10450.2, 779.85, 1322.66);
+	vendorDB:addVendor("Keina", 0, 1, 141, false, false, false, true, false, 10436.7, 794.83, 1322.7);
+	vendorDB:addVendor("Lyrai", 0, 1, 141, false, false, false, false, true, 10442.9, 783.98, 1337.28);
+	vendorDB:addVendor("Meri Ironweave", 0, 1, 141, true, false, false, false, false, 9815.88, 948.6, 1308.76);
+	vendorDB:addVendor("Meri Ironweave", 0, 1, 141, false, false, false, false, false, 9815.88, 948.6, 1308.76);
+	vendorDB:addVendor("Innkeeper Keldamyr", 0, 1, 141, false, false, true, false, false, 9802.2, 982.6, 1313.89);
+	vendorDB:addVendor("Innkeeper Keldamyr", 0, 1, 141, false, true, false, false, false, 9802.2, 982.6, 1313.89);
+	vendorDB:addVendor("Jeena Featherbow", 0, 1, 141, false, false, false, true, false, 9821.98, 968.83, 1308.77);
+	vendorDB:addVendor("Danlyia", 0, 1, 141, false, true, false, false, false, 9890.16, 994.67, 1313.83);
+	vendorDB:addVendor("Danlyia", 0, 1, 141, false, false, true, false, false, 9890.16, 994.67, 1313.83);
+	vendorDB:addVendor("Aldia", 0, 1, 141, false, false, false, false, true, 9891.87, 988.3, 1327.56);
+
+
+	-- Elwynn Forest	
+	vendorDB:addVendor("Brother Danil", 0, 0, 12, false, false, false, false, true, -8901.59, -112.72, 81.85);
+	vendorDB:addVendor("Brother Danil", 0, 0, 12, false, false, false, true, false, -8901.59, -112.72, 81.85);
+	vendorDB:addVendor("Godric Rothgar", 0, 0, 12, false, false, false, false, false, -8898.24, -119.84, 81.83);
+	vendorDB:addVendor("Godric Rothgar", 0, 0, 12, true, false, false, false, false, -8898.24, -119.84, 81.83);
+	vendorDB:addVendor("Brother Danil", 0, 0, 12, false, true, false, false, false, -8901.59, -112.72, 81.85);
+	vendorDB:addVendor("Brother Danil", 0, 0, 12, false, false, true, false, false, -8901.59, -112.72, 81.85);
+	vendorDB:addVendor("Kurran Steele", 0, 0, 12, true, false, false, false, false, -9457.64, 99.68, 58.34);
+	vendorDB:addVendor("Kurran Steele", 0, 0, 12, false, false, false, false, false, -9457.64, 99.68, 58.34);
+	vendorDB:addVendor("Barkeep Dobbins", 0, 0, 12, false, true, false, false, false, -9459.99, 8.41, 56.96);
+	vendorDB:addVendor("Barkeep Dobbins", 0, 0, 12, false, false, true, false, false, -9459.99, 8.41, 56.96);
+	vendorDB:addVendor("Rallic Finn", 0, 0, 12, true, false, false, false, false, -9469.29, -1355.24, 47.2);
+	vendorDB:addVendor("Rallic Finn", 0, 0, 12, false, false, false, false, false, -9469.29, -1355.24, 47.2);
+	vendorDB:addVendor("Rallic Finn", 0, 0, 12, false, false, false, true, false, -9469.29, -1355.24, 47.2);
+	vendorDB:addVendor("Drake Lindgren", 0, 0, 12, false, true, false, false, false, -9483.1, -1356.25, 46.95);
+	vendorDB:addVendor("Drake Lindgren", 0, 0, 12, false, false, true, false, false, -9483.1, -1356.25, 46.95);
+	vendorDB:addVendor("Drake Lindgren", 0, 0, 12, false, false, false, false, true, -9483.1, -1356.25, 46.95);
+
+	-- Mulgore
+
+
+	-- Tirisfal Glades
+
+
+	-- Durotar
+
+
+
+	-- Ashenvale - Horde
+	vendorDB:addVendor("Wik'Tar", 1, 1, 331, false, false, false, false, false, 3362.22, 1024.83, 2.87);
+	vendorDB:addVendor("Burkrum", 1, 1, 331, true, false, false, false, false, 2354.76, -2540.69, 102.81);
+	vendorDB:addVendor("Burkrum", 1, 1, 331, false, false, false, false, false, 2354.76, -2540.69, 102.81);
+	vendorDB:addVendor("Innkeeper Kaylisk", 1, 1, 331, false, true, false, false, false, 2341.86, -2566.99, 102.77);
+	vendorDB:addVendor("Innkeeper Kaylisk", 1, 1, 331, false, false, true, false, false, 2341.86, -2566.99, 102.77);
+
+	-- Stonetalon - Horde
+	vendorDB:addVendor("Innkeeper Jayka", 1, 1, 406, false, false, true, false, false, 893.65, 927.94, 106.25);
+	vendorDB:addVendor("Innkeeper Jayka", 1, 1, 406, false, true, false, false, false, 893.65, 927.94, 106.25);
+	vendorDB:addVendor("Borand", 1, 1, 406, true, false, false, false, false, 992.18, 1030.95, 105.58);
+	vendorDB:addVendor("Borand", 1, 1, 406, false, false, false, false, false, 992.18, 1030.95, 105.58);
+	vendorDB:addVendor("Borand", 1, 1, 406, false, false, false, true, false, 992.18, 1030.95, 105.58);
+	vendorDB:addVendor("Denni'ka", 1, 1, 406, false, false, false, false, false, -188.43, -347.65, 8.79);
+	vendorDB:addVendor("Denni'ka", 1, 1, 406, false, true, false, false, false, -188.43, -347.65, 8.79);
+
+	-- Arathi Highlands - Horde
+	vendorDB:addVendor("Mu'uta", 1, 0, 45, true, false, false, false, false, -933.85, -3477.47, 51.3);
+	vendorDB:addVendor("Mu'uta", 1, 0, 45, false, false, false, false, false, -933.85, -3477.47, 51.3);
+	vendorDB:addVendor("Mu'uta", 1, 0, 45, false, false, false, true, false, -933.85, -3477.47, 51.3);
+	vendorDB:addVendor("Innkeeper Adegwa", 1, 0, 45, false, false, true, false, false, -912.38, -3524.92, 72.68);
+	vendorDB:addVendor("Innkeeper Adegwa", 1, 0, 45, false, true, false, false, false, -912.38, -3524.92, 72.68);
+	vendorDB:addVendor("Graud", 1, 0, 45, false, false, false, false, true, -910.29, -3534.86, 72.72);
+
+	-- Thousand Needles Shimmering Flats - Horde
+	vendorDB:addVendor("Riznek", 1, 1, 400, false, false, false, false, false, -6204.33, -3955.97, -58.75);
+	vendorDB:addVendor("Riznek", 1, 1, 400, false, false, true, false, false, -6204.33, -3955.97, -58.75);
+	vendorDB:addVendor("Synge", 1, 1, 400, true, false, false, false, false, -6225.51, -3970.79, -58.75);
+	vendorDB:addVendor("Synge", 1, 1, 400, false, false, false, false, false, -6225.51, -3970.79, -58.75);
+	vendorDB:addVendor("Synge", 1, 1, 400, false, false, false, false, true, -6225.51, -3970.79, -58.75);
+
+	-- Thousand Needles Shimmering Flats - Alliance
+	vendorDB:addVendor("Riznek", 0, 1, 400, false, false, false, false, false, -6204.33, -3955.97, -58.75);
+	vendorDB:addVendor("Riznek", 0, 1, 400, false, false, true, false, false, -6204.33, -3955.97, -58.75);
+	vendorDB:addVendor("Synge", 0, 1, 400, true, false, false, false, false, -6225.51, -3970.79, -58.75);
+	vendorDB:addVendor("Synge", 0, 1, 400, false, false, false, false, false, -6225.51, -3970.79, -58.75);
+	vendorDB:addVendor("Synge", 0, 1, 400, false, false, false, false, true, -6225.51, -3970.79, -58.75);
+
+	-- Stranglethorn Vale - Horde
+	vendorDB:addVendor("Jaquilina Dramet", 1, 0, 33, true, false, false, false, false, -11622.1, -60.62, 10.95);
+	vendorDB:addVendor("Jaquilina Dramet", 1, 0, 33, false, false, false, false, false, -11622.1, -60.62, 10.95);
+
+
+	--alliance	
+		--Blasted Lands
+	 vendorDB:addVendor("Strumner Flintheel	", 0, 0, 4, true, false, false, false, false, -10952.76, -3454.93, 66.73);
+		--Winterspring
+	vendorDB:addVendor("Syurana", 0, 1, 618, false, false, false, false, false, 7122.5, -3977.65, 745.61);
+
+	  -- Eeastern Plaguelands
+	  vendorDB:addVendor("Jase Farlane", 0, 0, 139, true, false, false, false, false, 2313.87, -5305, 81.99);
+	   vendorDB:addVendor("Jase Farlane", 1, 0, 139, true, false, false, false, false, 2313.87, -5305, 81.99);
+
 	-- Ally: Human
-	vendorDB:addVendor("Godric Rothgar", 0, 2, 10, true, false, false, false, false, -8898.24, -119.84, 81.83); -- Repair
-	vendorDB:addVendor("Brother Danil", 0, 2, 10, false, true, true, false, false, -8901.59, -112.72, 81.84); -- Drink, Bread
-	vendorDB:addVendor("Andrew Krighton", 0, 2, 10, true, false, false, false, false, -9462.3, 87.81, 58.33); -- Repair
-	vendorDB:addVendor("Innkeeper Farley", 0, 2, 10, false, true, true, false, false, -9462.67, 16.19, 56.96); -- Drink, cheese
+	vendorDB:addVendor('Brother Danil', 0, 0, 12, false, true, true, true, true, -8901.59, -112.72, 81.85);
+	vendorDB:addVendor("Godric Rothgar", 0, 0, 12, true, false, false, false, false, -8898.23, -119.84, 81.83); -- Repair -- 
+	vendorDB:addVendor("Innkeeper Farley", 0, 0, 12, false, true, false, false, false, -9462.67, 16.19, 56.96); -- bread goldshire
+	vendorDB:addVendor("Innkeeper Farley", 0, 0, 12, false, false, true, false, false, -9462.67, 16.19, 56.96); -- drinks goldshire
+	vendorDB:addVendor("Andrew Krighton", 0, 0, 12, true, false, false, false, false, -9462.3, 87.81, 58.33); -- Repair Goldshire
+	
+	-- Barrens - Horde
+	vendorDB:addVendor("Zlagk", 1, 1, 14, true, false, false, false, false, -560.13, -4217.21, 41.59);
+	vendorDB:addVendor("Uthrok", 1, 1, 17, false, false, false, false, false, -351.19, -2556.52, 95.78);
+	vendorDB:addVendor("Uthrok", 1, 1, 17, true, false, false, false, false, -351.19, -2556.52, 95.78);
+	vendorDB:addVendor("Sanuye Runetotem", 1, 1, 17, true, false, false, false, false, -2374.27, -1948.8, 96.08);
+	vendorDB:addVendor("Sanuye Runetotem", 1, 1, 17, false, false, false, false, false, -2374.27, -1948.8, 96.08);
+	vendorDB:addVendor("Innkeeper Byula", 1, 1, 17, false, true, false, false, false, -2376.28, -1995.74, 96.7);
+	vendorDB:addVendor("Innkeeper Byula", 1, 1, 17, false, false, true, false, false, -2376.28, -1995.74, 96.7);
+
+
+
+	-- Hillsbrad Foothills - Horde
+	vendorDB:addVendor("Ott", 1, 0, 267, false, false, false, false, false, -158.53, -867.18, 56.89);
+	vendorDB:addVendor("Ott", 1, 0, 267, true, false, false, false, false, -158.53, -867.18, 56.89);
+	vendorDB:addVendor("Innkeeper Shay", 1, 0, 267, false, true, false, false, false, -5.74, -942.02, 57.16);
+	vendorDB:addVendor("Innkeeper Shay", 1, 0, 267, false, false, true, false, false, -5.74, -942.02, 57.16);
+
+	
+	-- Ally: Night Elf
+	vendorDB:addVendor("Keina", 0, 1, 141, true, false, false, true, false, 10436.70, 794.83, 1322.7); -- Repair, Arrows vendor
+	vendorDB:addVendor("Jeena Featherbow", 0, 1, 141, true, false, false, true, false, 9821.98, 968.83, 1308.77); -- Repair, Arrows vendor
+	vendorDB:addVendor("Mydrannul", 0, 1, 1657, false, false, true, true, true, 9821.98, 968.83, 1308.77); -- General - ammo/shots/drinks Darnassus
+	vendorDB:addVendor("Naram Longclaw", 0, 1, 148, true, false, false, false, false, 6571.59, 480.53, 8.25); -- Repair - Darkshore
+	vendorDB:addVendor("Xai'ander", 0, 1, 331, true, false, false, false, false, 2672.31, -363.60, 110.73); -- Repair - Astranaar
 
 	-- Ally: Westfall 
+	vendorDB:addVendor("Innkeeper Heather", 0, 0, 40, false, true, true, false, false, -10653.41, 1166.52, 34.46); -- drinks, fish
+	vendorDB:addVendor("William MacGregor", 0, 0, 40, true, false, false, true, false, -10658.5, 996.85, 32.87); -- rep, arrows
+	vendorDB:addVendor("Mike Miller", 0, 0, 40, false, true, false, false, false, -10653.3, 995.39, 32.87); -- bread
+	vendorDB:addVendor("Farmer Saldean", 1, 0, 40, false, false, false, false, false, -10128.71, 1055.2, 36.25);
+	vendorDB:addVendor("Farmer Saldean", 1, 0, 40, false, true, false, false, false, -10128.71, 1055.2, 36.25);
+	vendorDB:addVendor("Farmer Saldean", 1, 0, 40, false, false, true, false, false, -10128.71, 1055.2, 36.25);
+	vendorDB:addVendor("Innkeeper Heather", 1, 0, 40, false, true, false, false, false, -10653.3, 1166.43, 34.46);
+	vendorDB:addVendor("Innkeeper Heather", 1, 0, 40, false, false, true, false, false, -10653.3, 1166.43, 34.46);
+	vendorDB:addVendor("William MacGregor", 1, 0, 40, false, false, false, true, false, -10658.5, 996.85, 32.87);
+	vendorDB:addVendor("William MacGregor", 1, 0, 40, true, false, false, false, false, -10658.5, 996.85, 32.87);
+	vendorDB:addVendor("William MacGregor", 1, 0, 40, false, false, false, false, false, -10658.5, 996.85, 32.87);
 
-	vendorDB:addVendor("Innkeeper Heather", 0, 2, 28, false, true, true, false, false, -10653.41, 1166.52, 34.46); -- Drink, fish
-	vendorDB:addVendor("William MacGregor", 0, 2, 28, true, false, false, true, false, -10658.5, 996.85, 32.87); -- Repair, arrows
+
+	-- Ally: Gnome & Dwarf
+	vendorDB:addVendor('Kreg Bilmn', 0, 0, 1, false, false, false, true, true, -5597.66, -521.85, 399.66); -- general bullets/ammo
+	vendorDB:addVendor('Grawn Thromwyn', 0, 0, 1, true, false, false, false, false, -5590.67, -428.415, 397.326); -- repair Northshire
+	vendorDB:addVendor('Morhan Coppertongue', 0, 0, 38, true, false, false, false, false, -5343.68, -2932.13, 324.36); -- repair Lock Modan
+	vendorDB:addVendor("Grundel Harkin", 0, 0, 1, true, false, false, false, false, -6104.5, 384.02, 395.54);
+
+
+	-- Ally: Wetlands
+	vendorDB:addVendor('Gruham Rumbnul', 0, 0, 11, false, false, false, true, true, -3746.03, 888.59, 11.01); -- Ammo, Bullets, General
+	vendorDB:addVendor('Murndan Derth', 0, 0, 11, true, false, false, false, false, -3790.13, -858.47, 11.60); -- Repair
+
+	-- Ally + Horde Wetlands
+	vendorDB:addVendor("Kixxle", 0, 0, 11, false, false, false, false, false, -3188.04, -2465.58, 9.56);
+
+	-- Ally: Hillsbrad
+	vendorDB:addVendor('Sarah Raycroft', 0, 0, 267, false, false, true, true, true, -774.52, -505.75, 23.63); -- ammo drinks hillsbrad
+	vendorDB:addVendor('Robert Aebischer', 0, 0, 267, true, false, false, false, false, -815.53, -572.19, 15.23); -- repair
+
+	-- Tanaris - Ally + Horde
+	vendorDB:addVendor('Krinkle Goodsteel', 0, 1, 440, true, false, false, false, false, -7200.40, -3769.75, 8.68); -- Repair Vendor
+	vendorDB:addVendor('Krinkle Goodsteel', 1, 1, 440, true, false, false, false, false, -7200.40, -3769.75, 8.68); -- Repair Vendor
+	vendorDB:addVendor('Blizrlk Buckshot', 0, 1, 440, true, false, false, false, true, -7141.79, -3719.82, 8.49); -- Bullets (not arrows) ammo, repair
 	
-	-- Ally: Darkshore
-	vendorDB:addVendor("Naram Longclaw", 0, 1, 5, true, false, false, false, false, 6571.59, 480.53, 8.25); -- Repair
-	vendorDB:addVendor("Dalmond", 0, 1, 5, false, false, false, true, true, 6564.99, 488.88, 8.25); -- General
-	vendorDB:addVendor("Taldan", 0, 1, 5, false, false, true, false, false, 6415.99, 529.09, 8.65); -- Drink 
-	vendorDB:addVendor("Laird", 0, 1, 5, false, true, false, false, false, 6399.56, 533.38, 8.65); -- Fish
+	-- Azshara Alliance
+	vendorDB:addVendor('Brinna Valanaar', 0, 1, 16, true, false, false, true, false, 2691.28, -3885.87, 109.22); -- Repair + Arrows (no ammo)
 
-	-- Ally : Astranaar
-	vendorDB:addVendor("Maliynn", 0, 1, 1, false, false, true, false, false, 2751.84, -412.04, 111.45); -- drink	
-	vendorDB:addVendor("Haljan Oakheart", 0, 1, 1, false, false, false, true, true, 2717.69, -309.67, 110.72);
- -- general
-	vendorDB:addVendor("Xai'ander", 0, 1, 1, true, false, false, false, false, 2672.31, -363.61, 110.72); -- repair
-	vendorDB:addVendor("Innkeeper Kimlya", 0, 1, 1, false, true, false, false, false, 2781.15, -433, 116.58); -- fish
+	-- Arathi Highlands - Alliance
+	vendorDB:addVendor('Jannos Ironwill', 0, 0, 45, true, false, false, false, false, -1277.01, -2522.03, 21.36); -- Repair Vendor
+	vendorDB:addVendor('Vikki Lonsav', 0, 0, 45, false, false, true, true, true, -1274.51, -2537.41, 21.43); -- General Trade for Ammo & Drinks
 
-	-- Ally : Menethil Harbor
-	vendorDB:addVendor("Innkeeper Helbrek", 0, 2, 29, false, true, true, false, false, -3827.93, -831.91, 10.09); -- meat/drink
-	vendorDB:addVendor("Stuart Fleming", 0, 2, 29, false, true, false, false, false, -3755.63, -720.68, 8.18); -- fish
-	vendorDB:addVendor("Naela Trance", 0, 2, 29, true, false, false, true, false, -3758.34, -855.73, 9.9); -- repair, arrow
-	vendorDB:addVendor("Murndan Derth", 0, 2, 29, true, false, false, false, true, -3790.13, -858.47, 11.59); -- repair, bullets
-
-	-- Ally : South Shore
-	vendorDB:addVendor("Robert Aebischer", 0, 2, 13, true, false, false, false, false, -815.53, -572.19, 15.22);
-	vendorDB:addVendor("Innkeeper Anderson", 0, 2, 13, false, false, true, false, false, -857.1, -570.76, 11.06);
-	vendorDB:addVendor("Bront Coldcleave", 0, 2, 13, false, true, false, false, false, -820.3, -493.18, 16.45);
-	vendorDB:addVendor("Sarah Raycroft", 0, 2, 13, false, false, false, true, true, -774.52, -505.75, 23.62);
-
-
-	-- Ally : Arathi Highlands
-	vendorDB:addVendor("Jannos Ironwill", 0, 2, 2, true, false, false, false, false, -1278.57, -2522, 21.37);
-	vendorDB:addVendor("Vikki Lonsav", 0, 2, 2, false, false, false, false, true, -1275.75, -2538.73, 21.55);
-	vendorDB:addVendor("Vikki Lonsav", 0, 2, 2, false, false, false, true, false, -1275.75, -2538.73, 21.55);
-	vendorDB:addVendor("Vikki Lonsav", 0, 2, 2, false, false, true, false, false, -1275.75, -2538.73, 21.55);
-	vendorDB:addVendor("Narj Deepslice", 0, 2, 2, false, true, false, false, false, -1275.91, -2506.19, 21.78);
-
-	-- Horde : Arathi Highlands
-	vendorDB:addVendor("Slagg", 1, 2, 2, false, true, false, false, false, -944.93, -3533.56, 70.93);
-	vendorDB:addVendor("Graud", 1, 2, 2, false, false, false, true, true, -910.29, -3534.86, 72.72);
-	vendorDB:addVendor("Innkeeper Adegwa", 1, 2, 2, false, false, true, false, false, -912.38, -3524.92, 72.68);
+	-- Winterspring - Ally + Horde
+	vendorDB:addVendor('Wixxrak', 0, 1, 618, true, false, false, false, false, 6733.39, -4699.04, 721.37); -- Repair Vendor
+	vendorDB:addVendor('Wixxrak', 1, 1, 618, true, false, false, false, false, 6733.39, -4699.04, 721.37); -- Repair Vendor
+	vendorDB:addVendor('Himmik', 0, 1, 618, false, true, true, false, false, 6679.62, -4670.89, 721.71); -- Food + Drink Vendor
+	vendorDB:addVendor('Himmik', 1, 1, 618, false, true, true, false, false, 6679.62, -4670.89, 721.71); -- Food + Drink Vendor 
 
 	-- Gadgetzan
 	vendorDB:addVendor("Krinkle Goodsteel", 0, 1, 17, true, false, false, false, false, -7200.44, -3769.83, 8.67); -- repair
@@ -106,6 +255,7 @@ function vendorDB:setup()
 	-- Thrallmar
 	vendorDB:addVendor("Rohok", 1, 3, 2, true, false, false, false, false, 167.27, 2795.66, 113.36);
 	vendorDB:addVendor("Floyd Pinkus", 1, 3, 2, false, true, true, false, false, 190.87, 2610.92, 87.28);
+
 
 	DEFAULT_CHAT_FRAME:AddMessage('vendorDB: loaded...');
 end
