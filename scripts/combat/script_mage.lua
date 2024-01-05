@@ -88,6 +88,12 @@ function script_mage:run(targetObj)
 	if (IsChanneling() or IsCasting() or HasBuff(localObj, 'Ice Block')) then
 		return;
 	end
+	if (self.waitTimer > GetTimeEX()) then
+		return;
+	end
+
+	self.waitTimer = GetTimeEX() + script_grind.tickRate;
+
 	
 	--Valid Enemy
 	if (targetObj ~= 0) then
@@ -267,6 +273,13 @@ function script_mage:rest()
 	if (script_grind.restMana ~= 0) then
 		self.drinkMana = script_grind.restMana;
 	end
+
+	if (self.waitTimer > GetTimeEX()) then
+		return;
+	end
+
+	self.waitTimer = GetTimeEX() + script_grind.tickRate;
+
 	
 	--Create Water
 	local waterIndex = -1;
@@ -291,6 +304,8 @@ function script_mage:rest()
 					return true;
 				end
 				CastSpellByName('Conjure Water');
+				self.waitTimer = GetTimeEX() + 1650;
+				script_grind.waitTimer = GetTimeEX() + 1650;
 				script_grind:restOn();
 				return true;
 			else
@@ -322,6 +337,8 @@ function script_mage:rest()
 		end
 		if (localMana > 10 and not IsDrinking() and not IsEating() and not AreBagsFull()) then
 			CastSpellByName('Conjure Food');
+			self.waitTimer = GetTimeEX() + 1650;
+			script_grind.waitTimer = GetTimeEX() + 1650;
 			script_grind:restOn();
 			return true;
 		end
@@ -380,6 +397,8 @@ function script_mage:rest()
 		end
 
 		if(script_helper:drinkWater()) then
+			self.waitTimer = GetTimeEX() + 1500;
+			script_grind.waitTimer = GetTimeEX() + 1500;
 			script_grind:restOn();
 			return true;
 		end
@@ -393,6 +412,8 @@ function script_mage:rest()
 		end
 		
 		if(script_helper:eat()) then
+			self.waitTimer = GetTimeEX() + 1500;
+			script_grind.waitTimer = GetTimeEX() + 1500;
 			script_grind:restOn();
 			return true;
 		end

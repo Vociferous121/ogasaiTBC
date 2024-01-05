@@ -192,7 +192,22 @@ function script_rotation:menu()
 		if (script_rotation.useMana) then
 			script_rotation.potMana = SliderInt("Mana percent", 1, 99, script_rotation.potMana);
 		end
-		
+	
+	end
+
+if (CollapsingHeader("Display Options")) then
+		wasClicked, script_aggro.drawAggro = Checkbox("Draw Aggro Ranges", script_aggro.drawAggro);
+		wasClicked, script_grind.drawPath = Checkbox("Draw Navmesh Move Path", script_grind.drawPath)
+		if (script_grind.drawPath or script_grind.raycastPathing) then
+			DrawNavMeshPath(true);
+		elseif (not script_grind.drawPath) then
+			DrawNavMeshPath(false);
+		end
+		wasClicked, script_grindEX.drawRaycastPath = Checkbox("Draw Raycast Path", script_grindEX.drawRaycastPath);
+		wasClicked, script_grindEX.drawStatus = Checkbox("Draw Status Window", script_grindEX.drawStatus);
+		wasClicked, script_grindEX.drawGather = Checkbox("Draw Gather Nodes", script_grindEX.drawGather);
+		wasClicked, script_grindEX.drawTarget = Checkbox("Draw Unit Info", script_grindEX.drawTarget);
+		wasClicked, script_grindEX.drawAutoPath = Checkbox("Draw Hotspot & Nodes", script_grindEX.drawAutoPath);
 	end
 end
 

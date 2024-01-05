@@ -235,6 +235,7 @@ function script_paladin:rest()
 	if (self.waitTimer > GetTimeEX()) then
 		return;
 	end
+
 	self.waitTimer = GetTimeEX() + script_grind.tickRate;
 
 

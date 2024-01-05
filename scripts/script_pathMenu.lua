@@ -5,6 +5,7 @@ script_pathMenu = {
 function script_pathMenu:menu()
 	if (CollapsingHeader("[Path options")) then
 		local wasClicked = false;
+		wasClicked, script_grind.useUnstuckScript = Checkbox("Use Raycasting Unstuck Script", script_grind.useUnstuckScript);
 		wasClicked, script_grind.raycastPathing = Checkbox("Use raycast pathing (TBC Area)", script_grind.raycastPathing);
 
 		if (script_grind.raycastPathing) then

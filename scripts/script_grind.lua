@@ -54,6 +54,7 @@ script_grind = {
 	useNavMesh = true,
 	combatStatus = 0, -- 0 = in range, 1 = not in range
 	drawPath = false,
+	useUnstuckScript = true,
 }
 
 
@@ -187,9 +188,11 @@ function script_grind:run()
 			script_debug.debugGrind = "checking jump over obstacles";
 		end
 
-		if (not script_unstuck:pathClearAuto(2)) then
-			script_unstuck:unstuck();
-			return true;
+		if (self.useUnstuckScript) then
+			if (not script_unstuck:pathClearAuto(2)) then
+				script_unstuck:unstuck();
+				return true;
+			end
 		end
 
 		script_pather:jumpObstacles();
