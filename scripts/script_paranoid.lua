@@ -35,7 +35,7 @@ function script_paranoid:playersWithinRange(range)
 						local playerTimeHours, playerTimeMinutes = GetGameTime();
 						local playerGUID = GetGUID(i);
 						if (not self.usedString) then
-							local string ="Paranoid : Player in range! Time:" ..playerTimeHours..":"..playerTimeMinutes.. " - Distance (yds) "..playerDistance.. " | GUID - " ..playerGUID .." - added to log file."
+							local string ="Paranoid - Player in range! | Time : " ..playerTimeHours..":"..playerTimeMinutes.. " | Distance (yds) "..playerDistance.. " | GUID - " ..playerGUID .." | added to log file."
 							DEFAULT_CHAT_FRAME:AddMessage(string);
 							ToFile(string);
 							self.usedString = true;

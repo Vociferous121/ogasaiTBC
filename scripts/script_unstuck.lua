@@ -20,7 +20,7 @@ script_unstuck = {
 	_angle = 0,
 	unstuckAngle = 0,
 	unstuckTime = GetTimeEX(),
-	turnSensitivity = 3,
+	turnSensitivity = .000001,
 	
 	
 }
@@ -100,7 +100,7 @@ function script_unstuck:turn(changeAngle)
 	_lx, _ly, _lz = GetPosition(GetLocalPlayer());
 	_angle = GetAngle(GetLocalPlayer()) + changeAngle;
 	self.unstuckAngle = _angle;
-	test = _lx+math.cos(_angle) + _ly+math.sin(_angle);
+	test = _lx+math.cos(_angle) + _ly+math.sin(_angle) - math.sin(GetAngle(GetLocalPlayer()));
 	FaceAngle(test);
 end
 
@@ -115,8 +115,8 @@ function script_unstuck:walkForward(yards)
 
 		self.unstuckTime = GetTimeEX() + 2000;
 
-		if (Move(x, y, z)) then
-			return true;
+		if (MoveToTarget(x, y, z)) then
+			return;
 		end
 	end
 end
@@ -203,7 +203,7 @@ function script_unstuck:pathClearAuto(yardsInfront)
 				-- Path isn't clear
 				self.message = "Path not clear, turning left..."
 				--DEFAULT_CHAT_FRAME:AddMessage('script_unstuck: Turning left.');
-				script_unstuck:turn( -.03); -- .-5
+				script_unstuck:turn( -.000001); -- .-5
 				return false;
 			end
 
@@ -211,7 +211,7 @@ function script_unstuck:pathClearAuto(yardsInfront)
 				-- Path isn't clear
 				self.message = "Path not clear, turning right..."
 				--DEFAULT_CHAT_FRAME:AddMessage('script_unstuck: Turning right.');
-				script_unstuck:turn( -.03); -- .-5
+				script_unstuck:turn( -.000001); -- .-5
 				return false;
 			end
 			

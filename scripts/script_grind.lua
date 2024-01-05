@@ -56,7 +56,7 @@ script_grind = {
 	useNavMesh = true,
 	combatStatus = 0, -- 0 = in range, 1 = not in range
 	drawPath = false,
-	useUnstuckScript = true,
+	useUnstuckScript = false,
 }
 
 
@@ -188,9 +188,21 @@ function script_grind:run()
 			script_debug.debugGrind = "using jump out of water";
 			Jump();
 			return;
+		end	
+	end
+
+	-- do paranoia
+	if (not self.pause) and (script_paranoid.paranoidOn) and (not IsInCombat()) then
+		if (script_paranoid:doParanoia()) then
+			self.message = "Paranoid turned on - player in range!";
+			if (IsMoving()) then
+				StopMoving();
+				return true;
+			end
+		script_path.savedPos['time'] = GetTimeEX();
+		self.waitTimer = GetTimeEX() + (5000);
+		return;
 		end
-	else
-		--StopJump();	
 	end
 
 	-- Check: jump over obstacles
@@ -200,7 +212,7 @@ function script_grind:run()
 			script_debug.debugGrind = "checking jump over obstacles";
 		end
 
-		if (self.useUnstuckScript) then
+		if (self.useUnstuckScript) and (self.unstuckTime >= GetTimeEX() - 5000) then
 			if (not script_unstuck:pathClearAuto(2)) then
 				script_unstuck:unstuck();
 				return true;
@@ -208,17 +220,6 @@ function script_grind:run()
 		end
 
 		script_pather:jumpObstacles();
-	end
-	
-	if (not self.pause) and (script_paranoid.paranoidOn) then
-		if (script_paranoid:doParanoia()) then
-			self.message = "Paranoid turned on - player in range!";
-			if (IsMoving()) then
-				StopMoving();
-				return true;
-			end
-		return;
-		end
 	end
 
 	-- Update node distance depending on if we are mounted or not

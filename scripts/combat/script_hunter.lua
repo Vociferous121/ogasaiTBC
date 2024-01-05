@@ -159,7 +159,8 @@ function script_hunter:run(targetObj)
 		local hasAmmo = script_helper:hasAmmo();
 
 		-- walk away from target if pet target guid is the same guid as target targeting me
-		if (IsInCombat()) and (GetPet() ~= 0) and (GetDistance(targetObj) <= 10) and (GetUnitsTarget(targetObj) == GetPet()) then
+		if (IsInCombat()) and (GetPet() ~= 0) and (GetDistance(targetObj) <= 10) and (GetUnitsTarget(targetObj) == GetPet())
+			and (not script_checkDebuffs:hasDisabledMovement()) then
 			script_hunter:runBackwards(targetObj, 12);
 				self.message = "Moving away from target for range attacks...";
 				script_grind.waitTimer = GetTimeEX() + 1500;

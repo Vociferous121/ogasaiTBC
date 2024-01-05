@@ -7,11 +7,13 @@ function script_grindMenu:menu()
 
 	local wasClicked = false;
 
+	if (not self.debug) then
 	--garbage data..
 	Text("Garbage Data Lost (object manager) ");
 	SameLine();
 	local gc = gcinfo();
 	Text(gc);
+	end
 
 	--nav mesh progress
 	--if (GetLoadNavmeshProgress() ~= nil) then

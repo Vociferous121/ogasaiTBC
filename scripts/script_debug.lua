@@ -29,5 +29,17 @@ function script_debug:menu()
 
 		Text("Combat Debug - ");
 		Text(self.debugCombat);
+
+
+		Separator();
 	end
+
+
+if (script_grindMenu.debug) then
+			--garbage data..
+			Text("Garbage Data Lost (object manager) ");
+			SameLine();
+			local gc = gcinfo();
+			Text(gc);
+		end
 end
