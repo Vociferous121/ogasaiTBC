@@ -13,6 +13,7 @@ script_hunterEX = {
 	ammoIsArrow = true,
 	buyWhenAmmoEmpty = true,
 	useRotation = false,
+	waitTimer = GetTimeEX(),
 }
 
 -- this file includes functions used by script_hunter
@@ -34,6 +35,10 @@ function script_hunterEX:doInCombatRoutine(targetGUID, localMana)
 	self.message = "Killing target...";
 	local targetHealth = GetHealthPercentage(targetObj); -- update target's HP
 	local pet = GetPet(); -- get pet
+
+	if (self.waitTimer > GetTimeEX() or script_hunter.waitTimer > GetTimeEX()) then
+		return;
+	end
 
 	if (not self.hasPet and HasSpell('Arcane Shot') and GetDistance(targetObj) > 13) then -- arcane early when no pet
 		if (Cast('Arcane Shot', targetGUID)) then return true; end end
@@ -95,6 +100,10 @@ end
 
 function script_hunterEX:doRangeAttack(targetGUID, localMana)
 	local targetObj = GetGUIDTarget(targetGUID);
+
+	if (self.waitTimer > GetTimeEX() or script_hunter.waitTimer > GetTimeEX()) then
+		return;
+	end
 	-- Keep up the debuff: Hunter's Mark 
 	if (HasSpell("Hunter's Mark") and self.markTimer < GetTimeEX()) then 
 		if (Cast("Hunter's Mark", targetGUID)) then self.markTimer = GetTimeEX() + 20000; return true; end 
@@ -266,6 +275,7 @@ function script_hunterEX:petChecks()
 			StopMoving(); 
 			return true; 
 		end
+		CastSpellByName("Call Pet");
 		if (localMana > 60) then 
 			CastSpellByName('Revive Pet'); 
 			return true; 

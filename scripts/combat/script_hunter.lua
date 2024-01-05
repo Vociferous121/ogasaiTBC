@@ -17,6 +17,7 @@ script_hunter = {
 	ammoIsArrow = true,
 	extraScript = include("scripts\\combat\\script_hunterEX.lua"),
 	useRotation = false,
+	waitTimer = GetTimeEX(),
 }
 
 -- Only the functions setup, run, rest and menu are located in this file
@@ -34,9 +35,8 @@ function script_hunter:runBackwards(targetObj, range)
  		local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;		
  		local moveX, moveY, moveZ = xT + xUV*25, yT + yUV*25, zT + zUV;		
  		if (distance < range) then
- 			if (Move (moveX, moveY, moveZ)) then
- 				return;
-			end
+ 			Move(moveX, moveY, moveZ);
+			return;
  		end
 	end
 	return false;
@@ -128,7 +128,9 @@ function script_hunter:run(targetObj)
 
 	-- Pre Check
 	if (IsChanneling() or IsCasting() or self.timer > GetTimeEX()) then return; end
-	
+	if (self.waitTimer > GetTimeEX()) then
+		return;
+	end
 	--Valid Enemy
 	if (targetObj ~= 0) then
 		-- Cant Attack dead targets
@@ -141,12 +143,27 @@ function script_hunter:run(targetObj)
 		-- Check if we have ammo
 		local hasAmmo = script_helper:hasAmmo();
 
+		-- stuck in combat
+		if (self.waitAfterCombat) and (IsInCombat()) and (GetPet() ~= 0) and (not self.useRotation) then
+			if (GetUnitsTarget(localObj) == 0) and (GetUnitsTarget(GetPet()) == 0) and (GetNumPartyMembers() < 1) then
+				AssistUnit("pet");
+				self.message = "No Target - stuck in combat! WAITING!";
+				return;
+			end
+		end
+
 		-- walk away from target if pet target guid is the same guid as target targeting me
 		if (IsInCombat()) and (GetPet() ~= 0) and (GetDistance(targetObj) <= 10) and (GetUnitsTarget(targetObj) == GetPet()) then
 			script_hunter:runBackwards(targetObj, 12);
-			script_grind.tickRate = 500;
-			self.message = "Moving away from target for range attacks...";
-			return;	
+				self.message = "Moving away from target for range attacks...";
+				script_grind.waitTimer = GetTimeEX() + 1500;
+				self.waitTimer = GetTimeEX() + 1500;
+				if (not IsMoving()) then
+					if (not IsSpellOnCD("Arcane Shot")) then
+						CastSpellByName("Arcane Shot");
+					end
+				end
+			return;
 		end
 		
 		--Opener
@@ -169,14 +186,18 @@ function script_hunter:run(targetObj)
 					MoveToTarget(targetObj);
 					return;
 				else
-					FaceTarget(targetObj);
+					if (not IsMoving()) then
+						FaceTarget(targetObj);
+					end
 					AutoAttack(targetObj);
 					if (Cast('Raptor Strike', targetGUID)) then 
 						return; 
 					end
 				end
 			elseif (self.useRotation) then
-				FaceTarget(targetObj);
+				if (not IsMoving()) then
+					FaceTarget(targetObj);
+				end
 				AutoAttack(targetObj);
 				if (Cast('Raptor Strike', targetGUID)) then 
 					return; 
@@ -223,6 +244,9 @@ function script_hunter:rest()
 	if (script_grind.restMana ~= 0) then self.drinkMana = script_grind.restMana; end
 
 	if (self.timer > GetTimeEX()) then return true; end
+	if (self.waitTimer > GetTimeEX()) then
+		return;
+	end
 
 	-- Check: Let the feed pet duration last, don't engage new targets
 	if (script_hunterEX.feedTimer > GetTimeEX() and not IsInCombat() and script_hunterEX.hasPet and GetPet() ~= 0) then 

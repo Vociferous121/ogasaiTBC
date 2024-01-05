@@ -228,10 +228,16 @@ function script_gather:gather()
 				GameObjectInteract(self.nodeObj);
 				self.timer = GetTimeEX() + 4250;
 			end
+			if (not IsMoving()) and (IsLooting()) and (self.collectHerbs) then
+				script_grind.waitTimer = GetTimeEX() + 2000;
+			end
 
 		else
-			if (_x ~= 0) then
+			if (_x ~= 0) and (not script_grind.raycastPathing) then
 				MoveToTarget(_x, _y, _z);
+				self.timer = GetTimeEX() + 150;
+			elseif (_x ~= 0) and (script_grind.raycastPathing) then
+				script_pather:moveToTarget(_x, _y, _z);
 				self.timer = GetTimeEX() + 150;
 			end
 		end
