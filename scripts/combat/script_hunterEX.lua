@@ -1,6 +1,6 @@
 script_hunterEX = {
 	message = "Hunter extra functions",
-	arcaneMana = 60,
+	arcaneMana = 40,
 	useCheetah = false,
 	markTimer = 0,
 	serpentTimer = 0,
@@ -14,6 +14,11 @@ script_hunterEX = {
 	buyWhenAmmoEmpty = true,
 	useRotation = false,
 	waitTimer = GetTimeEX(),
+	huntersMarkMana = 55,
+	useHuntersMark = true,
+	useArcaneShot = true,
+	useSerpentSting = true,
+	serpentStingMana = 25,
 }
 
 -- this file includes functions used by script_hunter
@@ -40,7 +45,7 @@ function script_hunterEX:doInCombatRoutine(targetGUID, localMana)
 		return;
 	end
 
-	if (not self.hasPet and HasSpell('Arcane Shot') and GetDistance(targetObj) > 13) then -- arcane early when no pet
+	if (self.useArcaneShot) and (not self.hasPet and HasSpell('Arcane Shot') and GetDistance(targetObj) > 13) then -- arcane early when no pet
 		if (Cast('Arcane Shot', targetGUID)) then return true; end end
 
 	if (self.hasPet and script_hunterEX:mendPet(GetManaPercentage(GetLocalPlayer()), GetHealthPercentage(pet))) then
@@ -105,7 +110,7 @@ function script_hunterEX:doRangeAttack(targetGUID, localMana)
 		return;
 	end
 	-- Keep up the debuff: Hunter's Mark 
-	if (HasSpell("Hunter's Mark") and self.markTimer < GetTimeEX()) then 
+	if (self.useHuntersMark) and (localMana >= self.huntersMarkMana) and (HasSpell("Hunter's Mark") and self.markTimer < GetTimeEX()) then 
 		if (Cast("Hunter's Mark", targetGUID)) then self.markTimer = GetTimeEX() + 20000; return true; end 
 	end
 
@@ -118,13 +123,13 @@ function script_hunterEX:doRangeAttack(targetGUID, localMana)
 	end	
 	
 	-- Special attack: Serpent Sting (Keep the DOT up!)
-	if (self.serpentTimer < GetTimeEX() and not IsSpellOnCD('Serpent Sting') 
+	if (self.useSerpentSting) and (localMana >= self.serpentStingMana) and (self.serpentTimer < GetTimeEX() and not IsSpellOnCD('Serpent Sting') 
 		and GetCreatureType(targetObj) ~= 'Elemental') then 
 		if (Cast('Serpent Sting', targetGUID)) then self.serpentTimer = GetTimeEX() + 15000; return true; end 
 	end
 
 	-- Special attack: Arcane Shot 
-	if (not IsSpellOnCD('Arcane Shot') and localMana > self.arcaneMana) then 
+	if (self.useArcaneShot) and (not IsSpellOnCD('Arcane Shot') and localMana > self.arcaneMana) then 
 		if (Cast('Arcane Shot', targetGUID)) then return true; end end
 
 	-- Attack: Use Auto Shot 
@@ -195,7 +200,7 @@ function script_hunterEX:doPullAttacks(targetGUID)
 	end
 
 	-- If no concussive shot pull with Serpent Sting
-	if (HasSpell('Serpent Sting')) then
+	if (HasSpell('Serpent Sting')) and (self.useSerpentSting) and (localMana >= self.serpentStingMana) then
 		if (GetCreatureType(targetObj) ~= 'Elemental') then
 			if (Cast('Serpent Sting', targetGUID)) then return true; end
 		end
