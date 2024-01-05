@@ -42,7 +42,7 @@ script_grind = {
 	sellWhenFull = true,
 	repairWhenYellow = true,
 	bagsFull = false,
-	vendorRefill = true,
+	vendorRefill = false,
 	refillMinNr = 5,
 	unStuckPos = {},
 	unStuckTime = 0,
@@ -56,7 +56,7 @@ script_grind = {
 	useNavMesh = true,
 	combatStatus = 0, -- 0 = in range, 1 = not in range
 	drawPath = false,
-	useUnstuckScript = true,
+	useUnstuckScript = false,
 }
 
 
@@ -380,7 +380,7 @@ function script_grind:run()
 		return;
 	end
 	
-	if (HasSpell("Fireball") or HasSpell("Smite") or HasSpell("Shadowbolt")) then
+	if (HasSpell("Fireball") or HasSpell("Smite") or HasSpell("Shadow Bolt")) then
 		if (script_pather.reachedHotspot) and (not IsInCombat()) and (GetDistance(self.target) <= 27) and (IsInLineOfSight(self.target)) then
 			if (IsMoving()) then
 				StopMoving();
@@ -507,7 +507,7 @@ function script_grind:run()
 			end
 
 			-- stop when we get close enough to target and we are a ranged class
-			if (HasSpell("Fireball") or HasSpell("Smite") or HasSpell("Shadowbolt")) then
+			if (HasSpell("Fireball") or HasSpell("Smite") or HasSpell("Shadow Bolt")) then
 				if (GetDistance(self.target) <= 27) and (IsInLineOfSight(self.target)) then
 					if (IsMoving()) then
 						StopMoving();
@@ -549,7 +549,7 @@ function script_grind:run()
 
 			-- move to target...
 			if (not self.raycastPathing) then
-				if (not HasSpell("Fireball") or not HasSpell("Shadowbolt") or not HasSpell("Smite") or not HasSpell("Raptor Strike")) and (GetDistance(self.target) > 2) then
+				if (not HasSpell("Fireball") or not HasSpell("Shadow Bolt") or not HasSpell("Smite") or not HasSpell("Raptor Strike")) and (GetDistance(self.target) > 2) then
 					if (not self.adjustTickRate) then
 						script_grind.tickRate = 50;
 					end
@@ -578,7 +578,7 @@ function script_grind:run()
 			if (self.raycastPathing) and (not HasDebuff(self.target, "Frost Nova")) then
 				local tarDist = GetDistance(self.target);
 				local cx, cy, cz = GetPosition(self.target);
-				if (not HasSpell("Fireball") or not HasSpell("Shadowbolt") or not HasSpell("Smite") or not HasSpell("Raptor Strike")) and (tarDist > 2) then
+				if (not HasSpell("Fireball") or not HasSpell("Shadow Bolt") or not HasSpell("Smite") or not HasSpell("Raptor Strike")) and (tarDist > 2) then
 					script_pather:moveToTarget(cx, cy, cz);
 					if (GetDistance(self.target) <= 2) then
 						if (IsMoving()) then

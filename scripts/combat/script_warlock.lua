@@ -212,7 +212,11 @@ function script_warlock:run(targetObj)
 				end
 			else	
 				-- Cast: Shadow Bolt
-				if (Cast('Shadow Bolt', targetGUID)) then return; end
+				if (localMana >= 10) then
+					if (Cast('Shadow Bolt', targetGUID)) then
+						return;
+					end
+				end
 			end
 
 			-- Auto Attack if no mana
