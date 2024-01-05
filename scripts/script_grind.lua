@@ -540,7 +540,10 @@ function script_grind:run()
 					if (not self.adjustTickRate) then
 						script_grind.tickRate = 50;
 					end
-					if (MoveToTarget(self.target)) then
+					local moveBuffer = math.random(-1, 2);
+					local x, y, z = GetPosition(self.target);
+					if (MoveToTarget(x+moveBuffer, y+moveBuffer, z)) then
+					self.waitTimer = GetTimeEX() + 100;
 					else
 						if (GetDistance(self.target) <= 2) then
 							if (IsMoving()) then
@@ -552,7 +555,10 @@ function script_grind:run()
 					if (not self.adjustTickRate) then
 						script_grind.tickRate = 50;
 					end
-					MoveToTarget(self.target);
+					local moveBuffer = math.random(-1, 2);
+					local x, y, z = GetPosition(self.target);
+					MoveToTarget(x+moveBuffer, y+moveBuffer, z);
+					self.waitTimer = GetTimeEX() + 100;
 				end
 				return;
 			end
