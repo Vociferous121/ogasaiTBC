@@ -6,7 +6,7 @@ script_path = {
 	navNodeDist = 8,
 	navNodeDistMounted = 15,
 	pathNodeDist = 45,
-	grindingDist = 300,
+	grindingDist = 650,
 	backwards = true,
 	hotspotID = -1,
 	hName = "No hotspot loaded...",
@@ -21,6 +21,9 @@ script_path = {
 
 function script_path:setup()
 	self.isSetup = true;
+
+	local distRandom = math.random(400, 1200);
+	self.grindingDist = distRandom;
 
 	-- Save startup position, used as the hotspot to farm around
 	self.hx, self.hy, self.hz = GetPosition(GetLocalPlayer());

@@ -56,7 +56,7 @@ script_grind = {
 	useNavMesh = true,
 	combatStatus = 0, -- 0 = in range, 1 = not in range
 	drawPath = false,
-	useUnstuckScript = false,
+	useUnstuckScript = true,
 }
 
 

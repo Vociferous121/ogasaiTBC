@@ -100,7 +100,7 @@ function script_unstuck:turn(changeAngle)
 	_lx, _ly, _lz = GetPosition(GetLocalPlayer());
 	_angle = GetAngle(GetLocalPlayer()) + changeAngle;
 	self.unstuckAngle = _angle;
-	test = _lx+math.cos(_angle) + _ly+math.sin(_angle) - math.sin(GetAngle(GetLocalPlayer()));
+	test = _lx+math.cos(_angle) - _ly+math.sin(_angle) - _angle;
 	FaceAngle(test);
 end
 

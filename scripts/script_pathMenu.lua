@@ -7,6 +7,10 @@ function script_pathMenu:menu()
 
 	if (CollapsingHeader("[Path options")) then
 		local wasClicked = false;
+		Text("Distance To Grind From Hotspot");
+		script_path.grindingDist = SliderInt("Dist (yds)", 50, 2000, script_path.grindingDist);
+		Separator();
+
 		wasClicked, script_grind.useUnstuckScript = Checkbox("Use Raycasting Unstuck Script", script_grind.useUnstuckScript);
 		wasClicked, script_grind.raycastPathing = Checkbox("Use raycast pathing (TBC Area)", script_grind.raycastPathing);
 

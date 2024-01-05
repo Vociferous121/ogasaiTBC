@@ -124,7 +124,7 @@ function script_hunterEX:doRangeAttack(targetGUID, localMana)
 	
 	-- Special attack: Serpent Sting (Keep the DOT up!)
 	if (self.useSerpentSting) and (localMana >= self.serpentStingMana) and (self.serpentTimer < GetTimeEX() and not IsSpellOnCD('Serpent Sting') 
-		and GetCreatureType(targetObj) ~= 'Elemental') then 
+		and GetCreatureType(targetObj) ~= 'Elemental') and (GetHealthPercentage(targetObj) >= 30) then 
 		if (Cast('Serpent Sting', targetGUID)) then self.serpentTimer = GetTimeEX() + 15000; return true; end 
 	end
 
