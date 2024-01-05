@@ -115,6 +115,21 @@ function script_hunter:run(targetObj)
 	local localHealth = GetHealthPercentage(localObj);
 	local localLevel = GetLevel(localObj);
 
+	-- stuck in combat
+	if (IsInCombat()) and (GetPet() ~= 0) and (not self.useRotation) then
+		if (GetUnitsTarget(localObj) == 0) and (GetUnitsTarget(GetPet()) == 0) and (GetNumPartyMembers() < 1) then
+			if (GetUnitsTarget(GetPet()) ~= 0) then
+				AssistUnit("pet");
+			end
+			self.message = "No Target - stuck in combat! WAITING!";
+			if (IsMoving()) then
+				StopMoving();
+				return true;
+			end
+			return;
+		end
+	end
+
 	if (targetObj == 0) then
 		targetObj = GetTarget();
 	end
@@ -142,15 +157,6 @@ function script_hunter:run(targetObj)
 
 		-- Check if we have ammo
 		local hasAmmo = script_helper:hasAmmo();
-
-		-- stuck in combat
-		if (self.waitAfterCombat) and (IsInCombat()) and (GetPet() ~= 0) and (not self.useRotation) then
-			if (GetUnitsTarget(localObj) == 0) and (GetUnitsTarget(GetPet()) == 0) and (GetNumPartyMembers() < 1) then
-				AssistUnit("pet");
-				self.message = "No Target - stuck in combat! WAITING!";
-				return;
-			end
-		end
 
 		-- walk away from target if pet target guid is the same guid as target targeting me
 		if (IsInCombat()) and (GetPet() ~= 0) and (GetDistance(targetObj) <= 10) and (GetUnitsTarget(targetObj) == GetPet()) then

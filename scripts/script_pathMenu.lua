@@ -1,12 +1,27 @@
 script_pathMenu = {
-	selectedHotspotID = 0
+	selectedHotspotID = 0,
+	useAutoHotspots = true,
 }
 	
 function script_pathMenu:menu()
+
 	if (CollapsingHeader("[Path options")) then
 		local wasClicked = false;
 		wasClicked, script_grind.useUnstuckScript = Checkbox("Use Raycasting Unstuck Script", script_grind.useUnstuckScript);
 		wasClicked, script_grind.raycastPathing = Checkbox("Use raycast pathing (TBC Area)", script_grind.raycastPathing);
+
+		wasClicked, self.useAutoHotspots = Checkbox("Use Auto Hotspots", self.useAutoHotspots);
+		wasClicked, script_path.autoLoadHotspot = Checkbox("Auto Load Hotspot from hotspotDB.lua", script_path.autoLoadHotspot);
+
+		if (Button("Set current position as the new hotspot")) then
+			script_path:resetHotspot(); 
+			script_path.currentHotspotID = -1; 
+			script_path.autoLoadHotspot = false;
+			script_path:printHotspot();
+		end
+
+	
+			Separator();
 
 		if (script_grind.raycastPathing) then
 			SameLine();
@@ -27,45 +42,45 @@ function script_pathMenu:menu()
 		end
 
 		if (IsUsingNavmesh() or script_grind.raycastPathing) then
-		if (not script_grind.raycastPathing) then if Button("Disable Nav Mesh and Auto Pathing") then UseNavmesh(false); end end
-		wasClicked, script_path.autoLoadHotspot = Checkbox("Auto Load Hotspot from hotspotDB.lua", script_path.autoLoadHotspot);
+			if (not script_grind.raycastPathing) then
+				if Button("Disable Nav Mesh and Auto Pathing")
+					then UseNavmesh(false);
+				end
+			end
 
-		if (Button("Auto Load a hotspot from database.")) then
-			script_path:updateHotspot(); 
-			script_path.autoLoadHotspot = true;
-		end
-
-		Text("Select a hotspot from database:");
-		wasClicked, self.selectedHotspotID = 
-			ComboBox("", self.selectedHotspotID, unpack(hotspotDB.selectionList));
-
-		SameLine();
-			
-		if Button("Load") then
-			script_path.autoLoadHotspot = false;
-			script_pathMenu:setHotspotByID(self.selectedHotspotID+1);
-		end
-
-		Separator();
-
-		if (Button("Set current position as the new hotspot")) then
-			script_path:resetHotspot(); 
-			script_path.currentHotspotID = -1; 
-			script_path.autoLoadHotspot = false;
-			script_path:printHotspot();
-		end
-
-		Separator();
-		Text("Move path node distance");
-		script_path.navNodeDist = SliderFloat("ND", 1, 20, script_path.navNodeDist);
-		Text("Move path node distance while mounted");
-		script_path.navNodeDistMounted = SliderFloat("NDM", 1, 20, script_path.navNodeDistMounted);
+			Separator();
+	
+			if (not self.useAutoHotspots) then
+				if (Button("Auto Load a hotspot from database.")) then
+					script_path:updateHotspot(); 
+					script_path.autoLoadHotspot = true;
+				end
+	
+				Text("Select a hotspot from database:");
+				wasClicked, self.selectedHotspotID = 
+					ComboBox("", self.selectedHotspotID, unpack(hotspotDB.selectionList));
+	
+				SameLine();
+					
+				if Button("Load") then
+					script_path.autoLoadHotspot = false;
+					script_pathMenu:setHotspotByID(self.selectedHotspotID+1);
+				end
+		
+				Separator();
+			end
+		
+			if (CollapsingHeader("|+| Move Node Distance")) then
+				Text("Move path node distance");
+				script_path.navNodeDist = SliderFloat("ND", 1, 20, script_path.navNodeDist);
+				Text("Move path node distance while mounted");
+				script_path.navNodeDistMounted = SliderFloat("NDM", 1, 20, script_path.navNodeDistMounted);
+			end
 		else
 			if Button("Enable Nav Mesh and Auto Pathing") then UseNavmesh(true); script_grind.useNavMesh = true; end
 			Text("See pathing in the oGasai tab!");
 		end
 	end
-
 end
 
 function script_pathMenu:setHotspotByID(id)

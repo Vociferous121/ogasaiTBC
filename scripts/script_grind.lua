@@ -478,6 +478,21 @@ function script_grind:run()
 				return;
 			end
 
+			-- stuck in combat
+			if (IsInCombat()) and (GetPet() ~= 0) and (not script_hunter.useRotation) then
+				if (GetUnitsTarget(localObj) == 0) and (GetUnitsTarget(GetPet()) == 0) and (GetNumPartyMembers() < 1) then
+					if (GetUnitsTarget(GetPet()) ~= 0) then
+						AssistUnit("pet");
+					end
+					self.message = "No Target - stuck in combat! WAITING!";
+					if (IsMoving()) then
+						StopMoving();
+						return true;
+					end
+					return;
+				end
+			end
+
 			-- stop when we get close enough to target and we are a ranged class
 			if (HasSpell("Fireball") or HasSpell("Smite") or HasSpell("Shadowbolt")) then
 				if (GetDistance(self.target) <= 27) and (IsInLineOfSight(self.target)) then
