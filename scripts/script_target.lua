@@ -27,7 +27,7 @@ script_target = {
 
 function script_target:setup()
 	self.minLevel = GetLevel(GetLocalPlayer())-5;
-	self.maxLevel = GetLevel(GetLocalPlayer())+1;
+	self.maxLevel = GetLevel(GetLocalPlayer())+2;
 	self.lootTimer = GetTimeEX();
 	self.isSetup = true;
 	DEFAULT_CHAT_FRAME:AddMessage('script_target: loaded...');

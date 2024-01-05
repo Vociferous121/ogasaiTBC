@@ -15,6 +15,8 @@ script_grind = {
 	aggroincluded = include("scripts\\script_aggro.lua"),
 	checkDebuffsLoaded = include("scripts\\script_checkDebuffs.lua"),
 	unstuckLoaded = include("scripts\\script_unstuck.lua"),
+	paranoidLoaded = include("scripts\\script_paranoid.lua"),
+
 	message = 'Starting the grinder...',
 	alive = true,
 	target = 0,
@@ -174,7 +176,7 @@ function script_grind:run()
 	-- Update min/max level if we level up
 	if (script_target.currentLevel ~= GetLevel(GetLocalPlayer())) then
 		script_target.minLevel = script_target.minLevel + 1;
-		script_target.maxLevel = script_target.maxLevel + 1;
+		script_target.maxLevel = script_target.maxLevel + 2;
 		script_target.currentLevel = script_target.currentLevel + 1;
 	end
 
@@ -208,6 +210,16 @@ function script_grind:run()
 		script_pather:jumpObstacles();
 	end
 	
+	if (not self.pause) and (script_paranoid.paranoidOn) then
+		if (script_paranoid:doParanoia()) then
+			self.message = "Paranoid turned on - player in range!";
+			if (IsMoving()) then
+				StopMoving();
+				return true;
+			end
+		return;
+		end
+	end
 
 	-- Update node distance depending on if we are mounted or not
 	script_path:setNavNodeDist();

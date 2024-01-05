@@ -58,6 +58,10 @@ function script_grindMenu:menu()
 	end
 	
 	if (CollapsingHeader("[Mount, Talents, Paranoia, Misc Options")) then 
+		Text("Paranoia Range Of Other Players");
+		script_paranoid.paranoidRange = SliderInt("PR", 0, 200, script_paranoid.paranoidRange);
+		Separator();
+
 		wasClicked, script_grind.useMount = Checkbox("Use Mount", script_grind.useMount);
 		SameLine(); wasClicked, script_grind.jump = Checkbox("Jump while moving (unmounted)", script_grind.jump);
 		Separator();
@@ -86,27 +90,29 @@ function script_grindMenu:menu()
 		script_target.pullRange = SliderFloat("SD (yd)", 1, 200, script_target.pullRange);
 		Text("Start attacking a new target within X yds.");
 		script_grind.pullDistance = SliderFloat("PD (yd)", 1, 35, script_grind.pullDistance);
-		Text("Attack targets within levels:");
+		Text("Target Level");
 		script_target.minLevel = SliderInt("Min Lvl", 1, 73, script_target.minLevel);
 		script_target.maxLevel = SliderInt("Max Lvl", 1, 73, script_target.maxLevel);
 		Separator();
-		Text("Creature type selection:");
-		local wasClicked = false;
-		wasClicked, script_target.skipElites = Checkbox("Skip Elites", script_target.skipElites);
-		SameLine();
-		wasClicked, script_target.skipHumanoid = Checkbox("Skip Humanoids", script_target.skipHumanoid);
-		wasClicked, script_target.skipUndead = Checkbox("Skip Undeads", script_target.skipUndead);
-		SameLine();
-		wasClicked, script_target.skipDemon = Checkbox("Skip Demons", script_target.skipDemon);
-		wasClicked, script_target.skipBeast = Checkbox("Skip Beasts", script_target.skipBeast);
-		SameLine();
-		wasClicked, script_target.skipAberration= Checkbox("Skip Aberrations", script_target.skipAberration);
-		wasClicked, script_target.skipDragonkin = Checkbox("Skip Dragonkin", script_target.skipDragonkin);
-		SameLine();
-		wasClicked, script_target.skipGiant = Checkbox("Skip Giants", script_target.skipGiant);
-		wasClicked, script_target.skipMechanical = Checkbox("Skip Mechanicals", script_target.skipMechanical);
-		SameLine();
-		wasClicked, script_target.skipElemental = Checkbox("Skip Elementals", script_target.skipElemental);
+		if (CollapsingHeader("|+| Skip Creature By Type")) then
+			Text("Creature type selection:");
+			local wasClicked = false;
+			wasClicked, script_target.skipElites = Checkbox("Skip Elites", script_target.skipElites);
+			SameLine();
+			wasClicked, script_target.skipHumanoid = Checkbox("Skip Humanoids", script_target.skipHumanoid);
+			wasClicked, script_target.skipUndead = Checkbox("Skip Undeads", script_target.skipUndead);
+			SameLine();
+			wasClicked, script_target.skipDemon = Checkbox("Skip Demons", script_target.skipDemon);
+			wasClicked, script_target.skipBeast = Checkbox("Skip Beasts", script_target.skipBeast);
+			SameLine();
+			wasClicked, script_target.skipAberration= Checkbox("Skip Aberrations", script_target.skipAberration);
+			wasClicked, script_target.skipDragonkin = Checkbox("Skip Dragonkin", script_target.skipDragonkin);
+			SameLine();
+			wasClicked, script_target.skipGiant = Checkbox("Skip Giants", script_target.skipGiant);
+			wasClicked, script_target.skipMechanical = Checkbox("Skip Mechanicals", script_target.skipMechanical);
+			SameLine();
+			wasClicked, script_target.skipElemental = Checkbox("Skip Elementals", script_target.skipElemental);
+		end	
 	end
 
 	script_target:lootMenu();
