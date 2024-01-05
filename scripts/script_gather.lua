@@ -224,9 +224,9 @@ function script_gather:gather()
 				self.timer = GetTimeEX() + 150;
 			end
 
-			if(not IsLooting() and not IsChanneling()) then
+			if(not IsLooting() and not IsChanneling() and not IsMoving()) then
 				GameObjectInteract(self.nodeObj);
-				self.timer = GetTimeEX() + 1250;
+				self.timer = GetTimeEX() + 4250;
 			end
 
 		else

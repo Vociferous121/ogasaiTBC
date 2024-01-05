@@ -22,6 +22,25 @@ script_hunter = {
 -- Only the functions setup, run, rest and menu are located in this file
 -- See script_hunterEX for more "hunter" functions
 
+-- Run backwards if the target is within range
+function script_hunter:runBackwards(targetObj, range) 
+	local localObj = GetLocalPlayer();
+ 	if (targetObj ~= 0) and (not script_checkDebuffs:hasDisabledMovement()) then
+ 		local xT, yT, zT = GetPosition(targetObj);
+ 		local xP, yP, zP = GetPosition(localObj);
+ 		local distance = GetDistance(targetObj);
+ 		local xV, yV, zV = xP - xT, yP - yT, zP - zT;	
+ 		local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2);
+ 		local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;		
+ 		local moveX, moveY, moveZ = xT + xUV*20, yT + yUV*20, zT + zUV;		
+ 		if (distance < range and targetObj:IsInLineOfSight()) then
+ 			MoveToTarget(moveX, moveY, moveZ);
+ 			return true;
+ 		end
+	end
+	return false;
+end
+
 function script_hunter:setup()
 	self.timer = GetTimeEX();
 
@@ -156,6 +175,18 @@ function script_hunter:run(targetObj)
 
 		-- Combat
 		else	
+
+			-- walk away from target if pet target guid is the same guid as target targeting me
+			if (GetPet() ~= 0) and (GetDistance(targetObj) <= 14) and (not script_grind:isTargetingMe(targetObj)) and (GetUnitsTarget(targetObj) ~= 0) and (not script_checkDebuffs:hasDisabledMovement()) then
+				if (targetGUID == GetTargetGUID(pet)) then
+
+					if (script_hunter:runBackwards(targetObj, 15)) then
+						script_grind.tickRate = 100;
+						self.message = "Moving away from target for range attacks...";
+						return true;
+					end
+				end
+			end
 
 			if (script_hunterEX:mendPet(localMana, petHP)) then
 				self.timer = GetTimeEX() + 1850;

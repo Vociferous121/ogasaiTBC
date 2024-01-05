@@ -746,7 +746,7 @@ function script_grind:isTargetingPet(i)
 		if (GetUnitsTarget(i) ~= nil and GetUnitsTarget(i) ~= 0) then
 
 			-- return true
-			return GetUnitsTarget(GetGUID(i)) == GetGUID(pet);
+			return GetUnitsTarget(GetTargetGUID(i)) == GetTargetGUID(pet);
 		end
 	end
 	return false;
