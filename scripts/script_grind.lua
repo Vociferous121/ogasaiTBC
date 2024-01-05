@@ -212,7 +212,7 @@ function script_grind:run()
 			script_debug.debugGrind = "checking jump over obstacles";
 		end
 
-		if (self.useUnstuckScript) and (self.unstuckTime >= GetTimeEX() - 5000) then
+		if (self.useUnstuckScript) then
 			if (not script_unstuck:pathClearAuto(2)) then
 				script_unstuck:unstuck();
 				return true;
