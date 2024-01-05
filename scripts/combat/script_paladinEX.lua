@@ -45,38 +45,50 @@ function script_paladinEX:meleeAttack(targetGUID)
 	local localMana = GetManaPercentage(GetLocalPlayer());
 
 	if ((IsCasting(targetObj) or IsFleeing(targetObj)) and HasSpell('Hammer of Justice') and not IsSpellOnCD('Hammer of Justice')) then
-		if (Cast('Hammer of Justice', targetGUID)) then self.hJtime = GetTimeEX() + 4000; self.waitTimer = GetTimeEX() + 2000; return true; end
+		if (Cast('Hammer of Justice', targetGUID)) then
+			self.hJtime = GetTimeEX() + 4000;
+			self.waitTimer = GetTimeEX() + 2000;
+			return true;
+		end
 	end
 
 	if (HasSpell('Hammer of Wrath') and not IsSpellOnCD('Hammer of Wrath') and targetHealth < 20) then
-		if (Cast('Hammer of ', targetGUID)) then return true; end
+		if (Cast('Hammer of ', targetGUID)) then
+			return true;
+		end
 	end
 
 	-- Combo Check 1: Stun the target if we have HoJ and SoC
 	if (HasSpell('Hammer of Justice') and not IsSpellOnCD('Hammer of Justice') and targetHealth > 50 and script_paladinEX:isBuff('Seal of Command') and localMana > 50 and not IsSpellOnCD('Judgement')) then
-		if (Cast('Hammer of Justice', targetGUID)) then return true; end
+		if (Cast('Hammer of Justice', targetGUID)) then
+			return true;
+		end
 	end
 		
 	-- Combo Check 2: Use Judgement on the stunned target
 	if (script_paladinEX:isBuff('Seal of Command') and GetDistance(targetObj) < 10 and script_target:hasDebuff("Hammer of Justice")) then
-		CastSpellByName('Judgement'); return true;
+		CastSpellByName('Judgement');
+		return true;
 	end
 
 	-- Check: Seal of the Crusader until we used judgement
 	if (not script_target:hasDebuff("Judgement of the Crusader") and targetHealth > 20
 		and not script_paladinEX:isBuff("Seal of the Crusader") and HasSpell('Seal of the Crusader')) then
-		CastSpellByName('Seal of the Crusader'); return true;
+		CastSpellByName('Seal of the Crusader');
+		return true;
 	end 
 
 	-- Check: Judgement when we have crusader
 	if (GetDistance(targetObj) < 10  and script_paladinEX:isBuff('Seal of the Crusader') and
 		not IsSpellOnCD('Judgement') and HasSpell('Judgement')) then
-			CastSpellByName('Judgement'); return true;
+			CastSpellByName('Judgement');
+			return true;
 	end
 
 	-- Check: Seal of Righteousness (before we have SoC)
 	if (not script_paladinEX:isBuff("Seal of Righteousness") and not script_paladinEX:isBuff("Seal of the Crusader") and not HasSpell('Seal of Command')) then 
-		CastSpellByName('Seal of Righteousness'); return true;
+		CastSpellByName('Seal of Righteousness');
+		return true;
 	end
 
 	-- Check: Judgement with Righteousness or Command if we have a lot of mana
@@ -87,8 +99,10 @@ function script_paladinEX:meleeAttack(targetGUID)
 
 	-- Check: Use judgement if we are buffed with Righteousness or Command and the target is low
 	if ((script_paladinEX:isBuff('Seal of Righteousness') or script_paladinEX:isBuff('Seal of Command'))
-		and GetDistance(targetObj) < 10 and targetHealth < 10) then
-		if (Cast('Judgement', targetGUID)) then return true; end
+		and GetDistance(targetObj) < 10 and (targetHealth < 25 or targetHealth > 55)) then
+		if (Cast('Judgement', targetGUID)) then
+			return true;
+		end
 	end
 
 	-- Check: Seal of Command

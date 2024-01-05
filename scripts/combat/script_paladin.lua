@@ -22,10 +22,10 @@ end
 
 function script_paladin:setup()
 	self.waitTimer = GetTimeEX();
-
-	DEFAULT_CHAT_FRAME:AddMessage('script_paladin: loaded...');
-
 	script_paladinEX:setup();
+
+
+
 
 	self.isSetup = true;
 end
@@ -59,15 +59,22 @@ function script_paladin:run(targetObj)
 	if (targetObj ~= 0 and targetObj ~= nil) then
 	
 		-- Cant Attack dead targets
-		if (IsDead(targetObj)) then return; end
-		if (not CanAttack(targetObj)) then return; end
+		if (IsDead(targetObj)) then
+			return;
+		end
+
+		if (not CanAttack(targetObj)) then
+			return;
+		end
 		
 		targetHealth = GetHealthPercentage(targetObj);
 
 		--Opener
 		if (not IsInCombat()) then
 			-- Auto Attack
-			if (GetDistance(targetObj) < 40) then AutoAttackTarget(targetObj); end
+			if (GetDistance(targetObj) < 40) then
+				UnitInteract(targetObj);
+				AutoAttackTarget(targetObj); end
 			
 			-- Opener
 	
@@ -81,7 +88,7 @@ function script_paladin:run(targetObj)
 				end
 			end
 
-			-- Rightneoussness if we dont have seal of the crusader
+			-- cast seal of Rightneoussness if we dont have seal of the crusader
 			if (not HasSpell('Seal of the Crusader') and localMana > 10) then
 				if (GetDistance(targetObj) < 15 and not script_paladinEX:isBuff("Seal of Righteousness")) then
 					CastSpellByName('Seal of Righteousness');
@@ -89,15 +96,24 @@ function script_paladin:run(targetObj)
 				end 
 			end
 
-			-- Check: Seal of the Crusader until we used judgement
+			-- cast seal of crusader so we can use judgement
 			if (not script_target:hasDebuff("Judgement of the Crusder") and GetDistance(targetObj) < 15 and not script_paladinEX:isBuff("Seal of the Crusader")) and (localMana >= 20) then
 				CastSpellByName('Seal of the Crusader');
 				return;
 			end 
 
-			-- Check: Judgement when we have crusader
+			-- use judgement when we have seal of crusader
 			if (GetDistance(targetObj) < 10  and script_paladinEX:isBuff('Seal of the Crusader') and not IsSpellOnCD('Judgement') and HasSpell('Judgement')) and (localMana >= 15) then
-				CastSpellByName('Judgement'); self.waitTimer = GetTimeEX() + 2000; return true;
+				CastSpellByName('Judgement');
+				self.waitTimer = GetTimeEX() + 2000;
+				return true;
+			end
+
+			-- use judgement when we have seal of righteousness
+			if (GetDistance(targetObj) < 10  and script_paladinEX:isBuff('Seal of the Righteousness') and not IsSpellOnCD('Judgement') and HasSpell('Judgement')) and (localMana >= 45) and (GetHealthPercentage(targetObj) >= 10) then
+				CastSpellByName('Judgement');
+				self.waitTimer = GetTimeEX() + 2000;
+				return true;
 			end
 
 			-- Check: Melee range
@@ -112,7 +128,9 @@ function script_paladin:run(targetObj)
 				if (script_grind.combatStatus ~= nil) then
 					script_grind.combatStatus = 0;
 				end
-				FaceTarget(targetObj);
+				if (not IsMoving()) then
+					FaceTarget(targetObj);
+				end
 				AutoAttack(targetObj);
 			end
 			
@@ -136,8 +154,9 @@ function script_paladin:run(targetObj)
 				end
 				
 			end 
-
-			FaceTarget(targetObj);
+			if (not IsMoving()) then
+				FaceTarget(targetObj);
+			end
 			AutoAttack(targetObj);
 
 			-- Check: Use Lay of Hands

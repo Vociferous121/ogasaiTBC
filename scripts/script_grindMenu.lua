@@ -82,6 +82,7 @@ function script_grindMenu:menu()
 
 	if (CollapsingHeader("[Target options")) then
 		Text("Scan for valid targets within X yds.");
+
 		script_target.pullRange = SliderFloat("SD (yd)", 1, 150, script_target.pullRange);
 		Text("Start attacking a new target within X yds.");
 		script_grind.pullDistance = SliderFloat("PD (yd)", 1, 35, script_grind.pullDistance);
@@ -115,11 +116,6 @@ function script_grindMenu:menu()
 	if (CollapsingHeader("Display Options")) then
 		wasClicked, script_aggro.drawAggro = Checkbox("Draw Aggro Ranges", script_aggro.drawAggro);
 		wasClicked, script_grind.drawPath = Checkbox("Draw Navmesh Move Path", script_grind.drawPath)
-		if (script_grind.drawPath or script_grind.raycastPathing) then
-			DrawNavMeshPath(true);
-		elseif (not script_grind.drawPath) then
-			DrawNavMeshPath(false);
-		end
 		wasClicked, script_grindEX.drawRaycastPath = Checkbox("Draw Raycast Path", script_grindEX.drawRaycastPath);
 		wasClicked, script_grindEX.drawStatus = Checkbox("Draw Status Window", script_grindEX.drawStatus);
 		wasClicked, script_grindEX.drawGather = Checkbox("Draw Gather Nodes", script_grindEX.drawGather);

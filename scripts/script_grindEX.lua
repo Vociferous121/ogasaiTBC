@@ -43,6 +43,7 @@ function script_grindEX:draw()
 	-- Draw auto path 
 	if (self.drawAutoPath) then
 		script_path:draw();
+		DrawNavMeshPath(true);
 	end
 	if (self.drawRaycastPath) then
 		script_patherEX:drawPath();

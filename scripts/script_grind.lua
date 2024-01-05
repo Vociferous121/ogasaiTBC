@@ -53,7 +53,7 @@ script_grind = {
 	showRayMenu = false,
 	useNavMesh = true,
 	combatStatus = 0, -- 0 = in range, 1 = not in range
-	drawPath = false,
+	drawPath = true,
 	useUnstuckScript = true,
 }
 
@@ -73,7 +73,7 @@ function script_grind:setup()
 
 	SetPVE(true);
 	SetAutoLoot();
-	--DrawNavMeshPath(true);
+	DrawNavMeshPath(true);
 
 	self.waitTimer = GetTimeEX();
 	self.skipMobTimer = GetTimeEX();
@@ -138,15 +138,25 @@ function script_grind:run()
 		return;
 	end
 
+	-- draw aggro circles
 	if (script_aggro.drawAggro) then
 		script_aggro:drawAggroCircles(65);
 	end
 
+	-- draw move path
+	if (IsMoving()) and (self.drawPath) then
+		DrawMovePath();
+	end
+
+	-- adjust tick rate
 	if (not self.adjustTickRate) then
 	
+		-- moving tick rate
 		if (not IsInCombat() or IsMoving()) then
 			self.tickRate = 50;
 		end
+
+		-- combat tick rate
 		if (not IsMoving()) and (IsInCombat()) then
 			self.tickRate = 650;
 		end
@@ -334,7 +344,7 @@ function script_grind:run()
 		if (script_followEX:getTarget() ~= 0) then
 			local targetGUID = script_followEX:getTarget();
 			self.target = GetGUIDTarget(targetGUID);
-			--UnitInteract(self.target);
+			UnitInteract(self.target);
 		else
 			if (script_info:waitGroup() and not IsInCombat()) then
 				self.message = 'Waiting for group (rest & movement)...';
