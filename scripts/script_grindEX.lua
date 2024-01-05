@@ -1,13 +1,13 @@
 script_grindEX = {
 	isSetup = false,
-	drawWindow = true,
 	drawTarget = true,
 	drawStatus = true,
 	drawPath = true,
 	drawGather = true,
 	drawAutoPath = true,
 	currentMapZone = 0,
-	unstuckRight = true
+	unstuckRight = true,
+	drawRaycastPath = true,
 }
 
 function script_grindEX:setup()
@@ -24,11 +24,7 @@ end
 
 function script_grindEX:draw()
 	-- Draw window
-	if (self.drawWindow) then 
-		script_grindEX:window()
-	end
-	-- Draw Nav Mesh path
-	if (IsMoving() and self.drawPath) then if (not script_grind.raycastPathing) then DrawMovePath(); else script_patherEX:drawPath(); end end
+	script_grindEX:window()
 
 	-- Draw mesh
 	if (script_pather.drawMesh) then
@@ -47,6 +43,9 @@ function script_grindEX:draw()
 	-- Draw auto path 
 	if (self.drawAutoPath) then
 		script_path:draw();
+	end
+	if (self.drawRaycastPath) then
+		script_patherEX:drawPath();
 	end
 
 	-- Draw info and status

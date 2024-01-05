@@ -53,6 +53,7 @@ script_grind = {
 	showRayMenu = false,
 	useNavMesh = true,
 	combatStatus = 0, -- 0 = in range, 1 = not in range
+	drawPath = false,
 }
 
 
@@ -71,7 +72,7 @@ function script_grind:setup()
 
 	SetPVE(true);
 	SetAutoLoot();
-	DrawNavMeshPath(true);
+	--DrawNavMeshPath(true);
 
 	self.waitTimer = GetTimeEX();
 	self.skipMobTimer = GetTimeEX();
@@ -543,7 +544,8 @@ function script_grind:run()
 		ResetNavigate();
 		RunCombatScript(self.target)
 
-		if (IsInCombat()) and (script_grind.enemiesAttackingUs() >= 2) and (GetHealthPercentage(GetLocalPlayer()) <= 75) then
+		if (IsInCombat()) and ( (script_grind.enemiesAttackingUs() >= 2 and GetHealthPercentage(GetLocalPlayer()) <= 75) or 
+			(GetHealthPercentage(GetLocalPlayer()) <= 40) ) then
 			if (HasSpell("Gift of the Naaru")) and (not IsSpellOnCD("Gift of the Naaru")) and (not HasBuff(localObj, "Gift of the Naaru")) then
 				CastSpellByName("Gift of the Naaru", localObj);
 				

@@ -6,7 +6,7 @@ script_paladin = {
 	eatHealth = 50,
 	isSetup = false,
 	waitTimer = 0,
-	healHealth = 40,
+	healHealth = 55,
 	bopHealth = 20,
 	lohHealth = 8,
 	consecrationMana = 50,
@@ -45,6 +45,9 @@ function script_paladin:run(targetObj)
 	if (IsChanneling() or IsCasting() or self.timer > GetTimeEX()) then
 		return;
 	end
+
+	-- set tick rate for paladin script
+	self.waitTimer = GetTimeEX() + script_grind.tickRate;
 
 	if (targetObj == 0) then
 		targetObj = GetTarget();
@@ -87,13 +90,13 @@ function script_paladin:run(targetObj)
 			end
 
 			-- Check: Seal of the Crusader until we used judgement
-			if (not script_target:hasDebuff("Judgement of the Crusder") and GetDistance(targetObj) < 15 and not script_paladinEX:isBuff("Seal of the Crusader")) then
+			if (not script_target:hasDebuff("Judgement of the Crusder") and GetDistance(targetObj) < 15 and not script_paladinEX:isBuff("Seal of the Crusader")) and (localMana >= 20) then
 				CastSpellByName('Seal of the Crusader');
 				return;
 			end 
 
 			-- Check: Judgement when we have crusader
-			if (GetDistance(targetObj) < 10  and script_paladinEX:isBuff('Seal of the Crusader') and not IsSpellOnCD('Judgement') and HasSpell('Judgement')) then
+			if (GetDistance(targetObj) < 10  and script_paladinEX:isBuff('Seal of the Crusader') and not IsSpellOnCD('Judgement') and HasSpell('Judgement')) and (localMana >= 15) then
 				CastSpellByName('Judgement'); self.waitTimer = GetTimeEX() + 2000; return true;
 			end
 
@@ -172,7 +175,7 @@ function script_paladin:run(targetObj)
 
 			-- Check: Heal ourselves if below heal health or we are immune to physical damage
 			if (localHealth < self.healHealth or 
-				((script_paladinEX:isBuff('Blessing of Protection') or script_paladinEX:isBuff('Divine Protection')) and localHealth < 90) ) then 
+				((script_paladinEX:isBuff('Blessing of Protection') or script_paladinEX:isBuff('Divine Protection')) and localHealth < 90) ) and (localMana >= 10) then 
 
 				-- Check: Stun with HoJ before healing if available
 				if (GetDistance(targetObj) < 5 and HasSpell('Hammer of Justice') and not IsSpellOnCD('Hammer of Justice')) then
@@ -181,7 +184,7 @@ function script_paladin:run(targetObj)
 				
 				if (Buff('Holy Light', localObj)) then 
 					self.waitTimer = GetTimeEX() + 5000;
-					script_grind.waitTimer = GetTimeEX() + 3000;
+					script_grind.waitTimer = GetTimeEX() + 5000;
 					self.message = "Healing: Holy Light...";
 					return;
 				end
@@ -221,15 +224,25 @@ function script_paladin:rest()
 	end
 	
 	-- Update rest values
-	if (script_grind.restHp ~= 0) then self.eatHealth = script_grind.restHp; end
-	if (script_grind.restMana ~= 0) then self.drinkMana = script_grind.restMana; end
+	if (script_grind.restHp ~= 0) then
+		self.eatHealth = script_grind.restHp;
+	end
 
-	if (self.waitTimer > GetTimeEX()) then return true; end
+	if (script_grind.restMana ~= 0) then
+		self.drinkMana = script_grind.restMana;
+	end
+
+	if (self.waitTimer > GetTimeEX()) then
+		return;
+	end
+	self.waitTimer = GetTimeEX() + script_grind.tickRate;
+
 
 	-- Heal up: Holy Light
-	if (localMana > 20 and localHealth < self.eatHealth and HasSpell('Holy Light')) then
+	if (localMana > 20 and localHealth < 70 and HasSpell('Holy Light')) then
 		if (Buff('Holy Light', localObj)) then
-			script_grind.waitTimer = GetTimeEX() + 5000;
+			script_grind.waitTimer = GetTimeEX() + 3500;
+			self.waitTimer = GetTimeEX() + 3500;
 			self.message = "Healing: Holy Light...";
 		end
 		script_grind:restOn();
@@ -239,7 +252,8 @@ function script_paladin:rest()
 	-- Heal up: Flash of Light
 	if (localMana > 10 and localHealth < 90 and HasSpell('Flash of Light')) then
 		if (Buff('Flash of Light', localObj)) then
-			script_grind.waitTimer = GetTimeEX() + 5000;
+			script_grind.waitTimer = GetTimeEX() + 2700;
+			self.waitTimer = GetTimeEX() + 2700;
 			self.message = "Healing: Flash of Light...";
 		end
 		script_grind:restOn();

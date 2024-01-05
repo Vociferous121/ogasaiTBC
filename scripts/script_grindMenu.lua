@@ -57,20 +57,13 @@ function script_grindMenu:menu()
 		script_shaman:menu();
 	end
 	
-	if (CollapsingHeader("[Mount, Talents & Display options")) then 
+	if (CollapsingHeader("[Mount, Talents, Paranoia, Misc Options")) then 
 		wasClicked, script_grind.useMount = Checkbox("Use Mount", script_grind.useMount);
 		SameLine(); wasClicked, script_grind.jump = Checkbox("Jump while moving (unmounted)", script_grind.jump);
 		Separator();
 		wasClicked, script_grind.autoTalent = Checkbox("Spend talent points", script_grind.autoTalent);
 		Text("Change talents in script_talent.lua");
 		if (script_grind.autoTalent) then Text("Spending next talent point in: " .. (script_talent:getNextTalentName() or " ")); end 
-		Separator();
-		wasClicked, script_grindEX.drawWindow = Checkbox("Draw grinder menus in a window", script_grindEX.drawWindow);
-		wasClicked, script_grindEX.drawStatus = Checkbox("Draw grinder status window", script_grindEX.drawStatus);
-		wasClicked, script_grindEX.drawGather = Checkbox("Draw gather nodes", script_grindEX.drawGather);
-		wasClicked, script_grindEX.drawTarget = Checkbox("Draw info about units", script_grindEX.drawTarget);
-		wasClicked, script_grindEX.drawPath = Checkbox("Draw move path", script_grindEX.drawPath);
-		wasClicked, script_grindEX.drawAutoPath = Checkbox("Draw auto path nodes & hotspot", script_grindEX.drawAutoPath);
 		Separator();
 	end
 	
@@ -121,6 +114,17 @@ function script_grindMenu:menu()
 
 	if (CollapsingHeader("Display Options")) then
 		wasClicked, script_aggro.drawAggro = Checkbox("Draw Aggro Ranges", script_aggro.drawAggro);
+		wasClicked, script_grind.drawPath = Checkbox("Draw Navmesh Move Path", script_grind.drawPath)
+		if (script_grind.drawPath or script_grind.raycastPathing) then
+			DrawNavMeshPath(true);
+		elseif (not script_grind.drawPath) then
+			DrawNavMeshPath(false);
+		end
+		wasClicked, script_grindEX.drawRaycastPath = Checkbox("Draw Raycast Path", script_grindEX.drawRaycastPath);
+		wasClicked, script_grindEX.drawStatus = Checkbox("Draw Status Window", script_grindEX.drawStatus);
+		wasClicked, script_grindEX.drawGather = Checkbox("Draw Gather Nodes", script_grindEX.drawGather);
+		wasClicked, script_grindEX.drawTarget = Checkbox("Draw Unit Info", script_grindEX.drawTarget);
+		wasClicked, script_grindEX.drawAutoPath = Checkbox("Draw Hotspot & Nodes", script_grindEX.drawAutoPath);
 	end
 	
 	if (script_grindMenu.debug) then
