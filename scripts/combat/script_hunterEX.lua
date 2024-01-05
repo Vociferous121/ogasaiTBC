@@ -54,21 +54,24 @@ function script_hunterEX:doInCombatRoutine(targetGUID, localMana)
 	end
 
 	-- Check: If in range, use range attacks
-	if (GetDistance(targetObj) < 35 and GetDistance(targetObj) > 13) then
+	if (GetDistance(targetObj) <= 34 and GetDistance(targetObj) >= 9) then
 		if(script_hunterEX:doRangeAttack(targetGUID, localMana)) then return true; end 
 	end
 
-	if (GetDistance(targetObj) < 12 and GetDistance(targetObj) > 5) then
+	if (GetDistance(targetObj) <= 8) and (GetDistance(targetObj) >= 3)
+		and ( (GetPet() == 0) or (GetPet() ~= 0 and not GetUnitsTarget(targetObj) == GetPet()) ) then
 		return false;
 	end
 
 	-- Check: If we are in melee range, use meele abilities
-	if (GetDistance(targetObj) < 5) then
-		-- Meele Skill: Raptor Strike
-		if (localMana > 10 and not IsSpellOnCD('Raptor Strike')) then 
-			if (Cast('Raptor Strike', targetGUID)) then 
-				return true; 
-			end 
+	if (GetDistance(targetObj) <= 4) then
+		if (GetPet() == 0) or (GetPet() ~= 0 and not GetUnitsTarget(targetObj) == GetPet()) then
+			-- Meele Skill: Raptor Strike
+			if (localMana > 10 and GetHealthPercentage(targetObj) <= 80 and not IsSpellOnCD('Raptor Strike')) then 
+				if (Cast('Raptor Strike', targetGUID)) then 
+					return true; 
+				end 
+			end
 		end
 		-- Meele Skill: Wing Clip (keeps the debuff up)
 		if (self.wingTimer < GetTimeEX() and localMana > 10 and not HasDebuff(targetObj, 'Wing Clip') and HasSpell('Wing Clip')) then 
@@ -166,7 +169,10 @@ function script_hunterEX:doOpenerRoutine(targetGUID)
 	end
 
 	-- Move to the target if not in range
-	if (GetDistance(targetObj) > 35 or GetDistance(targetObj) < 14) then return false; end 
+	if (GetPet() ~= 0 and GetDistance(targetObj) > 35 or (GetDistance(targetObj) <= 5 and not GetUnitsTarget(targetObj) == GetPet()))
+		or (GetDistance(targetObj) > 35 or GetDistance(targetObj) <= 9 and GetPet() == 0) then
+		return false;
+	end 
 
 	-- return true so we dont move closer to the mob
 	return true; 

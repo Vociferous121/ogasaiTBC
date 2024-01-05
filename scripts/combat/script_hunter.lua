@@ -32,10 +32,11 @@ function script_hunter:runBackwards(targetObj, range)
  		local xV, yV, zV = xP - xT, yP - yT, zP - zT;	
  		local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2);
  		local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;		
- 		local moveX, moveY, moveZ = xT + xUV*20, yT + yUV*20, zT + zUV;		
- 		if (distance < range and targetObj:IsInLineOfSight()) then
- 			MoveToTarget(moveX, moveY, moveZ);
- 			return true;
+ 		local moveX, moveY, moveZ = xT + xUV*25, yT + yUV*25, zT + zUV;		
+ 		if (distance < range) then
+ 			if (Move (moveX, moveY, moveZ)) then
+ 				return;
+			end
  		end
 	end
 	return false;
@@ -139,12 +140,21 @@ function script_hunter:run(targetObj)
 
 		-- Check if we have ammo
 		local hasAmmo = script_helper:hasAmmo();
+
+		-- walk away from target if pet target guid is the same guid as target targeting me
+		if (IsInCombat()) and (GetPet() ~= 0) and (GetDistance(targetObj) <= 10) and (GetUnitsTarget(targetObj) == GetPet()) then
+			script_hunter:runBackwards(targetObj, 12);
+			script_grind.tickRate = 500;
+			self.message = "Moving away from target for range attacks...";
+			return;	
+		end
 		
 		--Opener
 		if (not IsInCombat()) then
 
 			if (hasAmmo) then
 				if (script_hunterEX:doOpenerRoutine(targetGUID)) then
+					PetAttack(targetObj);
 					script_grind.waitTimer = GetTimeEX() + 1950;
 					return;
 				end
@@ -176,20 +186,9 @@ function script_hunter:run(targetObj)
 		-- Combat
 		else	
 
-			-- walk away from target if pet target guid is the same guid as target targeting me
-			if (GetPet() ~= 0) and (GetDistance(targetObj) <= 14) and (not script_grind:isTargetingMe(targetObj)) and (GetUnitsTarget(targetObj) ~= 0) and (not script_checkDebuffs:hasDisabledMovement()) then
-				if (targetGUID == GetTargetGUID(pet)) then
-
-					if (script_hunter:runBackwards(targetObj, 15)) then
-						script_grind.tickRate = 100;
-						self.message = "Moving away from target for range attacks...";
-						return true;
-					end
-				end
-			end
-
 			if (script_hunterEX:mendPet(localMana, petHP)) then
-				self.timer = GetTimeEX() + 1850;
+				self.timer = GetTimeEX(
+) + 1850;
 				return;
 			end
 			
