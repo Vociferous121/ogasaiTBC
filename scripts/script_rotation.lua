@@ -10,7 +10,7 @@ script_rotation = {
 	useRestFeature = false,
 	enemyObj = 0,
 
-
+	
 	helperLoaded = include("scripts\\script_helper.lua"),
 	targetLoaded = include("scripts\\script_target.lua"),
 	pathLoaded = include("scripts\\script_path.lua"), 
@@ -21,6 +21,10 @@ script_rotation = {
 	info = include("scripts\\script_info.lua"),
 	gather = include("scripts\\script_gather.lua"),
 	rayPather = include("scripts\\script_pather.lua"),
+	menuStuffLoaded = include("scripts\\script_grind.lua"),
+	gatherNodesLoaded = include("scripts\\script_gather.lua"),
+
+
 	
 }
 function script_rotation:draw()
@@ -64,6 +68,21 @@ function script_rotation:run()
 	local localObj = GetLocalPlayer();
 	local localMana = GetManaPercentage(localObj);
 	local localHealth = GetHealthPercentage(localObj);
+
+
+	-- Draw current target
+	if (script_grindEX.drawTarget) then
+		script_info:drawUnitsDataOnScreen();
+	end
+	
+	if (script_grindEX.drawGather) then
+		script_gather:drawGatherNodes();
+
+	end
+
+	if (script_aggro.drawAggro) then
+		script_aggro:drawAggroCircles(65);
+	end
 
 	-- make sure we are setup
 	if (not self.isSetup) then
@@ -197,17 +216,9 @@ function script_rotation:menu()
 
 if (CollapsingHeader("Display Options")) then
 		wasClicked, script_aggro.drawAggro = Checkbox("Draw Aggro Ranges", script_aggro.drawAggro);
-		wasClicked, script_grind.drawPath = Checkbox("Draw Navmesh Move Path", script_grind.drawPath)
-		if (script_grind.drawPath or script_grind.raycastPathing) then
-			DrawNavMeshPath(true);
-		elseif (not script_grind.drawPath) then
-			DrawNavMeshPath(false);
-		end
-		wasClicked, script_grindEX.drawRaycastPath = Checkbox("Draw Raycast Path", script_grindEX.drawRaycastPath);
 		wasClicked, script_grindEX.drawStatus = Checkbox("Draw Status Window", script_grindEX.drawStatus);
 		wasClicked, script_grindEX.drawGather = Checkbox("Draw Gather Nodes", script_grindEX.drawGather);
 		wasClicked, script_grindEX.drawTarget = Checkbox("Draw Unit Info", script_grindEX.drawTarget);
-		wasClicked, script_grindEX.drawAutoPath = Checkbox("Draw Hotspot & Nodes", script_grindEX.drawAutoPath);
 	end
 end
 

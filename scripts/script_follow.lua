@@ -12,7 +12,7 @@ script_follow = {
 	targetTimer = GetTimeEX();
 	pullDistance = 30,
 	waitTimer = 0,
-	tickRate = 150,
+	tickRate = 500,
 	restHp = 60,
 	restMana = 60,
 	potHp = 10,
@@ -68,6 +68,16 @@ end
 function script_follow:draw() 
 	-- Draw everything
 	script_followEX:draw();
+end
+
+function GetPartyLeaderObject()
+	if GetNumPartyMembers() > 0 then
+		leaderObj = GetPartMember(GetPartyLeaderIndex());
+		if (leaderObj ~= nil) then
+			return leaderObj;
+		end
+	end
+return 0;
 end
 
 function script_follow:run()
@@ -143,12 +153,12 @@ function script_follow:run()
 	-- Check: jump randomly if not swimming
 	if (self.jump and not IsMounted()) then script_helper:jump(); end
 
-	if (IsDead(self.target)) then 
-		self.followDist = random(10, 25);
-		self.target = nil; 
-		ClearTarget();
-		return; 
-	end
+	--if (IsDead(self.target)) then 
+	--	self.followDist = random(10, 25);
+	--	self.target = nil; 
+	--	ClearTarget();
+	--	return; 
+	--end
 
 	-- Dead
 	if (IsDead(GetLocalPlayer())) then
@@ -269,9 +279,20 @@ function script_follow:run()
 		script_helper:useMount(); self.tryMountTime = GetTimeEX() + 10000; return;
 	end
 
+	-- stop moving when we get to leader
+	if (self.autoFollowLeader) and (GetDistance(GetPartyLeaderObject()) <= self.followDist - 5) then
+		if (IsMoving()) then
+			StopMoving();
+		end
+	end
+
 	-- When no valid targets around
-	if (not IsInCombat()) then 
+	if (not IsDrinking()) and (not IsEating()) then 
 		self.message = "Following our leader...";
-		script_followEX:followLeader();
+		if (GetDistance(GetPartyLeaderObject()) > self.followDist+3) then
+			if (script_followEX:followLeader()) then
+				script_follow.waitTimer = ( (self.followDist+3) * 100);
+			end
+		end
 	end
 end

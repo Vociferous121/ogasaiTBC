@@ -23,9 +23,14 @@ end
 
 function script_followEX:followLeader()
 
-	if (script_follow.leader ~= 0 and script_follow.leader ~= nil) then
-		if (GetDistance(script_follow.leader) > script_follow.followDist) then
-			MoveToTarget(script_follow.leader);
+	if (GetPartyLeaderObject() ~= 0) then
+		if (GetDistance(GetPartyLeaderObject()) > script_follow.followDist) then
+			local x, y, z = GetPosition(GetPartyLeaderObject());
+			if (Move(x , y, z)) then
+				script_follow.waitTimer = ( (self.followDist-2) * 100);
+				return true;
+			end
+
 		else
 			script_path:savePos(true); -- SAVE FOR UNSTUCK
 
@@ -34,13 +39,16 @@ function script_followEX:followLeader()
 			end
 		end
 	end
+return false;
 end
 
 function script_followEX:moveInLineOfSight(partyMember)
-	if (not IsInLineOfSight(partyMember) or GetDistance(partyMember) > 30) then
+	if (not IsInLineOfSight(partyMember) or GetDistance(partyMember) < script_follow.followDist) then
 		local x, y, z = GetPosition(partyMember);
-		MoveToTarget(x , y, z);
-		return true;
+		if (script_pather:moveToTarget(x , y, z)) then
+			script_follow.waitTimer = GetTimeEX + ( (script_follow.followDist+3) * 1000);
+			return true;
+		end
 	end
 
 	script_path:savePos(true);
@@ -164,6 +172,10 @@ function script_followEX:window()
 			if (Button("Pause Bot")) then script_follow.pause = true; end end
 		SameLine(); if (Button("Reload Scripts")) then menu:reload(); end
 		SameLine(); if (Button("Exit Bot")) then StopBot(); end
+		Separator();
+		
+		Text("Follow Distance");
+		script_follow.followDist = SliderInt("Leader Dist", 0, 30, script_follow.followDist);
 		Separator();
 		
 		-- Load combat menu by class

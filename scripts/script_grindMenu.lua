@@ -83,7 +83,7 @@ function script_grindMenu:menu()
 	if (CollapsingHeader("[Target options")) then
 		Text("Scan for valid targets within X yds.");
 
-		script_target.pullRange = SliderFloat("SD (yd)", 1, 150, script_target.pullRange);
+		script_target.pullRange = SliderFloat("SD (yd)", 1, 200, script_target.pullRange);
 		Text("Start attacking a new target within X yds.");
 		script_grind.pullDistance = SliderFloat("PD (yd)", 1, 35, script_grind.pullDistance);
 		Text("Attack targets within levels:");
