@@ -267,13 +267,6 @@ function script_mage:rest()
 	if (script_grind.restMana ~= 0) then
 		self.drinkMana = script_grind.restMana;
 	end
-
-	if (self.waitTimer > GetTimeEX()) then
-		return;
-	end
-
-	self.waitTimer = GetTimeEX() + script_grind.tickRate;
-
 	
 	--Create Water
 	local waterIndex = -1;
