@@ -7,33 +7,40 @@ function script_grindMenu:menu()
 
 	local wasClicked = false;
 
-	if (IsDead(GetLocalPlayer())) then
-		local dx, dy, dz = GetCorpsePosition();
-		Text("Corpse Pos |  X "..math.floor(dx).."  Y "..math.floor(dy).."  Z "..math.floor(dz).."");
-	end
-	if (not self.debug) then
-	--garbage data..
-	Text("Garbage Data Lost (object manager) ");
-	SameLine();
-	local gc = gcinfo();
-	Text(gc);
+	-- display paranoia logout time above menu
+
+	local atime = math.floor(script_grind.currentTime2 - script_paranoid.currentTime + script_grind.setLogoutTime);
+	if (script_paranoid.paranoidOn) and (script_paranoid.logoutOnParanoid) then
+		Text("Paranoia Logout Timer  -  ");
+		SameLine();
+		Text(""..atime);
+		Separator();
 	end
 
-	--nav mesh progress
-	--if (GetLoadNavmeshProgress() ~= nil) then
-	--	local qqq = math.floor(GetLoadNavmeshProgress()*100);
-	--	if (qqq ~= nil) and (qqq ~= 100) and (qqq ~= 200) and (not qqq > 200) then
-	--		Text("Navmesh Loading Progress Percent... " ..qqq);
-	--	end
-	--	if (qqq > 200) then
-	--		Text("Please Reload Game - Navmesm errors");
-	--	end
+	--if (not self.debug) then
+	--garbage data..
+	--Text("Garbage Data Lost (object manager) ");
+	--SameLine();
+	--local gc = gcinfo();
+	--Text(gc);
 	--end
+
+	--nav mesh progress
+	if (GetLoadNavmeshProgress() ~= nil) and (GetLoadNavmeshProgress() ~= 0) then
+		local qqq = math.floor(GetLoadNavmeshProgress()*100);
+		if (qqq ~= nil) and (qqq ~= 100) and (qqq ~= 200) and (not qqq > 200) then
+			Text("Navmesh Loading Progress Percent... " ..qqq);
+		end
+		if (qqq > 200) then
+			Text("Please Reload Game - Navmesh errors");
+		end
+	end
 
 	if (script_grind.pause) then
 		if (Button("Resume Bot")) then script_grind.pause = false; end
 	else
-		if (Button("Pause Bot")) then script_grind.pause = true; end end
+		if (Button("Pause Bot")) then
+		script_grind.pause = true; end end
 	SameLine(); if (Button("Reload Scripts")) then menu:reload(); end
 	SameLine(); if (Button("Exit Bot")) then StopBot(); end
 	SameLine();
@@ -64,10 +71,19 @@ function script_grindMenu:menu()
 	end
 	
 	if (CollapsingHeader("[Mount, Talents, Paranoia, Misc Options")) then 
-		Text("Paranoia Range Of Other Players");
-		script_paranoid.paranoidRange = SliderInt("PR", 0, 200, script_paranoid.paranoidRange);
+		wasClicked, script_paranoid.useParanoia = Checkbox("Use Paranoia", script_paranoid.useParanoia);
+		SameLine();
+		wasClicked, script_paranoid.logoutOnParanoid = Checkbox("Logout When Paranoid", script_paranoid.logoutOnParanoid);
 		Separator();
-
+		if (script_paranoid.logoutOnParanoid) then
+			Text("Logout Time In Seconds");
+			script_grind.setLogoutTime = SliderInt("(seconds)", 0 , 300, script_grind.setLogoutTime);
+		end
+		if (script_paranoid.useParanoia) then
+			Text("Paranoia Range Of Other Players");
+			script_paranoid.paranoidRange = SliderInt("PR", 0, 200, script_paranoid.paranoidRange);
+			Separator();
+		end
 		wasClicked, script_grind.useMount = Checkbox("Use Mount", script_grind.useMount);
 		SameLine(); wasClicked, script_grind.jump = Checkbox("Jump while moving (unmounted)", script_grind.jump);
 		Separator();

@@ -68,8 +68,9 @@ function script_mage:run(targetObj)
 		return;
 	end
 
+	-- run backwards
 	-- Check: Move away from targets affected by frost nova
-	if (script_target:hasDebuff('Frost Nova') or script_target:hasDebuff('Frostbite')) then
+	if (script_target:hasDebuff('Frost Nova') or script_target:hasDebuff('Frostbite')) and (not script_checkDebuffs:hasDisabledMovement()) then
 			local xT, yT, zT = GetPosition(targetObj);
  			local xP, yP, zP = GetPosition(localObj);
 			local distance = GetDistance(targetObj);
@@ -181,7 +182,7 @@ function script_mage:run(targetObj)
 			end
 	
 			-- Check: Frostnova when the target is close
-			if (self.useFrostNova) and (GetDistance(targetObj) < 5 and not script_target:hasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova") and targetHealth > 12) then
+			if (self.useFrostNova) and (GetDistance(targetObj) < 5 and not script_target:hasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova") and targetHealth > 15) then
 				self.message = "Frost nova the target(s)...";
 				CastSpellByName("Frost Nova");
 				return;

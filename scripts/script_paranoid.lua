@@ -1,8 +1,14 @@
 script_paranoid = {
+	useParanoia = true,
 	paranoidOn = true,
 	waitTimer = GetTimeEX(),
 	paranoidRange = 50,
 	usedString = false,
+	logoutOnParanoid = false,
+	logoutOnParanoidTimer = GetTimeEX(),
+	logoutTimerSet =  false,
+	currentTime = 0,
+	
 }
 
 function script_paranoid:doParanoia()
@@ -10,15 +16,51 @@ function script_paranoid:doParanoia()
 	localObj = GetLocalPlayer();
 
 	-- if paranoid turned on then do....
-	if (script_paranoid.paranoidOn) and (not IsLooting()) then
+	if (script_paranoid.paranoidOn) and (not IsLooting()) and (not script_grind.pause) then
 
 		-- if players in range
 		if (script_paranoid:playersWithinRange(self.paranoidRange)) then
+
+			-- start paranoid timer
+			script_paranoid.currentTime = GetTimeEX() / 1000;
+			script_grind.message = "Player(s) within paranoid range, pausing...";
 		
 			return true;
 		end
 	end
 end
+
+--function script_paranoid.doEmotes()
+	
+--	if (self.paranoidOn) and (self.useParanoia) and (self.logoutTimerSet) then
+		-- check for players in range... cannot use name... target by GUID?
+			-- random seed
+				-- check range and not player is targeting me and NOT DONE EMOTE YET
+					-- do emote based on range
+					-- EMOTE USED
+					
+					--else do emote based on this range
+					-- EMOTE USED
+					
+					--else do emote based on this range
+					-- EMOTE USED
+
+				--end
+				
+				--elseif check range and player is targeting me then AND NOT DONE EMOTE YET
+					-- do this emote
+					-- EMOTE USED
+					
+					-- else do this emote
+					-- EMOTE USED
+		
+					-- else do this emote
+					-- EMOTE USED
+
+				--end
+
+--return false;
+--end
 
 function script_paranoid:playersWithinRange(range)
 
@@ -54,5 +96,3 @@ function script_paranoid:playersWithinRange(range)
 self.usedString = false;
 return false;	
 end
-
-			

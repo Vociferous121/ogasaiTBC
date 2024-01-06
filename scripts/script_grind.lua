@@ -57,6 +57,8 @@ script_grind = {
 	combatStatus = 0, -- 0 = in range, 1 = not in range
 	drawPath = false,
 	useUnstuckScript = false,
+	currentTime2 = GetTimeEX() / 1000,
+	setLogoutTime = 30,
 }
 
 
@@ -192,20 +194,41 @@ function script_grind:run()
 	end
 
 	-- do paranoia
-	if (not self.pause) and (script_paranoid.paranoidOn) and (not IsInCombat()) then
+	if (script_paranoid.useParanoia) and (not self.pause) and (script_paranoid.paranoidOn) and (not IsInCombat()) then
 		if (script_paranoid:doParanoia()) then
+
+			if (not script_paranoid.logoutTimerSet) then
+				script_paranoid.currentTime = GetTimeEX();
+				script_paranoid.logoutTimerSet = true;
+			end
+
 			self.message = "Paranoid turned on - player in range!";
 			if (IsMoving()) then
 				StopMoving();
-				return;
+				return true;
 			end
-		script_path.savedPos['time'] = GetTimeEX();
-		self.waitTimer = GetTimeEX() + (5000);
-		return;
+
+			if (script_paranoid.logoutOnParanoid) then
+				-- logout timer reached then logout
+				if (script_paranoid.currentTime >= script_grind.currentTime2 + script_grind.setLogoutTime) then
+					StopBot();
+					Logout();
+					--script_paranoid.currentTime = GetTimeEX() / 1000;
+					--script_grind.currentTime2 = GetTimeEX() / 1000;
+				return true;
+				end
+			end
+
+			script_path.savedPos['time'] = GetTimeEX();
+			self.waitTimer = GetTimeEX() + (5000);
+			return true;
 		end
+
 	end
 
-	
+	script_paranoid.currentTime = GetTimeEX() / 1000;
+	script_grind.currentTime2 = GetTimeEX() / 1000;
+	script_paranoid.paranoiaUsed = false;
 
 	-- Check: jump over obstacles
 	if (IsMoving()) and (not self.pause) then
