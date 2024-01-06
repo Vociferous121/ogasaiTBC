@@ -205,11 +205,17 @@ function script_grind:run()
 		end
 	end
 
+	
+
 	-- Check: jump over obstacles
 	if (IsMoving()) and (not self.pause) then
 
 		if (not IsInCombat()) then
 			script_debug.debugGrind = "checking jump over obstacles";
+		end
+
+		if (self.useUnstuckScript) and (not self.pause) then
+			script_unstuck:drawChecks();
 		end
 
 		if (self.useUnstuckScript) then
@@ -218,6 +224,7 @@ function script_grind:run()
 				return true;
 			end
 		end
+		
 
 		script_pather:jumpObstacles();
 	end
@@ -382,7 +389,13 @@ function script_grind:run()
 	end
 	
 	-- stop then we reach target if we are ranged class
-	if (HasSpell("Fireball") or HasSpell("Smite") or HasSpell("Shadow Bolt")) then
+	if (HasSpell("Fireball") or
+		HasSpell("Smite") or
+		HasSpell("Shadow Bolt")) or
+		(HasSpell("Wrath") and
+			not HasBuff(localObj, "Cat Form") and
+			not HasBuff(localObj, "Bear Form") and
+			not HasBuff(localObj, "Dire Bear Form")) then
 		if (script_pather.reachedHotspot) and (not IsInCombat()) and (GetDistance(self.target) <= 27) then
 			if (IsMoving()) then
 				StopMoving();
@@ -401,11 +414,11 @@ function script_grind:run()
 	end
 
 	-- stop when we reached target if melee class..
-	if (script_pather.reachedHotspot) and (not IsInCombat()) and (GetDistance(self.target) <= 5) then
-		if (IsMoving()) then
-			StopMoving();
-		end
-	end
+	--if (script_pather.reachedHotspot) and (not IsInCombat()) and (GetDistance(self.target) <= 5) then
+	--	if (IsMoving()) then
+	--		StopMoving();
+	--	end
+	--end
 
 	-- Fetch a new target
 	if (self.skipMobTimer < GetTimeEX() or (IsInCombat() and script_info:nrTargetingMe() > 0)) then	
@@ -511,7 +524,13 @@ function script_grind:run()
 			end
 
 			-- stop when we get close enough to target and we are a ranged class
-			if (HasSpell("Fireball") or HasSpell("Smite") or HasSpell("Shadow Bolt")) then
+			if (HasSpell("Fireball")
+				or HasSpell("Smite")
+				or HasSpell("Shadow Bolt"))
+				or (HasSpell("Wrath")
+				and not HasBuff(localObj, "Cat Form")
+				and not HasBuff(localObj, "Bear Form")
+				and not HasBuff(localObj, "Dire Bear Form")) then
 				if (GetDistance(self.target) <= 27) and (IsInLineOfSight(self.target)) then
 					if (IsMoving()) then
 						StopMoving();
@@ -553,7 +572,14 @@ function script_grind:run()
 
 			-- move to target...
 			if (not self.raycastPathing) then
-				if (not HasSpell("Fireball") or not HasSpell("Shadow Bolt") or not HasSpell("Smite") or not HasSpell("Raptor Strike")) and (GetDistance(self.target) > 2) then
+				if (not HasSpell("Fireball") or
+					not HasSpell("Shadow Bolt") or
+					not HasSpell("Smite") or
+					not HasSpell("Raptor Strike")) or
+					(HasBuff(localObj, "Cat Form")) or
+					(HasBuff(localObj, "Bear Form")) or
+					(HasBuff(localObj, "Dire Bear Form"))
+					and (GetDistance(self.target) > 2) then
 					if (not self.adjustTickRate) then
 						script_grind.tickRate = 50;
 					end
@@ -584,7 +610,14 @@ function script_grind:run()
 			if (self.raycastPathing) and (not HasDebuff(self.target, "Frost Nova")) then
 				local tarDist = GetDistance(self.target);
 				local cx, cy, cz = GetPosition(self.target);
-				if (not HasSpell("Fireball") or not HasSpell("Shadow Bolt") or not HasSpell("Smite") or not HasSpell("Raptor Strike")) and (tarDist > 2) then
+				if (not HasSpell("Fireball") or
+					not HasSpell("Shadow Bolt") or
+					not HasSpell("Smite") or
+					not HasSpell("Raptor Strike")) or
+					(HasBuff(localObj, "Cat Form")) or
+					(HasBuff(localObj, "Bear Form")) or
+					(HasBuff(localObj, "Dire Bear Form"))
+					and (tarDist > 2) then
 					script_pather:moveToTarget(cx, cy, cz);
 					if (GetDistance(self.target) <= 2) then
 						if (IsMoving()) then
@@ -627,8 +660,7 @@ function script_grind:run()
 				CastSpellByName("Gift of the Naaru", localObj);
 				
 			end
-		end
-		
+		end	
 
 		-- Unstuck feature on valid "working" targets
 		if (GetTarget() ~= 0 and GetTarget() ~= nil) then

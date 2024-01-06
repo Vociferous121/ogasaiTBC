@@ -9,7 +9,7 @@ function script_grindMenu:menu()
 
 	if (IsDead(GetLocalPlayer())) then
 		local dx, dy, dz = GetCorpsePosition();
-		Text("Corpse Pos |  X"..math.floor(dx).."  Y"..math.floor(dy).."  Z"..math.floor(dz).."");
+		Text("Corpse Pos |  X "..math.floor(dx).."  Y "..math.floor(dy).."  Z "..math.floor(dz).."");
 	end
 	if (not self.debug) then
 	--garbage data..

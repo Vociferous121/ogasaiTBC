@@ -23,6 +23,12 @@ script_mage = {
 	timer = 0,
 	useRotation = false,
 	useFrostNova = true,
+	polyTimer = 0,		-- polymorph add timer
+	addPolymorphed = false,	-- add polymorphed yes/no
+	polymorphAdds = true,	-- polymorphs adds yes/no
+
+
+
 }
 
 function script_mage:setup()
@@ -31,6 +37,8 @@ function script_mage:setup()
 	self.evocationMana = 15;
 	self.evocationHealth = 40;
 	self.manaGemMana = 20;
+	self.polyTimer = GetTimeEX();
+
 
 	self.timer = GetTimeEX();
 	self.gemTimer = GetTimeEX();
@@ -121,6 +129,30 @@ function script_mage:run(targetObj)
 			CastSpellByName("Summon Water Elemental");
 			return;
 		end
+
+			-- Check if add already polymorphed
+			if (not script_mage:isAddPolymorphed() and not (self.polyTimer < GetTimeEX())) then
+				self.addPolymorphed = false;
+			end
+
+			-- Check: Polymorph add
+			if (targetObj ~= nil  and script_grind:enemiesAttackingUs() > 1 and HasSpell('Polymorph') and not self.addPolymorphed and self.polyTimer < GetTimeEX()) and (GetDistance(targetObj) < 25) then
+				script_grind.tickRate = 250;
+				self.message = "Polymorphing add...";
+				script_mage:polymorphAdd(GetGUID(targetObj));
+				self.waitTimer = GetTimeEX() + 1750;
+			end 
+
+			-- Check: Sort target selection if add is polymorphed
+			if (self.addPolymorphed) then
+				if(script_grind:enemiesAttackingUs() >= 1 and HasDebuff(targetObj, 'Polymorph')) then
+					ClearTarget();
+					script_grind.tickRate = 250;
+					targetObj = script_mage:getTargetNotPolymorphed();
+					AutoAttack(targetObj);
+				end
+			end
+
 		
 		--Opener
 		if (not IsInCombat()) then
@@ -158,6 +190,15 @@ function script_mage:run(targetObj)
 						self.gemTimer = GetTimeEX() + 120000;
 						return;
 					end
+				end
+			end
+
+			-- gift of naaru
+			if (IsInCombat()) and ( (script_grind.enemiesAttackingUs() >= 2 and GetHealthPercentage(GetLocalPlayer()) <= 75)
+				or (GetHealthPercentage(GetLocalPlayer()) <= 40) ) then
+				if (HasSpell("Gift of the Naaru")) and (not IsSpellOnCD("Gift of the Naaru")) and (not HasBuff(localObj, "Gift of the Naaru")) then
+					CastSpellByName("Gift of the Naaru", localObj);
+				
 				end
 			end
 			
@@ -383,6 +424,7 @@ function script_mage:rest()
 			script_grind:restOn();
 			return true;
 		end
+		script_grind.waitTimer = GetTimeEX() + 1500;
 
 		if(script_helper:drinkWater()) then
 			self.waitTimer = GetTimeEX() + 1500;
@@ -398,7 +440,8 @@ function script_mage:rest()
 			script_grind:restOn();
 			return true;
 		end
-		
+		script_grind.waitTimer = GetTimeEX() + 1500;
+
 		if(script_helper:eat()) then
 			self.waitTimer = GetTimeEX() + 1500;
 			script_grind.waitTimer = GetTimeEX() + 1500;
@@ -451,6 +494,64 @@ function script_mage:rest()
 	return false;
 end
 
+function script_mage:getTargetNotPolymorphed() -- check polymorph
+   	local unitsAttackingUs = 0; 
+   	local i, t = GetFirstObject(); 
+   	while i ~= 0 do 
+   		if t == 3 then
+			if (CanAttack(i) and not IsDead(i)) then
+               	if (script_grind:isTargetingMe(currentObj) and not HasDebuff(i, 'Polymorphed')) then 
+                	return i;
+               	end 
+            end 
+       	end
+        	i, t = GetNextObject(i); 
+    end
+   	return nil;
+end
+
+function script_mage:isAddPolymorphed() -- check polymorph
+	local i, t = GetFirstObject(); 
+	local localObj = GetLocalPlayer();
+	while i ~= 0 do 
+		if t == 3 then
+			if (HasDebuff(i, "Polymorph")) then 
+				return true; 
+			else
+				script_mage.addPolymorphed = false;
+			end
+		end
+		i, t = GetNextObject(i); 
+	end
+    return false;
+end
+
+function script_mage:polymorphAdd(targetObjGUID) -- cast the polymorph conditions
+    local i, t = GetFirstObject(); 
+    local localObj = GetLocalPlayer();
+    while i ~= 0 do 
+    	if t == 3 then
+			if (CanAttack(i) and not IsDead(i)) then
+				if (GetGUID(i) ~= targetObjGUID and script_grind:isTargetingMe(i)) then
+					if (not HasDebuff(i, "Polymorph") and GetCreatureType(i) ~= 'Elemental' and not IsCritter(i)) and (GetCreatureType(i) ~= "Undead") then
+						if (IsInLineOfSight(i)) then
+							if (not script_grind.adjustTickRate) then
+								script_grind.tickRate = 100;
+							end
+							if (Cast('Polymorph', i)) then 
+								self.addPolymorphed = true; 
+								polyTimer = GetTimeEX() + 8000;
+								return true; 
+							end
+						end
+					end 
+				end 
+			end 
+		end
+        i, t = GetNextObject(i); 
+    end
+    return false;
+end
 
 function script_mage:menu()
 
