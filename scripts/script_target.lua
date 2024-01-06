@@ -87,21 +87,25 @@ function script_target:doLoot()
 		script_path:savePos(false); -- SAVE FOR UNSTUCK
 		if (not script_grind.raycastPathing) then
 			MoveToTarget(lootTarget);
-		else
-			local x, y, z = GetPosition(lootTarget);
-			script_pather:moveToTarget(x, y, z);
+		elseif (script_grind.raycastPathing) then
+			
+			if (script_pather:moveToTarget(GetPosition(lootTarget))) then
+				script_grind.waitTimer = GetTimeEX() + 50;
+				return;
+			end
 		end
 		return;
 	end
 		
-	if (IsMoving()) then
-		StopMoving();
-		if (script_grind.waitTimer ~= 0) then
-			script_grind.waitTimer = GetTimeEX() + 850;
+	if (GetDistance(lootTarget) < self.lootDistance) then
+		if (IsMoving()) then
+			if (script_grind.waitTimer ~= 0) then
+				script_grind.waitTimer = GetTimeEX() + 850;
+			end
+			return;
 		end
-		return;
 	end
-			
+		
 	script_path:resetAutoPath();
 
 	if (UnitInteract(lootTarget)) then

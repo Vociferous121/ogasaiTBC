@@ -196,7 +196,7 @@ function script_pather:moveToTarget(xx, yy, zz)
 	-- stop moving when we get close enough to target to cast spells...
 	if (HasSpell("Fireball")) or (HasSpell("Smite")) or (HasSpell("Raptor Strike")) or (HasSpell("Shadow Bolt")) then
 		local enemy = script_target.currentTarget;
-		if (enemy ~= 0) and (enemy ~= nil) and (GetDistance(enemy) <= 26) and (IsInLineOfSight(enemy)) then
+		if (enemy ~= 0) and (enemy ~= nil) and (not IsDead(enemy)) and (GetDistance(enemy) <= 26) and (IsInLineOfSight(enemy)) then
 			if (IsMoving()) then
 				StopMoving();
 				return true;

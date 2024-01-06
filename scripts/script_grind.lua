@@ -197,7 +197,7 @@ function script_grind:run()
 			self.message = "Paranoid turned on - player in range!";
 			if (IsMoving()) then
 				StopMoving();
-				return true;
+				return;
 			end
 		script_path.savedPos['time'] = GetTimeEX();
 		self.waitTimer = GetTimeEX() + (5000);
@@ -344,15 +344,16 @@ function script_grind:run()
 	end
 
 	if (HasItem("Small Barnacled Clam")) then
-		UseItem("Small Barnacled Clam");
-		self.waitTimer = GetTimeEX() + 1650;
+		if (UseItem("Small Barnacled Clam")) then
+			self.waitTimer = GetTimeEX() + 1650;
+		end
 	end
 
 	-- Loot
 	if (script_target:isThereLoot() and not IsInCombat() and not AreBagsFull() and not self.bagsFull) then
 		self.message = "Looting... (enable auto loot)";
 		script_target:doLoot();
-	script_debug.debugGrind = "trying to loot";
+		script_debug.debugGrind = "trying to loot";
 	return;
 	end
 
@@ -399,6 +400,7 @@ function script_grind:run()
 		if (script_pather.reachedHotspot) and (not IsInCombat()) and (GetDistance(self.target) <= 27) then
 			if (IsMoving()) then
 				StopMoving();
+				return;
 			end
 		end
 	end
@@ -409,6 +411,7 @@ function script_grind:run()
 			and (GetDistance(self.target) <= 30) and (IsInLineOfSight(self.target)) then
 			if (IsMoving()) then
 				StopMoving();
+				return;
 			end
 		end
 	end
@@ -482,7 +485,7 @@ function script_grind:run()
 		if (GetDistance(self.target) < self.pullDistance and IsInLineOfSight(self.target)) and (not IsMoving() or GetDistance(self.target) <= 4) then
 			if (IsMoving()) then
 				StopMoving();
-				return true;
+				return;
 			end
 			if (not IsMoving()) then
 				FaceTarget(self.target);
@@ -517,7 +520,7 @@ function script_grind:run()
 					self.message = "No Target - stuck in combat! WAITING!";
 					if (IsMoving()) then
 						StopMoving();
-						return true;
+						return;
 					end
 					return;
 				end
@@ -534,6 +537,7 @@ function script_grind:run()
 				if (GetDistance(self.target) <= 27) and (IsInLineOfSight(self.target)) then
 					if (IsMoving()) then
 						StopMoving();
+						return;
 					end
 				end
 			end
@@ -543,6 +547,7 @@ function script_grind:run()
 				if (GetDistance(self.target) <= 30) and (IsInLineOfSight(self.target)) then
 					if (IsMoving()) then
 						StopMoving();
+						return;
 					end
 				end
 			end
@@ -551,6 +556,7 @@ function script_grind:run()
 			if (GetDistance(self.target) <= 4) and (GetHealthPercentage(self.target) > 30) then
 				if (IsMoving()) then
 					StopMoving();
+					return;
 				end
 			end
 
@@ -591,6 +597,7 @@ function script_grind:run()
 						if (GetDistance(self.target) <= 2) then
 							if (IsMoving()) then
 								StopMoving();
+								return;
 							end
 						end
 					end
@@ -622,6 +629,7 @@ function script_grind:run()
 					if (GetDistance(self.target) <= 2) then
 						if (IsMoving()) then
 							StopMoving();
+							return;
 						end
 					end
 
@@ -631,6 +639,7 @@ function script_grind:run()
 					if (GetDistance(self.target) <= 27) then
 						if (IsMoving()) then
 							StopMoving();
+							return;
 						end
 					end
 				end
