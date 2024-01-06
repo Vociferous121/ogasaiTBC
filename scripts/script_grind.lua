@@ -376,12 +376,14 @@ function script_grind:run()
 		end
 	end
 
+	-- stop if we are in combat and no target - stuck in combat
 	if (IsInCombat()) and (GetPet() == 0) and (GetUnitsTarget(GetLocalPlayer()) == 0) then
 		return;
 	end
 	
+	-- stop then we reach target if we are ranged class
 	if (HasSpell("Fireball") or HasSpell("Smite") or HasSpell("Shadow Bolt")) then
-		if (script_pather.reachedHotspot) and (not IsInCombat()) and (GetDistance(self.target) <= 27) and (IsInLineOfSight(self.target)) then
+		if (script_pather.reachedHotspot) and (not IsInCombat()) and (GetDistance(self.target) <= 27) then
 			if (IsMoving()) then
 				StopMoving();
 			end
@@ -398,6 +400,7 @@ function script_grind:run()
 		end
 	end
 
+	-- stop when we reached target if melee class..
 	if (script_pather.reachedHotspot) and (not IsInCombat()) and (GetDistance(self.target) <= 5) then
 		if (IsMoving()) then
 			StopMoving();
@@ -411,7 +414,8 @@ function script_grind:run()
 			local targetGUID = script_target:getTarget();
 			self.target = GetGUIDTarget(targetGUID);
 			if (GetTarget() ~= self.target) then
-				UnitInteract(self.target);
+				-- this causes mage to walk to melee range...
+				--UnitInteract(self.target);
 				AutoAttack(self.target);
 			end	
 		end
@@ -575,6 +579,8 @@ function script_grind:run()
 				end
 				return;
 			end
+
+
 			if (self.raycastPathing) and (not HasDebuff(self.target, "Frost Nova")) then
 				local tarDist = GetDistance(self.target);
 				local cx, cy, cz = GetPosition(self.target);
@@ -589,6 +595,11 @@ function script_grind:run()
 				elseif (GetDistance(self.target) > 27) then
 					script_pather:moveToTarget(cx, cy, cz);
 					self.waitTimer = GetTimeEX() + 50;
+					if (GetDistance(self.target) <= 27) then
+						if (IsMoving()) then
+							StopMoving();
+						end
+					end
 				end
 				return;
 			end
