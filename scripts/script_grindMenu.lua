@@ -70,7 +70,7 @@ function script_grindMenu:menu()
 		script_shaman:menu();
 	end
 	
-	if (CollapsingHeader("[Mount, Talents, Paranoia, Misc Options")) then 
+	if (CollapsingHeader("Mount | Talents | Paranoia | Menu")) then 
 		wasClicked, script_paranoid.useParanoia = Checkbox("Use Paranoia", script_paranoid.useParanoia);
 		SameLine();
 		wasClicked, script_paranoid.logoutOnParanoid = Checkbox("Logout When Paranoid", script_paranoid.logoutOnParanoid);
@@ -82,6 +82,8 @@ function script_grindMenu:menu()
 		if (script_paranoid.useParanoia) then
 			Text("Paranoia Range Of Other Players");
 			script_paranoid.paranoidRange = SliderInt("PR", 0, 200, script_paranoid.paranoidRange);
+			Text("Time To Wait After Player Leaves Range (seconds)");
+			script_grind.waitTimeAfterParanoia = SliderInt("PRT", 0 , 20, script_grind.waitTimeAfterParanoia);
 			Separator();
 		end
 		wasClicked, script_grind.useMount = Checkbox("Use Mount", script_grind.useMount);
@@ -95,7 +97,7 @@ function script_grindMenu:menu()
 	
 	script_vendorMenu:menu();
 	
-	if (CollapsingHeader("[Rest options")) then
+	if (CollapsingHeader("Rest Menu")) then
 		wasClicked, script_grind.useMana = Checkbox("Class Uses Mana", script_grind.useMana);
 		script_grind.restHp = SliderInt("Eat percent", 1, 99, script_grind.restHp);
 		if (script_grind.useMana) then script_grind.restMana = SliderInt("Drink percent", 1, 99, script_grind.restMana); end
@@ -106,7 +108,7 @@ function script_grindMenu:menu()
 
 	script_pathMenu:menu();
 
-	if (CollapsingHeader("[Target options")) then
+	if (CollapsingHeader("Target Menu")) then
 		Text("Scan for valid targets within X yds.");
 
 		script_target.pullRange = SliderFloat("SD (yd)", 1, 200, script_target.pullRange);
@@ -141,7 +143,7 @@ function script_grindMenu:menu()
 
 	script_gatherMenu:menu();
 
-	if (CollapsingHeader("Display Options")) then
+	if (CollapsingHeader("Display Menu")) then
 		wasClicked, script_aggro.drawAggro = Checkbox("Draw Aggro Ranges", script_aggro.drawAggro);
 		wasClicked, script_grind.drawPath = Checkbox("Draw Navmesh Move Path", script_grind.drawPath)
 		wasClicked, script_grindEX.drawRaycastPath = Checkbox("Draw Raycast Path (TBC Area)", script_grindEX.drawRaycastPath);

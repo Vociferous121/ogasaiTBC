@@ -23,6 +23,10 @@ script_mage = {
 	timer = 0,
 	useRotation = false,
 	useFrostNova = true,
+	useWandMana = 5,
+	useWandHealth = 5,
+	useBlink = false,
+	useEvocation = true,
 
 
 }
@@ -189,7 +193,7 @@ function script_mage:run(targetObj)
 			end
 
 			-- Use Evocation if we have low Mana but still a lot of HP left
-			if (localMana < self.evocationMana and localHealth > self.evocationHealth and HasSpell("Evocation") and not IsSpellOnCD("Evocation")) then		
+			if (self.useEvocation) and (localMana < self.evocationMana and localHealth > self.evocationHealth and HasSpell("Evocation") and not IsSpellOnCD("Evocation")) then		
 				self.message = "Using Evocation...";
 				CastSpellByName("Evocation"); 
 				return;
@@ -212,6 +216,14 @@ function script_mage:run(targetObj)
 				return;
 			end
 
+			if (self.useBlink) and (not IsCasting()) and (not IsChanneling()) and (IsInCombat()) and (targetHealth >= 20) then
+				if (IsSpellOnCD("Frost Nova")) and (HasSpell("Blink")) and (not HasDebuff(targetObj, "Frost Nova")) and (not HasDebuff(targetObj, "Frostbite")) and (GetDistance(targetObj) <= 6) and (localMana >= 20) and (not IsSpellOnCD("Blink")) then
+					if (CastSpellByName("Blink")) then
+						return true;
+					end
+				end
+			end
+				
 			
 			local max = 0;
 			local dur = 0;
@@ -220,7 +232,7 @@ function script_mage:run(targetObj)
 			end
 
 			if (self.useWand and dur > 0) then
-				if (localMana <= 5 or targetHealth <= 5) then
+				if (localMana <= self.useWandMana or targetHealth <= self.useWandHealth) then
 					if (not script_target:autoCastingWand()) then 
 						self.message = "Using wand...";
 						FaceTarget(targetObj);
@@ -470,13 +482,17 @@ end
 function script_mage:menu()
 
 	local localObj = GetLocalPlayer();
-	if (CollapsingHeader('Mage Combat Options')) then
+	if (CollapsingHeader('Mage Combat Menu')) then
 		local wasClicked = false;	
 		Text('Skills options:');
 		Separator();
 
 		if (GetInventoryItemDurability(18) ~= nil) then
 			wasClicked, self.useWand = Checkbox('Use Wand', self.useWand);
+		end
+		if (HasSpell("Blink")) then
+			SameLine();
+			wasClicked, self.useBlink = Checkbox("Use Blink", self.useBlink);
 		end
 
 		if (HasSpell("Fire Blast")) then
@@ -493,11 +509,17 @@ function script_mage:menu()
 		end
 
 		if (HasSpell("Evocation")) then
-			Separator();
-			Text('Evocation above health percent');
-			self.evocationHealth = SliderInt('EH', 1, 90, self.evocationHealth);
-			Text('Evocation below mana percent');
-			self.evocationMana = SliderInt('EM', 1, 90, self.evocationMana);
+			SameLine();
+			wasClicked, self.useEvocation = Checkbox("Use Evocation", self.useEvocation);
+		end
+
+		if (self.useEvocation) and (HasSpell("Evocation")) then
+			if (CollapsingHeader("|+| Evocation Options")) then
+				Text('Evocation above health percent');
+				self.evocationHealth = SliderInt('EH', 1, 90, self.evocationHealth);
+				Text('Evocation below mana percent');
+				self.evocationMana = SliderInt('EM', 1, 90, self.evocationMana);
+			end
 		end
 
 		if (HasSpell("Ice Block")) then
@@ -510,6 +532,15 @@ function script_mage:menu()
 		if (HasSpell("Mana Gem")) then
 			Text('Mana Gem below mana percent');
 			self.manaGemMana = SliderInt('MG', 1, 90, self.manaGemMana);
+		end
+
+		if (self.useWand) then
+			if (CollapsingHeader("|+| Wand Options")) then
+				Text("Use Wand Below Target Health Percent");
+				self.useWandHealth = SliderInt("WH", 0, 100, self.useWandHealth);
+				Text("Use Wand Below Self Mana Percent");
+				self.useWandMana = SliderInt("WM", 0 , 100, self.useWandMana);
+			end
 		end
 	end
 

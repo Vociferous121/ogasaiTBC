@@ -5,7 +5,7 @@ script_pathMenu = {
 	
 function script_pathMenu:menu()
 
-	if (CollapsingHeader("[Path options")) then
+	if (CollapsingHeader("Pathing Menu")) then
 		local wasClicked = false;
 		Text("Distance To Grind From Hotspot");
 		script_path.grindingDist = SliderInt("Dist (yds)", 50, 2000, script_path.grindingDist);

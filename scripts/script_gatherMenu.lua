@@ -9,7 +9,7 @@ function script_gatherMenu:menu()
 
 	local wasClicked = false;
 	
-	if (CollapsingHeader("[Gather options")) then
+	if (CollapsingHeader("Gather Menu")) then
 		wasClicked, script_grind.gather = Checkbox("Gather on/off", script_grind.gather);
 		
 		wasClicked, script_gather.collectMinerals = Checkbox("Mining", script_gather.collectMinerals);

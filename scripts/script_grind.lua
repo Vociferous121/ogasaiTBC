@@ -59,6 +59,7 @@ script_grind = {
 	useUnstuckScript = false,
 	currentTime2 = GetTimeEX() / 1000,
 	setLogoutTime = 30,
+	waitTimeAfterParanoia = 5,
 }
 
 
@@ -220,7 +221,7 @@ function script_grind:run()
 			end
 
 			script_path.savedPos['time'] = GetTimeEX();
-			self.waitTimer = GetTimeEX() + (5000);
+			self.waitTimer = GetTimeEX() / 1000 + (self.waitAfterParanoiaTime);
 			return true;
 		end
 
@@ -230,14 +231,10 @@ function script_grind:run()
 	script_grind.currentTime2 = GetTimeEX() / 1000;
 	script_paranoid.paranoiaUsed = false;
 
-	-- Check: jump over obstacles
-	if (IsMoving()) and (not self.pause) then
 
-		if (not IsInCombat()) then
-			script_debug.debugGrind = "checking jump over obstacles";
-		end
+	-- was here... testing...
 
-		if (self.useUnstuckScript) and (not self.pause) then
+	if (self.useUnstuckScript) then --and (not self.pause) then
 			script_unstuck:drawChecks();
 		end
 
@@ -247,6 +244,17 @@ function script_grind:run()
 				return true;
 			end
 		end
+
+	-- end was here...
+
+	-- Check: jump over obstacles
+	if (IsMoving()) and (not self.pause) then
+
+		if (not IsInCombat()) then
+			script_debug.debugGrind = "checking jump over obstacles";
+		end
+
+		-- was here....
 		
 
 		script_pather:jumpObstacles();

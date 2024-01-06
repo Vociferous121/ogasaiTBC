@@ -5,7 +5,7 @@ script_vendorMenu = {
 function script_vendorMenu:menu()
 	local wasClicked = false;
 
-	if (CollapsingHeader("[Vendor options")) then 
+	if (CollapsingHeader("Vendor Menu")) then 
 		wasClicked, script_grind.useVendor = Checkbox("Vendor on/off", script_grind.useVendor);
 
 		-- Always show a cancel button to any vendor actions

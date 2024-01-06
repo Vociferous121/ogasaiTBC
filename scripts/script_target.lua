@@ -221,7 +221,7 @@ function script_target:getTarget()
 end
 
 function script_target:lootMenu()
-	if (CollapsingHeader("[Loot options")) then
+	if (CollapsingHeader("Loot Menu")) then
 
 		self.lootDistance = SliderFloat("Loot Distance", 1, 4, self.lootDistance);
 		wasClicked, script_grind.skipLoot = Checkbox("Skip Looting", script_grind.skipLoot);
