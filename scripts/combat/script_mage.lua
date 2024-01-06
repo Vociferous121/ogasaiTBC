@@ -129,7 +129,7 @@ function script_mage:run(targetObj)
 		if (not IsInCombat()) then
 			
 			if (not IsInCombat()) and (not self.useRotation) and (HasSpell("Frostbolt"))
-				and (IsSpellInRange(self.target, "Frostbolt")) and (GetDistance(self.target) <= 27) then
+				and (IsSpellInRange(self.target, "Frostbolt")) and (GetDistance(self.target) <= 27) and (IsInLineOfSight(self.target)) then
 				if (IsMoving()) then
 					StopMoving();
 				end
@@ -167,7 +167,9 @@ function script_mage:run(targetObj)
 			if (IsInCombat()) and ( (script_grind.enemiesAttackingUs() >= 2 and GetHealthPercentage(GetLocalPlayer()) <= 75)
 				or (GetHealthPercentage(GetLocalPlayer()) <= 40) ) then
 				if (HasSpell("Gift of the Naaru")) and (not IsSpellOnCD("Gift of the Naaru")) and (not HasBuff(localObj, "Gift of the Naaru")) then
-					CastSpellByName("Gift of the Naaru", localObj);
+					if (CastSpellByName("Gift of the Naaru", localObj)) then
+						return;
+					end
 				
 				end
 			end
@@ -230,7 +232,7 @@ function script_mage:run(targetObj)
 			end
 
 			-- Auto Attack if no mana
-			if (localMana < 5) and (not self.useRotation) then
+			if (localMana < 5) and (not HasDebuff(targetObj, "Frost Nova")) and (not HasDebuff(targetObj, "Frost Bite")) and (not self.useRotation) then
 				UnitInteract(targetObj);
 				self.interactTimer = GetTimeEX() + 2500;
 				
@@ -388,7 +390,7 @@ function script_mage:rest()
 	end
 
 	--Eat and Drink
-	if (not IsDrinking() and localMana < self.drinkMana) then
+	if (not IsDrinking() and localMana < self.drinkMana) and (not IsInCombat()) then
 		if (IsMoving()) then
 			StopMoving();
 			script_grind:restOn();
@@ -404,7 +406,7 @@ function script_mage:rest()
 		end
 	end
 
-	if (not IsEating() and localHealth < self.eatHealth) then	
+	if (not IsEating() and localHealth < self.eatHealth) and (not IsInCombat()) then	
 		if (IsMoving()) then
 			StopMoving();
 			script_grind:restOn();
@@ -479,10 +481,6 @@ function script_mage:menu()
 		if (HasSpell("Fire Blast")) then
 			wasClicked, self.useFireBlast = Checkbox('Use Fire Blast', self.useFireBlast);
 		end
-
-		--if (script_path.raycastPathing) then
-		--	self.frostNova = false;
-		--end
 
 		if (HasSpell("Frost Nova")) then
 			SameLine();

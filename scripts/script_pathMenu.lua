@@ -13,6 +13,18 @@ function script_pathMenu:menu()
 
 		wasClicked, script_grind.useUnstuckScript = Checkbox("Use Raycasting Unstuck Script", script_grind.useUnstuckScript);
 		wasClicked, script_grind.raycastPathing = Checkbox("Use raycast pathing (TBC Area)", script_grind.raycastPathing);
+		if (script_grind.raycastPathing) then
+			SameLine();
+			if (not script_grind.showRayMenu) then
+				if Button("Show options") then 
+					script_grind.showRayMenu = not script_grind.showRayMenu;
+				end
+			else
+				if Button("Hide options") then 
+					script_grind.showRayMenu = not script_grind.showRayMenu;
+				end
+			end
+		end
 
 		wasClicked, self.useAutoHotspots = Checkbox("Use Auto Hotspots", self.useAutoHotspots);
 		wasClicked, script_path.autoLoadHotspot = Checkbox("Auto Load Hotspot from hotspotDB.lua", script_path.autoLoadHotspot);
@@ -26,19 +38,6 @@ function script_pathMenu:menu()
 
 	
 			Separator();
-
-		if (script_grind.raycastPathing) then
-			SameLine();
-			if (not script_grind.showRayMenu) then
-				if Button("Show options") then 
-					script_grind.showRayMenu = not script_grind.showRayMenu;
-				end
-			else
-				if Button("Hide options") then 
-					script_grind.showRayMenu = not script_grind.showRayMenu;
-				end
-			end
-		end
 	
 		if (script_grind.showRayMenu) then
 			script_pather:menu();

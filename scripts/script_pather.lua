@@ -1,5 +1,5 @@
 script_pather = {
-	updatePathDist = 200,
+	updatePathDist = 10,
 	movedDist = 0,
 	maxDist = 2000,
 	straightPathSize = 200,
@@ -90,17 +90,17 @@ function script_pather:moveToTarget(xx, yy, zz)
 	
 	if (genNewPath) then
 		self.status = 1;
-		self.goToIndex = 1;
+		self.goToIndex = 2;
 		self.sx, self.sy, self.sz = x, y, z;
 
-		if (IsMoving()) and (GetUnitsTarget(GetLocalPlayer()) == 0) then
-			StopMoving();
-			MoveForwardStop();
-			DescendStop();
-			AscendStop();
-			self.dX, self.dY, self.dZ = 0, 0, 0;
-			return true;
-		end
+		--if (IsMoving()) and (GetUnitsTarget(GetLocalPlayer()) == 0) then
+		--	StopMoving();
+		--	MoveForwardStop();
+		--	DescendStop();
+		--	AscendStop();
+		--	self.dX, self.dY, self.dZ = 0, 0, 0;
+		--	return true;
+		--end
 
 		-- Generate a path
 		if (IsFlying() or script_pathFlyingEX:onMount()) then
