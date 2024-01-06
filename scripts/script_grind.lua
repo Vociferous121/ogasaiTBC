@@ -209,7 +209,7 @@ function script_grind:run()
 				return true;
 			end
 
-			if (script_paranoid.logoutOnParanoid) then
+			if (script_paranoid.logoutOnParanoid) and (not IsInCombat()) then
 				-- logout timer reached then logout
 				if (script_paranoid.currentTime >= script_grind.currentTime2 + script_grind.setLogoutTime) then
 					StopBot();

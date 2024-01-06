@@ -7,7 +7,7 @@ script_checkDebuffs = {
 -- returns true if player has debuff
 -- returns false if player does not has debuff
 
--- make check for not specific debuffs like rend
+-- make check for not specific debuffs like rend, thunderclap
 
 function script_checkDebuffs:hasCurse()
 

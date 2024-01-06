@@ -25,9 +25,8 @@ script_mage = {
 	useFrostNova = true,
 	useWandMana = 5,
 	useWandHealth = 5,
-	useBlink = false,
+	useBlink = true,
 	useEvocation = true,
-
 
 }
 
@@ -193,7 +192,7 @@ function script_mage:run(targetObj)
 			end
 
 			-- Use Evocation if we have low Mana but still a lot of HP left
-			if (self.useEvocation) and (localMana < self.evocationMana and localHealth > self.evocationHealth and HasSpell("Evocation") and not IsSpellOnCD("Evocation")) then		
+			if (self.useEvocation) and (localMana < self.evocationMana and localHealth > self.evocationHealth and HasSpell("Evocation") and not IsSpellOnCD("Evocation")) and (targetHealth >= 15) and (IsInCombat()) then		
 				self.message = "Using Evocation...";
 				CastSpellByName("Evocation"); 
 				return;
@@ -218,13 +217,14 @@ function script_mage:run(targetObj)
 
 			if (self.useBlink) and (not IsCasting()) and (not IsChanneling()) and (IsInCombat()) and (targetHealth >= 20) then
 				if (IsSpellOnCD("Frost Nova")) and (HasSpell("Blink")) and (not HasDebuff(targetObj, "Frost Nova")) and (not HasDebuff(targetObj, "Frostbite")) and (GetDistance(targetObj) <= 6) and (localMana >= 20) and (not IsSpellOnCD("Blink")) then
+					local angle = GetAngle(targetObj);
+					FaceAngle(angle);
 					if (CastSpellByName("Blink")) then
 						return true;
 					end
 				end
 			end
 				
-			
 			local max = 0;
 			local dur = 0;
 			if (GetInventoryItemDurability(18) ~= nil) then
@@ -451,27 +451,29 @@ function script_mage:rest()
 	end
 
 	-- Do Buff
-	if (Buff('Arcane Intellect', localObj)) then
-		self.waitTimer = GetTimeEX() + 1650;
-		script_grind.waitTimer = GetTimeEX() + 1650;
-		return true;
-	elseif (Buff('Dampen Magic', localObj)) then
-		self.waitTimer = GetTimeEX() + 1650;
-		script_grind.waitTimer = GetTimeEX() + 1650;
-		return true;
-	end
-	if (HasSpell('Ice Armor')) then
-		if (Buff('Ice Armor', localObj)) then
+	if (not IsInCombat()) then
+		if (Buff('Arcane Intellect', localObj)) then
+			self.waitTimer = GetTimeEX() + 1650;
+			script_grind.waitTimer = GetTimeEX() + 1650;
+			return true;
+		elseif (Buff('Dampen Magic', localObj)) then
 			self.waitTimer = GetTimeEX() + 1650;
 			script_grind.waitTimer = GetTimeEX() + 1650;
 			return true;
 		end
-	
-	else
-		if (Buff('Frost Armor', localObj)) then
-			self.waitTimer = GetTimeEX() + 1650;
-			script_grind.waitTimer = GetTimeEX() + 1650;
-			return true;
+		if (HasSpell('Ice Armor')) then
+			if (Buff('Ice Armor', localObj)) then
+				self.waitTimer = GetTimeEX() + 1650;
+				script_grind.waitTimer = GetTimeEX() + 1650;
+				return true;
+			end
+		
+		else
+			if (Buff('Frost Armor', localObj)) then
+				self.waitTimer = GetTimeEX() + 1650;
+					script_grind.waitTimer = GetTimeEX() + 1650;
+				return true;
+			end
 		end
 	end
 	

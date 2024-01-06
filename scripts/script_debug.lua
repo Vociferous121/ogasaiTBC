@@ -35,11 +35,36 @@ function script_debug:menu()
 	end
 
 
-if (script_grindMenu.debug) then
-			--garbage data..
-			Text("Garbage Data Lost (object manager) ");
-			SameLine();
-			local gc = gcinfo();
-			Text(gc);
+	if (script_grindMenu.debug) then
+		--garbage data..
+		Text("Garbage Data Lost (object manager) ");
+		SameLine();
+		local gc = gcinfo();
+		Text(gc);
+	end
+		Separator();
+
+
+	Text("target angle..." ..GetUnitsTarget(GetLocalPlayer(GetAngle)).. " ..Unstuck info");
+	Text("my angle...    " ..GetLocalPlayer(GetAngle));
+
+		Separator();
+
+
+	local atime = math.floor(script_grind.currentTime2 - script_paranoid.currentTime + script_grind.setLogoutTime);
+		Text("Paranoia Logout Timer  -  ");
+		SameLine();
+		Text(""..atime);
+		Separator();
+
+--nav mesh progress
+	if (GetLoadNavmeshProgress() ~= nil) and (GetLoadNavmeshProgress() ~= 0) then
+		local qqq = math.floor(GetLoadNavmeshProgress()*100);
+		if (qqq ~= nil) and (qqq ~= 100) and (qqq ~= 200) and (not qqq > 200) then
+			Text("Navmesh Loading Progress Percent... " ..qqq);
 		end
+		if (qqq > 200) then
+			Text("Please Reload Game - Navmesh errors");
+		end
+	end
 end
