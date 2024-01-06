@@ -65,7 +65,7 @@ function script_mage:run(targetObj)
 		return;
 	end
 
-	-- Check: F away from targets affected by frost nova
+	-- Check: Move away from targets affected by frost nova
 	if (script_target:hasDebuff('Frost Nova') or script_target:hasDebuff('Frostbite')) then
 			local xT, yT, zT = GetPosition(targetObj);
  			local xP, yP, zP = GetPosition(localObj);
@@ -88,12 +88,6 @@ function script_mage:run(targetObj)
 	if (IsChanneling() or IsCasting() or HasBuff(localObj, 'Ice Block')) then
 		return;
 	end
-	if (self.waitTimer > GetTimeEX()) then
-		return;
-	end
-
-	self.waitTimer = GetTimeEX() + script_grind.tickRate;
-
 	
 	--Valid Enemy
 	if (targetObj ~= 0) then
@@ -131,8 +125,8 @@ function script_mage:run(targetObj)
 		--Opener
 		if (not IsInCombat()) then
 			
-			if (not IsInCombat()) and (not self.useRotation)
-				and (IsSpellInRange(self.target, "Frost Bolt")) and (GetDistance(self.target) <= 27) then
+			if (not IsInCombat()) and (not self.useRotation) and (HasSpell("Frostbolt"))
+				and (IsSpellInRange(self.target, "Frostbolt")) and (GetDistance(self.target) <= 27) then
 				if (IsMoving()) then
 					StopMoving();
 					return true;
@@ -140,14 +134,14 @@ function script_mage:run(targetObj)
 			end
 
 			--Cast Spell
-			if (not IsMoving()) and (localMana >= 10) and (not IsDrinking()) and (not IsEating()) then
+			if (localMana >= 10) then
 				if (Cast('Frostbolt', targetGUID)) then
 					script_grind.waitTimer = GetTimeEX() + 3000;
 					return;
 				end
 			end
 
-			if (not IsMoving()) and (localMana >= 10) and (not IsDrinking()) and (not IsEating()) then
+			if (localMana >= 10) then
 				if (Cast('Fireball', targetGUID)) then
 					script_grind.waitTimer = GetTimeEX() + 3000;
 					return;

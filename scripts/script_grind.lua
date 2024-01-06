@@ -586,7 +586,7 @@ function script_grind:run()
 						end
 					end
 
-				elseif (GetDistance(self.target) > 27) or (not IsInLineOfSight(self.target)) then
+				elseif (GetDistance(self.target) > 27) then
 					script_pather:moveToTarget(cx, cy, cz);
 					self.waitTimer = GetTimeEX() + 50;
 				end
