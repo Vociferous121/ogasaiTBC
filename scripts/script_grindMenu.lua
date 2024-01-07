@@ -88,7 +88,7 @@ function script_grindMenu:menu()
 				Text("Paranoia Range Of Other Players");
 				script_paranoid.paranoidRange = SliderInt("PR", 0, 200, script_paranoid.paranoidRange);
 				Text("Time To Wait After Player Leaves Range (seconds)");
-				script_grind.waitTimeAfterParanoia = SliderInt("PRT", 0 , 20, script_grind.waitTimeAfterParanoia);
+				script_grind.waitAfterParanoiaTime = SliderInt("PRT", 0 , 20, script_grind.waitAfterParanoiaTime);
 				Separator();
 			
 		end

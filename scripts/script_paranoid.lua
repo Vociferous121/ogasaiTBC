@@ -5,10 +5,10 @@ script_paranoid = {
 	paranoidRange = 50,
 	usedString = false,
 	logoutOnParanoid = false,
-	logoutOnParanoidTimer = GetTimeEX(),
+	logoutOnParanoidTimer = (GetTimeEX() / 1000) - 10,
 	logoutTimerSet =  false,
 	currentTime = 0,
-	
+	paranoiaUsed = false
 }
 
 function script_paranoid:doParanoia()
@@ -21,13 +21,17 @@ function script_paranoid:doParanoia()
 		-- if players in range
 		if (script_paranoid:playersWithinRange(self.paranoidRange)) then
 
-			-- start paranoid timer
-			script_paranoid.currentTime = GetTimeEX() / 1000;
-			script_grind.message = "Player(s) within paranoid range, pausing...";
-		
+			if (not script_paranoid.logoutTimerSet) then
+				-- start paranoid timer
+				script_paranoid.currentTime = (GetTimeEX() + 1) / 1000;
+				script_grind.message = "Player(s) within paranoid range, pausing...";
+				script_paranoid.logoutTimerSet = true;
+			end
+
 			return true;
 		end
 	end
+return false;
 end
 
 --function script_paranoid.doEmotes()

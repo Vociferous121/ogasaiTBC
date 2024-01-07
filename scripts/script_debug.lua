@@ -57,14 +57,19 @@ function script_debug:menu()
 		Text(""..atime);
 		Separator();
 
---nav mesh progress
-	if (GetLoadNavmeshProgress() ~= nil) and (GetLoadNavmeshProgress() ~= 0) then
-		local qqq = math.floor(GetLoadNavmeshProgress()*100);
-		if (qqq ~= nil) and (qqq ~= 100) and (qqq ~= 200) and (not qqq > 200) then
-			Text("Navmesh Loading Progress Percent... " ..qqq);
-		end
-		if (qqq > 200) then
-			Text("Please Reload Game - Navmesh errors");
-		end
-	end
+	Text("Grinder CurrentTime2 - " ..math.floor(script_grind.currentTime2 / 1000));
+	Text("Paranoid CurrentTime - " ..math.floor(script_paranoid.currentTime / 1000));
+
+	--nav mesh progress
+	--if (GetLoadNavmeshProgress() ~= nil) and (GetLoadNavmeshProgress() ~= 0) then
+	--	local qqq = math.floor(GetLoadNavmeshProgress()*100);
+	--	if (qqq ~= nil) and (qqq ~= 100) and (qqq ~= 200) and (not qqq > 200) then
+	--		Text("Navmesh Loading Progress Percent... " ..qqq);
+	--	end
+	--	if (qqq > 200) then
+	--		Text("Please Reload Game - Navmesh errors");
+	--	end
+	--end
+	local path = script_pather.updatePathDist;
+	Text("Pather update path distance " ..path);
 end

@@ -59,7 +59,7 @@ script_grind = {
 	useUnstuckScript = false,
 	currentTime2 = GetTimeEX() / 1000,
 	setLogoutTime = 30,
-	waitTimeAfterParanoia = 5,
+	waitAfterParanoiaTime = 5,
 }
 
 
@@ -194,44 +194,6 @@ function script_grind:run()
 		end	
 	end
 
-	-- do paranoia
-	if (script_paranoid.useParanoia) and (not self.pause) and (script_paranoid.paranoidOn) and (not IsInCombat()) then
-		if (script_paranoid:doParanoia()) then
-
-			if (not script_paranoid.logoutTimerSet) then
-				script_paranoid.currentTime = GetTimeEX();
-				script_paranoid.logoutTimerSet = true;
-			end
-
-			self.message = "Paranoid turned on - player in range!";
-			if (IsMoving()) then
-				StopMoving();
-				return true;
-			end
-
-			if (script_paranoid.logoutOnParanoid) and (not IsInCombat()) then
-				-- logout timer reached then logout
-				if (script_paranoid.currentTime >= script_grind.currentTime2 + script_grind.setLogoutTime) then
-					StopBot();
-					Logout();
-					--script_paranoid.currentTime = GetTimeEX() / 1000;
-					--script_grind.currentTime2 = GetTimeEX() / 1000;
-				return true;
-				end
-			end
-
-			script_path.savedPos['time'] = GetTimeEX();
-			self.waitTimer = GetTimeEX() / 1000 + (self.waitAfterParanoiaTime);
-			return true;
-		end
-
-	end
-
-	script_paranoid.currentTime = GetTimeEX() / 1000;
-	script_grind.currentTime2 = GetTimeEX() / 1000;
-	script_paranoid.paranoiaUsed = false;
-
-
 	-- was here... testing...
 
 	if (self.useUnstuckScript) then --and (not self.pause) then
@@ -277,6 +239,46 @@ function script_grind:run()
 	end
 
 	self.waitTimer = GetTimeEX() + self.tickRate;
+
+	-- do paranoia
+	if (script_paranoid.useParanoia) and (not self.pause) and (script_paranoid.paranoidOn) and (not IsInCombat()) then
+		if (script_paranoid:doParanoia()) then
+
+			script_paranoid.paranoiaUsed = true;
+
+			if (not script_paranoid.logoutTimerSet) then
+				script_paranoid.currentTime = GetTimeEX() / 1000;
+				script_paranoid.logoutTimerSet = true;
+			end
+
+			self.message = "Paranoid turned on - player in range!";
+			if (IsMoving()) then
+				StopMoving();
+				return true;
+			end
+
+			if (script_paranoid.logoutOnParanoid) and (not IsInCombat()) then
+				-- logout timer reached then logout
+				if (script_paranoid.currentTime >= script_grind.currentTime2 + script_grind.setLogoutTime) then
+					StopBot();
+					Logout();
+					--script_paranoid.currentTime = GetTimeEX() / 1000;
+					--script_grind.currentTime2 = GetTimeEX() / 1000;
+				return true;
+				end
+			end
+
+			script_path.savedPos['time'] = GetTimeEX();
+			self.waitTimer = GetTimeEX() / 1000 + (self.waitAfterParanoiaTime);
+		return;
+		end
+	end
+
+	if (IsInCombat()) then
+	script_paranoid.currentTime = GetTimeEX() / 1000;
+	script_grind.currentTime2 = (GetTimeEX() / 1000);
+	script_paranoid.logoutTimerSet = false;
+	end
 
 	if (IsDead(self.target)) then 
 		-- Keep saving path nodes at dead target's locations
@@ -697,7 +699,7 @@ function script_grind:run()
 		if (IsInCombat()) and ( (script_grind.enemiesAttackingUs() >= 2 and GetHealthPercentage(GetLocalPlayer()) <= 75) or 
 			(GetHealthPercentage(GetLocalPlayer()) <= 40) ) then
 			if (HasSpell("Gift of the Naaru")) and (not IsSpellOnCD("Gift of the Naaru")) and (not HasBuff(localObj, "Gift of the Naaru")) then
-				CastSpellByName("Gift of the Naaru", localObj);
+				Cast("Gift of the Naaru", localObj);
 				
 			end
 		end	

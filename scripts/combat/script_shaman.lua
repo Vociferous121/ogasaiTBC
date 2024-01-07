@@ -10,6 +10,10 @@ script_shaman = {
 	totemBuff = '',
 	healingSpell = 'Healing Wave',
 	useRotation = false,
+	useLightningBolt = false,
+	useChainLightning = false,
+	lightningBoltMana = 50,
+	chainLightningMana = 50,
 }
 
 

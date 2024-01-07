@@ -143,6 +143,16 @@ function script_pather:moveToTarget(xx, yy, zz)
 		return true;
 	end
 
+	if (self.pathSize >= 50) and (self.pathSize < 100) then
+		self.updatePathDist = 50;
+	elseif (self.pathSize >= 100) and (self.pathSize < 200) then
+		self.updatePathDist = 100
+	elseif (self.pathSize >= 200) then
+		self.updatePathDist = 200;
+	elseif (self.pathSize < 50) then
+		self.updatePathDist = 10;
+	end
+
 	-- update path after some moved distance for collission detection
 	local cx, cy, cz = GetPosition(GetLocalPlayer());
 	if (GetDistance3D(cx, cy, cz, self.sx, self.sy, self.sz) > self.updatePathDist) then
