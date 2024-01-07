@@ -143,7 +143,9 @@ function script_pather:moveToTarget(xx, yy, zz)
 		return true;
 	end
 
-	if (self.pathSize >= 50) and (self.pathSize < 100) then
+	if (self.pathSize < 50) then
+		self.updatePathDist = 10;
+	elseif (self.pathSize >= 50) and (self.pathSize < 100) then
 		self.updatePathDist = 50;
 	elseif (self.pathSize >= 100) and (self.pathSize < 200) then
 		self.updatePathDist = 100

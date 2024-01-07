@@ -27,6 +27,9 @@ script_mage = {
 	useWandHealth = 5,
 	useBlink = true,
 	useEvocation = true,
+	useConeOfCold = true,
+	coneOfColdMana = 35,
+	coneOfColdHealth = 15,
 
 }
 
@@ -45,6 +48,41 @@ function script_mage:setup()
 	self.isSetup = true;
 
 	script_mageEX:setup();
+end
+
+function script_mage:coneOfCold(spellName) -- cone of cold function needed to work properly
+	if (HasSpell(spellName)) then
+		if (not IsSpellOnCD(spellName)) then
+			if (not IsAutoCasting(spellName)) then
+				Cast(spellName);
+			end
+		end
+	end
+	return false;
+end
+
+
+function script_mage:runBackwards(targetObj, range)
+-- run backwards
+	-- Check: Move away from targets affected by frost nova
+	if (script_target:hasDebuff('Frost Nova') or script_target:hasDebuff('Frostbite')) and (not script_checkDebuffs:hasDisabledMovement()) then
+			local xT, yT, zT = GetPosition(targetObj);
+ 			local xP, yP, zP = GetPosition(localObj);
+			local distance = GetDistance(targetObj);
+ 			local xV, yV, zV = xP - xT, yP - yT, zP - zT;	
+ 			local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2)
+			local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;		
+ 			local moveX, moveY, moveZ = xT + xUV*30, yT + yUV*30, zT + zUV;	
+			if (distance < 7 and IsInLineOfSight(targetObj)) and (not script_checkDebuffs:hasDisabledMovement())then 
+				if (script_grind.waitTimer ~= 0) then
+					script_grind.waitTimer = GetTimeEX() + 1000;
+				end
+				Move(moveX, moveY, moveZ);
+				self.timer = GetTimeEX() + 250;
+ 				return;
+ 			end
+	end
+return false;
 end
 
 function script_mage:run(targetObj)
@@ -71,26 +109,6 @@ function script_mage:run(targetObj)
 		return;
 	end
 
-	-- run backwards
-	-- Check: Move away from targets affected by frost nova
-	if (script_target:hasDebuff('Frost Nova') or script_target:hasDebuff('Frostbite')) and (not script_checkDebuffs:hasDisabledMovement()) then
-			local xT, yT, zT = GetPosition(targetObj);
- 			local xP, yP, zP = GetPosition(localObj);
-			local distance = GetDistance(targetObj);
- 			local xV, yV, zV = xP - xT, yP - yT, zP - zT;	
- 			local vectorLength = math.sqrt(xV^2 + yV^2 + zV^2)
-			local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;		
- 			local moveX, moveY, moveZ = xT + xUV*30, yT + yUV*30, zT + zUV;	
-			if (distance < 7 and IsInLineOfSight(targetObj)) then 
-				if (script_grind.waitTimer ~= 0) then
-					script_grind.waitTimer = GetTimeEX() + 1000;
-				end
-				Move(moveX, moveY, moveZ);
-				self.timer = GetTimeEX() + 250;
- 				return;
- 			end
-	end
-
 	-- Pre Check
 	if (IsChanneling() or IsCasting() or HasBuff(localObj, 'Ice Block')) then
 		return;
@@ -105,6 +123,18 @@ function script_mage:run(targetObj)
 		end
 		
 		if (not CanAttack(targetObj)) then
+			return;
+		end
+
+		-- blink on movement debuff
+		if (script_checkDebuffs:hasDisabledMovement()) and (HasSpell("Blink")) and (self.useBlink) and (not IsSpellOnCD("Blink")) then
+			local angle = GetAngle(targetObj);
+			FaceAngle(angle);
+			CastSpellByName("Blink");
+			return;
+		end
+
+		if (script_checkDebuffs:hasDisabledMovement()) and (IsSpellOnCD("Blink")) then
 			return;
 		end
 
@@ -183,12 +213,51 @@ function script_mage:run(targetObj)
 					return;
 				end
 			end
+
+			-- runbackwards when target has frost nova
+			if (GetNumPartyMembers() < 1) and (self.useFrostNova) then
+				if (HasDebuff(targetObj, "Frostbite") or HasDebuff(targetObj, "Frost Nova")) and (targetHealth > 10 or localHealth < 35) and (not HasBuff(localObj, 'Evocation')) and (not script_checkDebuffs:hasDisabledMovement()) and (not IsSwimming()) and (IsInLineOfSight(targetObj)) then
+					if (script_mage:runBackwards(targetObj, 8)) then
+					return;
+					end
+				end
+			end
 	
 			-- Check: Frostnova when the target is close
 			if (self.useFrostNova) and (GetDistance(targetObj) < 5 and not script_target:hasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova") and targetHealth > 15) then
 				self.message = "Frost nova the target(s)...";
 				CastSpellByName("Frost Nova");
 				return;
+			end
+
+			-- Check: Move backwards if the target is affected by Frost Nova or Frost Bite
+			if (GetNumPartyMembers() < 1) and (self.useFrostNova) then
+				if (HasDebuff(targetObj, "Frostbite") or HasDebuff(targetObj, "Frost Nova")) and (targetHealth > 10 or localHealth < 35) and (not HasBuff(localObj, 'Evocation')) and (not script_checkDebuffs:hasDisabledMovement()) and (not IsSwimming()) and (IsInLineOfSight(targetObj)) then
+					script_grind.tickRate = 0;
+
+					if (script_mage:runBackwards(targetObj, 8)) then -- Moves if the target is closer than 7 yards
+
+						self.message = "Moving away from target...";
+						if (not IsSpellOnCD("Frost Nova")) and (GetDistance(targetObj) < 9) and (not HasDebuff(targetObj, "Frostbite")) then
+							CastSpellByName("Frost Nova");
+							return;
+						end
+						if (GetDistance(targetObj) > 7) and (not IsMoving()) then
+							FaceTarget(targetObj);
+						end
+					return;
+					end 
+				end	
+			end
+
+			
+
+			-- counterspell if target is casting
+			if (HasSpell("Counterspell")) and (not IsSpellOnCD("Counterspell")) and (localMana > 15) and (IsCasting(targetObj)) then
+				if (Cast("Counterspell", targetObj)) then
+					self.waitTimer = GetTimeEX() + 1500;
+					return;
+				end
 			end
 
 			-- Use Evocation if we have low Mana but still a lot of HP left
@@ -229,6 +298,18 @@ function script_mage:run(targetObj)
 			local dur = 0;
 			if (GetInventoryItemDurability(18) ~= nil) then
 				dur, max = GetInventoryItemDurability(18);
+			end
+
+			--Cone of Cold
+			if (self.useConeOfCold) and (HasSpell('Cone of Cold')) and (localMana >= self.coneOfColdMana) and (targetHealth >= self.coneOfColdHealth) then
+				if (GetDistance(targetObj) < 9) and (not HasDebuff(targetObj, "Frostbite")) and (not HasDebuff(targetObj, "Frost Nova")) then
+						FaceTarget(targetObj);
+					if (script_mage:coneOfCold('Cone of Cold')) then
+						FaceTarget(targetObj);
+						self.waitTimer = GetTimeEX() + 1500;
+						return;
+					end
+				end
 			end
 
 			if (self.useWand and dur > 0) then
@@ -304,7 +385,7 @@ function script_mage:rest()
 	end
 	
 	if (waterIndex == -1) then 
-		if (HasSpell('Conjure Water') and not AreBagsFull()) then
+		if (HasSpell('Conjure Water') and not AreBagsFull()) and (not IsMoving()) then
 			if (localMana > 10 and not IsDrinking() and not IsEating() and not AreBagsFull()) then
 				if (IsMoving()) then
 					StopMoving();
@@ -514,6 +595,10 @@ function script_mage:menu()
 			SameLine();
 			wasClicked, self.useEvocation = Checkbox("Use Evocation", self.useEvocation);
 		end
+	
+		if (HasSpell("Cone of Cold")) then
+			wasClicked, self.useConeOfCold = Checkbox("Use Cone of Cold", self.useConeOfCold);
+		end
 
 		if (self.useEvocation) and (HasSpell("Evocation")) then
 			if (CollapsingHeader("|+| Evocation Options")) then
@@ -534,6 +619,17 @@ function script_mage:menu()
 		if (HasSpell("Mana Gem")) then
 			Text('Mana Gem below mana percent');
 			self.manaGemMana = SliderInt('MG', 1, 90, self.manaGemMana);
+		end
+
+		if (HasSpell("Cone of Cold")) then
+			if (self.useConeOfCold) then
+				if (CollapsingHeader("|+| Cone of Cold Options")) then
+					Text("Cone of Cold Above Target Health Percent");
+					self.coneOfColdHealth = SliderInt("COCH", 0, 100, self.coneOfColdHealth);
+					Text("Cone of Cold Above Self Mana Percent");
+					self.coneOfColdMana = SliderInt("COCM", 0, 100, self.coneOfColdMana);
+				end
+			end
 		end
 
 		if (self.useWand) then
