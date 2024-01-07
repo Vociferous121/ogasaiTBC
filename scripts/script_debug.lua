@@ -51,14 +51,6 @@ function script_debug:menu()
 		Separator();
 
 
-	local atime = math.floor(script_grind.currentTime2 - script_paranoid.currentTime + script_grind.setLogoutTime);
-		Text("Paranoia Logout Timer  -  ");
-		SameLine();
-		Text(""..atime);
-		Separator();
-
-	Text("Grinder CurrentTime2 - " ..math.floor(script_grind.currentTime2 / 1000));
-	Text("Paranoid CurrentTime - " ..math.floor(script_paranoid.currentTime / 1000));
 
 	--nav mesh progress
 	--if (GetLoadNavmeshProgress() ~= nil) and (GetLoadNavmeshProgress() ~= 0) then

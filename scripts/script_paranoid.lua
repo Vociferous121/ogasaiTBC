@@ -5,10 +5,8 @@ script_paranoid = {
 	paranoidRange = 50,
 	usedString = false,
 	logoutOnParanoid = false,
-	logoutOnParanoidTimer = (GetTimeEX() / 1000) - 10,
 	logoutTimerSet =  false,
-	currentTime = 0,
-	paranoiaUsed = false
+	paranoiaUsed = false,
 }
 
 function script_paranoid:doParanoia()
@@ -21,14 +19,13 @@ function script_paranoid:doParanoia()
 		-- if players in range
 		if (script_paranoid:playersWithinRange(self.paranoidRange)) then
 
-			if (not script_paranoid.logoutTimerSet) then
-				-- start paranoid timer
-				script_paranoid.currentTime = (GetTimeEX() + 1) / 1000;
-				script_grind.message = "Player(s) within paranoid range, pausing...";
-				script_paranoid.logoutTimerSet = true;
+			if (not script_grind.timerSet) then
+				script_grind.timerSet = true;
+				script_grind.currentTime = GetTimeEX();
+				script_grind.currentTime2 = GetTimeEX();
 			end
 
-			return true;
+		return true;
 		end
 	end
 return false;
@@ -80,11 +77,12 @@ function script_paranoid:playersWithinRange(range)
 						local playerDistance = math.floor(GetDistance(i));
 						local playerTimeHours, playerTimeMinutes = GetGameTime();
 						local playerGUID = GetGUID(i);
+						--local playerName = UnitName("target");
 						if (CanAttack(i)) then
 							local playerFaction = this;
 						end
 						if (not self.usedString) then
-							local string ="Paranoid - Player in range! | Time : " ..playerTimeHours..":"..playerTimeMinutes.. " | Distance (yds) "..playerDistance.. " | GUID - " ..playerGUID .." | added to log file."
+							local string ="Paranoid - Player in range! | Time : " ..playerTimeHours..":"..playerTimeMinutes.. " | Distance (yds) "..playerDistance.. " | GUID - " ..playerGUID .. " | added to log file."
 							DEFAULT_CHAT_FRAME:AddMessage(string);
 							ToFile(string);
 							self.usedString = true;

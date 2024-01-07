@@ -7,16 +7,6 @@ function script_grindMenu:menu()
 
 	local wasClicked = false;
 
-	-- display paranoia logout time above menu
-
-	local atime = math.floor(script_grind.currentTime2 - script_paranoid.currentTime + script_grind.setLogoutTime);
-	if (script_paranoid.paranoidOn) and (script_paranoid.logoutOnParanoid) and (script_paranoid.useParanoia) then
-		Text("Paranoia Logout Timer  -  ");
-		SameLine();
-		Text(""..atime);
-		Separator();
-	end
-
 	--if (not self.debug) then
 	--garbage data..
 	--Text("Garbage Data Lost (object manager) ");
@@ -87,8 +77,6 @@ function script_grindMenu:menu()
 		
 				Text("Paranoia Range Of Other Players");
 				script_paranoid.paranoidRange = SliderInt("PR", 0, 200, script_paranoid.paranoidRange);
-				Text("Time To Wait After Player Leaves Range (seconds)");
-				script_grind.waitAfterParanoiaTime = SliderInt("PRT", 0 , 20, script_grind.waitAfterParanoiaTime);
 				Separator();
 			
 		end

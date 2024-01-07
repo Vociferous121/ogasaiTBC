@@ -36,6 +36,7 @@ script_grind = {
 	skipMobTimer = 0,
 	useMana = true,
 	skipLoot = false,
+	currentTime2 = 0,
 	skipReason = 'user selected...',
 	stopIfMHBroken = false,
 	useVendor = false,
@@ -57,9 +58,9 @@ script_grind = {
 	combatStatus = 0, -- 0 = in range, 1 = not in range
 	drawPath = false,
 	useUnstuckScript = false,
-	currentTime2 = GetTimeEX() / 1000,
 	setLogoutTime = 30,
-	waitAfterParanoiaTime = 5,
+	currentTime = 0,
+	timerSet = false,
 }
 
 
@@ -84,6 +85,8 @@ function script_grind:setup()
 	self.skipMobTimer = GetTimeEX();
 	self.unStuckTime = GetTimeEX();
 	self.tryMountTime = GetTimeEX();
+	self.currentTime = GetTimeEX();
+	self.currentTime2 = GetTimeEX();
 
 	-- Classes that doesn't use mana
 	local class, classFileName = UnitClass("player");
@@ -233,12 +236,7 @@ function script_grind:run()
 		return;
 	end
 
-	-- Check: wait for timer
-	if(self.waitTimer > GetTimeEX()) then
-		return;
-	end
 
-	self.waitTimer = GetTimeEX() + self.tickRate;
 
 	-- do paranoia
 	if (script_paranoid.useParanoia) and (not self.pause) and (script_paranoid.paranoidOn) and (not IsInCombat()) then
@@ -246,38 +244,21 @@ function script_grind:run()
 
 			script_paranoid.paranoiaUsed = true;
 
-			if (not script_paranoid.logoutTimerSet) then
-				script_paranoid.currentTime = GetTimeEX() / 1000;
-				script_paranoid.logoutTimerSet = true;
-			end
-
 			self.message = "Paranoid turned on - player in range!";
-			if (IsMoving()) then
-				StopMoving();
-				return true;
-			end
 
-			if (script_paranoid.logoutOnParanoid) and (not IsInCombat()) then
-				-- logout timer reached then logout
-				if (script_paranoid.currentTime >= script_grind.currentTime2 + script_grind.setLogoutTime) then
-					StopBot();
-					Logout();
-					--script_paranoid.currentTime = GetTimeEX() / 1000;
-					--script_grind.currentTime2 = GetTimeEX() / 1000;
-				return true;
-				end
+		
+		if (script_paranoid.logoutOnParanoid) and (not IsInCombat()) and (script_paranoid.paranoiaUsed) then
+			-- logout timer reached then logout
+			if (self.currentTime >= (self.currentTime2 + self.setLogoutTime)) then
+				StopBot();
+				Logout();
+			return;
 			end
+		end
 
 			script_path.savedPos['time'] = GetTimeEX();
-			self.waitTimer = GetTimeEX() / 1000 + (self.waitAfterParanoiaTime);
 		return;
 		end
-	end
-
-	if (IsInCombat()) then
-	script_paranoid.currentTime = GetTimeEX() / 1000;
-	script_grind.currentTime2 = (GetTimeEX() / 1000);
-	script_paranoid.logoutTimerSet = false;
 	end
 
 	if (IsDead(self.target)) then 
@@ -302,7 +283,7 @@ function script_grind:run()
 			self.alive = false;
 			RepopMe();
 			self.message = "Releasing spirit...";
-			self.waitTimer = GetTimeEX() + 5000;
+			self.waitTimer = GetTimeEX() + 2500;
 			return;
 		end
 			self.message = script_helper:ress(GetCorpsePosition()); 
