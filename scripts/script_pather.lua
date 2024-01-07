@@ -1,5 +1,5 @@
 script_pather = {
-	updatePathDist = 10,
+	updatePathDist = 200,
 	movedDist = 0,
 	maxDist = 2000,
 	straightPathSize = 200,
@@ -143,15 +143,7 @@ function script_pather:moveToTarget(xx, yy, zz)
 		return true;
 	end
 
-	if (self.pathSize < 50) then
-		self.updatePathDist = 10;
-	elseif (self.pathSize >= 50) and (self.pathSize < 100) then
-		self.updatePathDist = 50;
-	elseif (self.pathSize >= 100) and (self.pathSize < 200) then
-		self.updatePathDist = 100
-	elseif (self.pathSize >= 200) then
-		self.updatePathDist = 200;
-	elseif (self.pathSize < 50) then
+	if (self.pathSize < 30) then
 		self.updatePathDist = 10;
 	end
 

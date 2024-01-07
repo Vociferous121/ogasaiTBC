@@ -16,7 +16,8 @@ script_path = {
 	savedPos = {},
 	reachedHotspot = false,
 	autoLoadHotspot = true,
-	pathMenu = include("scripts\\script_pathMenu.lua")
+	pathMenu = include("scripts\\script_pathMenu.lua"),
+	isStuck = false;
 }
 
 function script_path:setup()
@@ -87,6 +88,8 @@ end
 
 function script_path:unStuck()
 	if (GetTimeEX() - self.savedPos['time'] > 10000) then
+		script_grind.waitTimer = GetTimeEX() + 150;
+		self.isStuck = true;
 		return true;
 	end 
 
@@ -154,6 +157,8 @@ function script_path:autoPath()
 			end
 			return "Moving to hotspot...";
 		end
+
+		script_grind.waitTimer = GetTimeEX() + 500;
 		
 		return "Hotspot reached, no targets around?";
 	end
@@ -201,6 +206,7 @@ function script_path:autoPath()
 			self.savedPathNodes[self.currentPathNode]['z']);
 		end
 		
+		script_grind.waitTimer = GetTimeEX() + 200;
 		return 'Moving to auto path node ' .. self.currentPathNode;
 	end
 
@@ -211,6 +217,8 @@ function script_path:autoPath()
 		else
 			script_pather:moveToTarget(self.hx, self.hy, self.hz);
 		end
+
+		script_grind.waitTimer = GetTimeEX() + 350;
 
 		return 'Moving to hotspot...';
 	end

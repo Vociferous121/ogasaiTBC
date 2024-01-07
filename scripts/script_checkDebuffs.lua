@@ -120,6 +120,8 @@ function script_checkDebuffs:hasDisabledMovement()
 	
 		return false;
 	end
+
+return false;
 end
 
 -- pet debuff checks

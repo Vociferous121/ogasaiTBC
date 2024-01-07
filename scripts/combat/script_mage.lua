@@ -65,7 +65,7 @@ end
 function script_mage:runBackwards(targetObj, range)
 -- run backwards
 	-- Check: Move away from targets affected by frost nova
-	if (script_target:hasDebuff('Frost Nova') or script_target:hasDebuff('Frostbite')) and (not script_checkDebuffs:hasDisabledMovement()) then
+	if (script_target:hasDebuff('Frost Nova') or script_target:hasDebuff('Frostbite')) and (not script_checkDebuffs:hasDisabledMovement()) and (script_unstuck:pathClearAuto(2)) then
 			local xT, yT, zT = GetPosition(targetObj);
  			local xP, yP, zP = GetPosition(localObj);
 			local distance = GetDistance(targetObj);
@@ -215,7 +215,7 @@ function script_mage:run(targetObj)
 			end
 
 			-- runbackwards when target has frost nova
-			if (GetNumPartyMembers() < 1) and (self.useFrostNova) then
+			if (GetNumPartyMembers() < 1) and (self.useFrostNova) and (script_unstuck:pathClearAuto(2)) then
 				if (HasDebuff(targetObj, "Frostbite") or HasDebuff(targetObj, "Frost Nova")) and (targetHealth > 10 or localHealth < 35) and (not HasBuff(localObj, 'Evocation')) and (not script_checkDebuffs:hasDisabledMovement()) and (not IsSwimming()) and (IsInLineOfSight(targetObj)) then
 					if (script_mage:runBackwards(targetObj, 8)) then
 					return;
@@ -232,7 +232,7 @@ function script_mage:run(targetObj)
 
 			-- Check: Move backwards if the target is affected by Frost Nova or Frost Bite
 			if (GetNumPartyMembers() < 1) and (self.useFrostNova) then
-				if (HasDebuff(targetObj, "Frostbite") or HasDebuff(targetObj, "Frost Nova")) and (targetHealth > 10 or localHealth < 35) and (not HasBuff(localObj, 'Evocation')) and (not script_checkDebuffs:hasDisabledMovement()) and (not IsSwimming()) and (IsInLineOfSight(targetObj)) then
+				if (HasDebuff(targetObj, "Frostbite") or HasDebuff(targetObj, "Frost Nova")) and (targetHealth > 10 or localHealth < 35) and (not HasBuff(localObj, 'Evocation')) and (not script_checkDebuffs:hasDisabledMovement()) and (not IsSwimming()) and (script_unstuck:pathClearAuto(2)) and (IsInLineOfSight(targetObj)) then
 					script_grind.tickRate = 0;
 
 					if (script_mage:runBackwards(targetObj, 8)) then -- Moves if the target is closer than 7 yards
