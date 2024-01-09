@@ -379,6 +379,12 @@ function script_grind:run()
 		end
 	end
 
+	if (HasItem("Cracked Power Core")) then
+		if (DeleteItem("Cracked Power Core")) then
+			self.waitTimer = GetTimeEX() + 1650;
+		end
+	end
+
 	-- Loot
 	if (script_target:isThereLoot() and not IsInCombat() and not AreBagsFull() and not self.bagsFull) then
 		self.message = "Looting... (enable auto loot)";
@@ -566,6 +572,16 @@ function script_grind:run()
 			end
 
 			self.message = "Moving to target...";
+
+			if (not IsInCombat()) and (HasSpell("Stealth")) and (script_rogue.alwaysStealth) and (script_rogue.useStealth) and (not HasBuff(localObj, "Stealth")) and (IsSpellOnCD("Stealth")) then
+				self.waitTimer = GetTimeEX() + 1500;
+				self.message = "Waiting for stealth cooldown...";
+				if (IsMoving()) then
+					StopMoving();
+				end
+				script_path.savedPos['time'] = GetTimeEX();
+				return;
+			end
 
 			-- force rogue stealth
 			if (not IsInCombat()) and (not script_checkDebuffs:hasPoison()) and (GetDistance(self.target) <= script_rogue.stealthRange) and (GetHealthPercentage(GetLocalPlayer()) > script_rogue.eatHealth) and (script_rogue.useStealth) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not HasBuff(localObj, "Stealth")) then

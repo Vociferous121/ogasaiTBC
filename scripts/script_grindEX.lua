@@ -8,6 +8,7 @@ script_grindEX = {
 	currentMapZone = 0,
 	unstuckRight = true,
 	drawRaycastPath = true,
+	strafeLeft = false,
 }
 
 function script_grindEX:setup()
@@ -107,7 +108,9 @@ function script_grindEX:doChecks()
 		if (not self.unstuckRight) then
 			StrafeRightStart();
 		else
+			self.strafeLeft = true;
 			StrafeLeftStart();
+			
 		end
 		script_helper:jump();
 		if (script_grind.raycastPathing) then
@@ -119,7 +122,10 @@ function script_grindEX:doChecks()
 	if (not self.unstuckRight) then
 		StrafeRightStop();
 	else
+		if (self.strafeLeft) then
 		StrafeLeftStop();
+		self.strafeLeft = false;
+		end
 	end
 
 	-- Check: Unstuck feature

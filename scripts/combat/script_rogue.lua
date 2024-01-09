@@ -13,6 +13,8 @@ script_rogue = {
 	cpGeneratorCost = 45,
 	stealthOpener = "Sinister Strike",
 	riposteActionBarSlot = 8,
+	alwaysStealth = true,
+	usePickPocket = true,
 
 }
 
@@ -47,12 +49,21 @@ function script_rogue:setup()
 	if (HasSpell("Hemorrhage")) then
 		self.cpGenerator = "Hemorrhage";
 	end
+
 	if (HasSpell("Riposte")) then
 		self.cpGeneratorCost = 40;
 	end
 
 	if (self.cpGenerator == "Sinister Strike") then
 		self.cpGeneratorCost = 45;
+	end
+
+	if (not HasSpell("Stealth")) then
+		alwaysStealth = false;
+	end
+
+	if (not HasSpell("Pick Pocket")) then
+		usePickPocket = false;
 	end
 
 	self.isSetup = true;
@@ -230,17 +241,33 @@ function script_rogue:run(targetObj)
 				end
 			end
 
+			local creatureType = GetCreatureType(GetUnitsTarget(GetLocalPlayer()));
+
+			if (strfind("Humanoid", creatureType)) and (HasBuff(localObj, "Stealth")) and (HasSpell("Pick Pocket")) and (GetDistance(targetObj) <= 6) and (self.useStealth) then
+					if (not script_grind.adjustTickRate) then
+						script_grind.tickRate = 1500;
+					end
+				if (CastSpellByName("Pick Pocket")) then
+					StopMoving();
+					script_grind.waitTimer = GetTimeEX() + 4500;
+				return;
+				end
+			end
+				
 			-- Open with stealth opener
-			if (GetDistance(targetObj) <= 5 and self.useStealth and HasSpell(self.stealthOpener) and HasBuff(localObj, "Stealth")) then
-				if (CastSpellByName(self.stealthOpener)) then
-					self.waitTimer = GetTimeEX() + 1500;
-					script_grind.waitTimer = GetTimeEX() + 1250;
-					return true;
+			if (GetDistance(targetObj) <= 5 and self.useStealth and HasSpell(self.stealthOpener) and HasBuff(localObj, "Stealth")) and (not IsInCombat()) and (GetUnitsTarget(GetLocalPlayer()) ~= 0) then
+				CastSpellByName(self.stealthOpener);
+				local x, y, z = GetPosition(GetUnitsTarget(GetLocalPlayer()));
+				script_grind.waitTimer = GetTimeEX() + 2500;
+				if (not self.useRotation) then
+					if (Move(x+2, y+2, z)) then	
+						script_grind.waitTimer = GetTimeEX() + 2500;
+					end
 				end
 			end
 
 			-- Use CP generator attack 
-			if (not self.useStealth) or (not HasBuff(localObj, "Stealth")) and (localEnergy >= self.cpGeneratorCost) and (HasSpell(self.cpGenerator)) then
+			if (not self.useStealth or not HasBuff(localObj, "Stealth")) and (localEnergy >= self.cpGeneratorCost) and (HasSpell(self.cpGenerator)) and (GetDistance(self.target) <= 5) then
 				if (CastSpellByName(self.cpGenerator)) then
 					self.waitTimer = GetTimeEX() + 1500;
 					script_grind.waitTimer = GetTimeEX() + 1250;
@@ -397,6 +424,7 @@ function script_rogue:run(targetObj)
 					if (localEnergy >= 35) then
 						script_debug.debugCombat = "eviscerate";
 						CastSpellByName('Eviscerate');
+						script_grind.waitTimer = GetTimeEX() + 1650;
 						return;
 					else
 						script_debug.debugCombat = "saving energy for eviscerate";
@@ -487,10 +515,16 @@ function script_rogue:menu()
 
 		wasClicked, self.useStealth = Checkbox("Use Stealth", self.useStealth);
 
+	
+		if (self.useStealth) then
+			SameLine();
+			wasClicked, self.alwaysStealth = Checkbox("Always Stealth", self.alwaysStealth);
+		end
+
 		SameLine();
 
 		wasClicked, self.useThrow = Checkbox("Use Throw", self.useThrow);
-
+		
 		if (self.useStealth) then
 			Text("Stealth Range To Target");
 			self.stealthRange = SliderInt("(yds)", 5, 100, self.stealthRange);
@@ -498,6 +532,7 @@ function script_rogue:menu()
 
 		if (self.useStealth) then
 			self.useThrow = false;
+			wasClicked, self.usePickPocket = Checkbox("Use Pick Pocket", self.usePickPocket);
 		end
 		if (self.useThrow) then
 			self.useStealth = false;

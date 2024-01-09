@@ -44,10 +44,17 @@ function script_debug:menu()
 	end
 		Separator();
 
+	Text("");
+	local mytarget = GetUnitsTarget(GetLocalPlayer());
 
-	Text("target angle..." ..GetUnitsTarget(GetLocalPlayer(GetAngle)).. " ..Unstuck info");
-	Text("my angle...    " ..GetLocalPlayer(GetAngle));
+	Text("target angle..." ..math.floor(GetAngle(mytarget)).. " ..Unstuck info");
+	Text("my angle...    " ..math.floor(GetAngle(GetLocalPlayer())));
+	local test2 = math.floor(GetAngle(mytarget) - GetAngle(GetLocalPlayer()));
+	Text(test2);
+	
 
+	
+	Text("");
 		Separator();
 
 
