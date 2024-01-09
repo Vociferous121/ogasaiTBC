@@ -92,7 +92,12 @@ function script_grindEX:doChecks()
 	end
 	
 	-- Check: User pause
-	if (script_grind.pause) then script_path:savePos(true); script_grind.message = "Paused by user..."; return true; end
+	if (script_grind.pause) then
+		script_grind.currentTime2 = GetTimeEX() + script_grind.setLogoutTime;
+		script_path:savePos(true);
+		script_grind.message = "Paused by user...";
+		return true;
+	end
 
 	-- save pos while/if moving
 	script_path:savePos(false); 

@@ -5,6 +5,11 @@ script_grindMenu = {
 
 function script_grindMenu:menu()
 
+	if (script_paranoid.paranoiaUsed) and (script_paranoid.logoutTimerSet) and (script_paranoid.logoutOnParanoid) then
+		local paranoiaTimer = math.floor(((script_grind.currentTime2 / 1000) - script_grind.currentTime / 1000) + script_grind.setLogoutTime);
+		Text("Paranoia Logout Timer - "..paranoiaTimer);
+	end
+
 	local wasClicked = false;
 
 	--if (not self.debug) then
@@ -67,8 +72,12 @@ function script_grindMenu:menu()
 
 		if (script_paranoid.useParanoia) then
 			wasClicked, script_paranoid.logoutOnParanoid = Checkbox("Logout When Paranoid", script_paranoid.logoutOnParanoid);
-			Separator();
+			
 		end
+
+		SameLine();
+		wasClicked, script_paranoid.stopMovement = Checkbox("Stop Movement", script_paranoid.stopMovement);
+		Separator();
 		if (script_paranoid.useParanoia) and (script_paranoid.logoutOnParanoid) then
 				Text("Logout Time In Seconds");
 				script_grind.setLogoutTime = SliderInt("(seconds)", 0 , 300, script_grind.setLogoutTime);

@@ -16,6 +16,7 @@ script_grind = {
 	checkDebuffsLoaded = include("scripts\\script_checkDebuffs.lua"),
 	unstuckLoaded = include("scripts\\script_unstuck.lua"),
 	paranoidLoaded = include("scripts\\script_paranoid.lua"),
+	grindEX2Loaded = include("scripts\\script_grindEX2.lua"),
 
 	message = 'Starting the grinder...',
 	alive = true,
@@ -69,10 +70,7 @@ function script_grind:setup()
 	--ZoneNames1 = { GetMapZones(1) } ;
 	--ZoneNames2 = { GetMapZones(2) } ;
 	--ZoneNames3 = { GetMapZones(3) } ;
-
 	--for i = 1, ZoneNames3 do
-
-	
 	--if (GetCurrentMapAreaID() == 1941) then
 	--	self.raycastPathing = true;
 	--end
@@ -85,8 +83,7 @@ function script_grind:setup()
 	self.skipMobTimer = GetTimeEX();
 	self.unStuckTime = GetTimeEX();
 	self.tryMountTime = GetTimeEX();
-	self.currentTime = GetTimeEX();
-	self.currentTime2 = GetTimeEX();
+
 
 	-- Classes that doesn't use mana
 	local class, classFileName = UnitClass("player");
@@ -151,6 +148,8 @@ function script_grind:run()
 		script_aggro:drawAggroCircles(65);
 	end
 
+	self.currentTime = GetTimeEX();
+
 	-- draw move path
 	if (IsMoving()) and (self.drawPath) then
 		DrawMovePath();
@@ -201,16 +200,17 @@ function script_grind:run()
 
 	if (self.useUnstuckScript) then --and (not self.pause) then
 			script_unstuck:drawChecks();
-		end
+	end
 
-		if (self.useUnstuckScript) then
-			if (not script_unstuck:pathClearAuto(2)) then
-				script_unstuck:unstuck();
-				return true;
-			end
+	if (self.useUnstuckScript) then
+		if (not script_unstuck:pathClearAuto(2)) then
+			script_unstuck:unstuck();
+			return true;
 		end
+	end
 
 	-- end was here...
+	--was here goes below...
 
 	-- Check: jump over obstacles
 	if (IsMoving()) and (not self.pause) then
@@ -236,29 +236,43 @@ function script_grind:run()
 		return;
 	end
 
-
+	if (script_paranoid.paranoiaUsed) then
+		script_paranoid.paranoiaUsed = false;
+	end
 
 	-- do paranoia
 	if (script_paranoid.useParanoia) and (not self.pause) and (script_paranoid.paranoidOn) and (not IsInCombat()) then
 		if (script_paranoid:doParanoia()) then
 
+			if (script_paranoid.stopMovement) then
+				if (IsMoving()) then
+					StopMoving();
+				end
+			end
+
 			script_paranoid.paranoiaUsed = true;
 
 			self.message = "Paranoid turned on - player in range!";
-
 		
-		if (script_paranoid.logoutOnParanoid) and (not IsInCombat()) and (script_paranoid.paranoiaUsed) then
-			-- logout timer reached then logout
-			if (self.currentTime >= (self.currentTime2 + self.setLogoutTime)) then
-				StopBot();
-				Logout();
-			return;
+			if (script_paranoid.logoutOnParanoid) and (not IsInCombat()) and (script_paranoid.paranoiaUsed) then
+				-- logout timer reached then logout
+				if (self.currentTime / 1000 > ((self.currentTime2 / 1000) + self.setLogoutTime)) then
+					StopBot();
+					Logout();
+					self.currentTime2 = GetTimeEX() *2;
+				end
 			end
-		end
 
-			script_path.savedPos['time'] = GetTimeEX();
+				script_path.savedPos['time'] = GetTimeEX();
+
 		return;
 		end
+	end
+
+	if (not script_paranoid:doParanoia()) then
+		script_paranoid.logoutTimerSet = false;
+		self.currentTime2 = self.currentTime + self.setLogoutTime;
+		script_paranoid.paranoiaUsed = false;
 	end
 
 	if (IsDead(self.target)) then 
@@ -283,7 +297,7 @@ function script_grind:run()
 			self.alive = false;
 			RepopMe();
 			self.message = "Releasing spirit...";
-			self.waitTimer = GetTimeEX() + 2500;
+			self.waitTimer = GetTimeEX() + 4500;
 			return;
 		end
 			self.message = script_helper:ress(GetCorpsePosition()); 
@@ -327,7 +341,7 @@ function script_grind:run()
 	--end
 
 	-- Rest out of combat
-	if (not IsInCombat() or script_info:nrTargetingMe() == 0) then
+	if (not IsInCombat() or (IsInCombat()) and script_info:nrTargetingMe() == 0) then
 		script_debug.debugGrind = "resting";
 		if ((not IsSwimming()) and (not IsFlying())) then
 			RunRestScript();
@@ -336,7 +350,9 @@ function script_grind:run()
 		end
 		if (self.shouldRest) then 
 			script_path:savePos(true); -- SAVE FOR UNSTUCK
-			self.message = "Resting..."; self.waitTimer = GetTimeEX() + 2500; return; end
+			self.message = "Resting..."; self.waitTimer = GetTimeEX() + 2500;
+			return;
+		end
 	else
 		-- Use Potions in combat
 		if (hp < self.potHp) then
@@ -397,20 +413,9 @@ function script_grind:run()
 			return;
 		end
 	end
-
-	-- stop if we are in combat and no target - stuck in combat
-	if (IsInCombat()) and (GetPet() == 0) and (GetUnitsTarget(GetLocalPlayer()) == 0) then
-		return;
-	end
 	
 	-- stop then we reach target if we are ranged class
-	if (HasSpell("Fireball") or
-		HasSpell("Smite") or
-		HasSpell("Shadow Bolt")) or
-		(HasSpell("Wrath") and
-			not HasBuff(localObj, "Cat Form") and
-			not HasBuff(localObj, "Bear Form") and
-			not HasBuff(localObj, "Dire Bear Form")) then
+	if (HasSpell("Fireball") or HasSpell("Smite") or HasSpell("Shadow Bolt")) or (HasSpell("Wrath") and not HasBuff(localObj, "Cat Form") and not HasBuff(localObj, "Bear Form") and not HasBuff(localObj, "Dire Bear Form")) then
 		if (script_pather.reachedHotspot) and (not IsInCombat()) and (GetDistance(self.target) <= 27) then
 			if (IsMoving()) then
 				StopMoving();
@@ -429,13 +434,6 @@ function script_grind:run()
 			end
 		end
 	end
-
-	-- stop when we reached target if melee class..
-	--if (script_pather.reachedHotspot) and (not IsInCombat()) and (GetDistance(self.target) <= 5) then
-	--	if (IsMoving()) then
-	--		StopMoving();
-	--	end
-	--end
 
 	-- Fetch a new target
 	if (self.skipMobTimer < GetTimeEX() or (IsInCombat() and script_info:nrTargetingMe() > 0)) then	
@@ -488,10 +486,6 @@ function script_grind:run()
 		self.message = "Don't fight in water...";
 		return;
 	end
-
-	if (IsInCombat()) and (GetPet() == 0) and (GetUnitsTarget(GetLocalPlayer()) == 0) then
-		return;
-	end
 	
 	-- If we have a valid target attack it
 	if (self.target ~= 0 and self.target ~= nil) then
@@ -517,14 +511,6 @@ function script_grind:run()
 				return;
 			end
 
-			-- stuck in combat wait for combat phase to end
-			if (IsInCombat()) and (GetPet() == 0)
-				and (GetUnitsTarget(GetLocalPlayer()) == 0)
-				and (not script_grind:isAnyTargetTargetingMe()) then			
-				script_debug.debugGrind = "Stuck in combat - no target";
-				return;
-			end
-
 			-- stuck in combat
 			if (IsInCombat()) and (GetPet() ~= 0) and (not script_hunter.useRotation) then
 				if (GetUnitsTarget(localObj) == 0) and (GetUnitsTarget(GetPet()) == 0) and (GetNumPartyMembers() < 1) then
@@ -540,14 +526,12 @@ function script_grind:run()
 				end
 			end
 
+			if (IsInCombat()) and (not script_grindEX2:isAnyTargetTargetingMe()) and (GetNumPartyMembers() == 0) then
+				return;
+			end
+
 			-- stop when we get close enough to target and we are a ranged class
-			if (HasSpell("Fireball")
-				or HasSpell("Smite")
-				or HasSpell("Shadow Bolt"))
-				or (HasSpell("Wrath")
-				and not HasBuff(localObj, "Cat Form")
-				and not HasBuff(localObj, "Bear Form")
-				and not HasBuff(localObj, "Dire Bear Form")) then
+			if (HasSpell("Fireball") or HasSpell("Smite") or HasSpell("Shadow Bolt")) or (HasSpell("Wrath") and not HasBuff(localObj, "Cat Form") and not HasBuff(localObj, "Bear Form") and not HasBuff(localObj, "Dire Bear Form")) then
 				if (GetDistance(self.target) <= 27) and (IsInLineOfSight(self.target)) then
 					if (IsMoving()) then
 						StopMoving();
@@ -577,36 +561,23 @@ function script_grind:run()
 			self.message = "Moving to target...";
 
 			-- force rogue stealth
-			if (not IsInCombat()) and (not script_checkDebuffs:hasPoison())
-				and (GetDistance(self.target) <= script_rogue.stealthRange)
-				and (GetHealthPercentage(GetLocalPlayer()) > script_rogue.eatHealth)
-				and (script_rogue.useStealth)
-				and (HasSpell("Stealth"))
-				and (not IsSpellOnCD("Stealth"))
-				and (not HasBuff(localObj, "Stealth"))
-			then
+			if (not IsInCombat()) and (not script_checkDebuffs:hasPoison()) and (GetDistance(self.target) <= script_rogue.stealthRange) and (GetHealthPercentage(GetLocalPlayer()) > script_rogue.eatHealth) and (script_rogue.useStealth) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not HasBuff(localObj, "Stealth")) then
 				if (CastSpellByName("Stealth")) then
 					return;
 				end
 			end
 
+
 			-- move to target...
 			if (not self.raycastPathing) then
-				if (not HasSpell("Fireball") or
-					not HasSpell("Shadow Bolt") or
-					not HasSpell("Smite") or
-					not HasSpell("Raptor Strike")) or
-					(HasBuff(localObj, "Cat Form")) or
-					(HasBuff(localObj, "Bear Form")) or
-					(HasBuff(localObj, "Dire Bear Form"))
-					and (GetDistance(self.target) > 2) then
+				if (not HasSpell("Fireball") or not HasSpell("Shadow Bolt") or not HasSpell("Smite") or not HasSpell("Raptor Strike")) or (HasBuff(localObj, "Cat Form")) or (HasBuff(localObj, "Bear Form")) or (HasBuff(localObj, "Dire Bear Form")) and (GetDistance(self.target) > 2) then
 					if (not self.adjustTickRate) then
 						script_grind.tickRate = 50;
 					end
-					local moveBuffer = math.random(-1, 2);
+					local moveBuffer = math.random(-1, 1);
 					local x, y, z = GetPosition(self.target);
 					if (MoveToTarget(x+moveBuffer, y+moveBuffer, z)) then
-					self.waitTimer = GetTimeEX() + 100;
+						self.waitTimer = GetTimeEX() + 100;
 					else
 						if (GetDistance(self.target) <= 2) then
 							if (IsMoving()) then
@@ -619,7 +590,7 @@ function script_grind:run()
 					if (not self.adjustTickRate) then
 						script_grind.tickRate = 50;
 					end
-					local moveBuffer = math.random(-1, 2);
+					local moveBuffer = math.random(-1, 1);
 					local x, y, z = GetPosition(self.target);
 					MoveToTarget(x+moveBuffer, y+moveBuffer, z);
 					self.waitTimer = GetTimeEX() + 100;
@@ -631,14 +602,7 @@ function script_grind:run()
 			if (self.raycastPathing) and (not HasDebuff(self.target, "Frost Nova")) then
 				local tarDist = GetDistance(self.target);
 				local cx, cy, cz = GetPosition(self.target);
-				if (not HasSpell("Fireball") or
-					not HasSpell("Shadow Bolt") or
-					not HasSpell("Smite") or
-					not HasSpell("Raptor Strike")) or
-					(HasBuff(localObj, "Cat Form")) or
-					(HasBuff(localObj, "Bear Form")) or
-					(HasBuff(localObj, "Dire Bear Form"))
-					and (tarDist > 2) then
+				if (not HasSpell("Fireball") or not HasSpell("Shadow Bolt") or not HasSpell("Smite") or not HasSpell("Raptor Strike")) or (HasBuff(localObj, "Cat Form")) or (HasBuff(localObj, "Bear Form")) or (HasBuff(localObj, "Dire Bear Form")) and (tarDist > 2) then
 					script_pather:moveToTarget(cx, cy, cz);
 					if (GetDistance(self.target) <= 2) then
 						if (IsMoving()) then
@@ -677,7 +641,7 @@ function script_grind:run()
 		ResetNavigate();
 		RunCombatScript(self.target)
 
-		if (IsInCombat()) and ( (script_grind.enemiesAttackingUs() >= 2 and GetHealthPercentage(GetLocalPlayer()) <= 75) or 
+		if (IsInCombat()) and ( (script_grindEX2.enemiesAttackingUs() >= 2 and GetHealthPercentage(GetLocalPlayer()) <= 75) or 
 			(GetHealthPercentage(GetLocalPlayer()) <= 40) ) then
 			if (HasSpell("Gift of the Naaru")) and (not IsSpellOnCD("Gift of the Naaru")) and (not HasBuff(localObj, "Gift of the Naaru")) then
 				Cast("Gift of the Naaru", localObj);
@@ -698,18 +662,24 @@ function script_grind:run()
 
 	-- Mount before pathing
 	if (not IsMounted() and self.target ~= nil and self.target ~= 0 and IsOutdoors() and self.tryMountTime < GetTimeEX()) then
-		if (IsMoving()) then StopMoving(); return; end
-		script_helper:useMount(); self.tryMountTime = GetTimeEX() + 10000; return;
+		if (IsMoving()) then StopMoving();
+			return;
+		end
+		script_helper:useMount();
+		self.tryMountTime = GetTimeEX() + 10000;
+		return;
 	end
 
 	-- When no valid targets around, run auto pathing
 	if (not IsInCombat() and (IsUsingNavmesh() or self.raycastPathing)) then
 		script_debug.debugGrind = "no valid enemy, auto pathing";
-		self.message = script_path:autoPath(); end
+		self.message = script_path:autoPath();
+	end
 
 	if (not IsUsingNavmesh() and not self.raycastPathing) then
 		script_debug.debugGrind = "not using nav or raycast pathing - walk path";
-		self.message = "Navigating the walk path..."; Navigate(); end
+		self.message = "Navigating the walk path..."; Navigate();
+	end
 end
 
 function script_grind:turnfOffLoot(reason)
@@ -729,125 +699,4 @@ end
 
 function script_grind:restOff()
 	self.shouldRest = false;
-end
-
-function script_grind:playersTargetingUs() -- returns number of players attacking us
-	local nrPlayersTargetingUs = 0; 
-	local i, type = GetFirstObject(); 
-	while i ~= 0 do 
-		if type == 4 then
-			if (script_grind:isTargetingMe(i)) then 
-                		nrPlayersTargetingUs = nrPlayersTargetingUs + 1;
-			end 
-		end
-		i, type = GetNextObject(i); 
-	end
-	return nrPlayersTargetingUs;
-end
-
-function script_grind:isTargetingMe(i) 
-	local localPlayer = GetLocalPlayer();
-	if (localPlayer ~= nil and localPlayer ~= 0 and not IsDead(localPlayer)) then
-		if (GetUnitsTarget(i) ~= nil and GetUnitsTarget(i) ~= 0) then
-			return GetUnitsTarget(GetGUID(i)) == GetGUID(localPlayer);
-		end
-	end
-	return false;
-end
-
-function script_grind:isAnyTargetTargetingMe() 
-	local localPlayer = GetLocalPlayer();
-	if (localPlayer ~= nil and localPlayer ~= 0 and not IsDead(localPlayer)) then
-		while i ~= 0 do
-			if (GetDistance(i) <= 45) and (not IsDead(i)) and (not IsCritter(i)) and (CanAttack(i)) then
-				if (GetUnitsTarget(i) ~= nil and GetUnitsTarget(i) ~= 0) then
-					if (GetUnitsTarget(GetGUID(i)) == GetGUID(localPlayer)) then
-						return true;
-					end
-				end
-			end
-		end
-	end
-return false;
-end
-
--- add target to blacklist table by GUID
-function script_grind:addTargetToBlacklist(targetGUID)
-	if (targetGUID ~= nil and targetGUID ~= 0 and targetGUID ~= '') then	
-		self.blacklistedTargets[self.blacklistedNum] = targetGUID;
-		self.blacklistedNum = self.blacklistedNum + 1;
-	end
-end
-
--- check if target is blacklisted by table GUID
-function script_grind:isTargetBlacklisted(targetGUID) 
-	for i=0,self.blacklistedNum do
-		if (targetGUID == self.blacklistedTargets[i]) then
-			return true;
-		end
-	end
-	return false;
-end
-
-function script_grind:enemiesAttackingUs() -- returns number of enemies attacking us
-	local unitsAttackingUs = 0; 
-        local localPlayer = GetLocalPlayer();
-	local i, t = GetFirstObject(); 
-	while i ~= 0 do 
-    		if t == 3 then
-			if (CanAttack(i) and not IsDead(i)) then
-				if (localPlayer ~= nil and localPlayer ~= 0 and not IsDead(localPlayer)) then
-					if (GetUnitsTarget(i) ~= nil and GetUnitsTarget(i) ~= 0) then
-	                			unitsAttackingUs = unitsAttackingUs + 1; 
-	                		end 
-				end
-	            	end 
-	       	end
-	i, t = GetNextObject(i); 
-    end
-    return unitsAttackingUs;
-end
-
-function script_grind:enemiesAttackingPet() -- returns number of enemies attacking us
-	local unitsAttackingPet = 0; 
-	local pet = GetPet();
-	local i, t = GetFirstObject(); 
-
-	-- if we have a pet
-	if (pet ~= nil and pet ~= 0 and not IsDead(pet)) then
-
-		while i ~= 0 do 
-    			if t == 3 then
-				if (CanAttack(i) and not IsDead(i)) then
-				
-					-- if target is targeting pet then
-					if (GetUnitsTarget(i) ~= nil and GetUnitsTarget(i) ~= 0) then
-	
-						if (GetUnitsTarget(GetGUID(i)) == GetGUID(pet)) then
-	                				unitsAttackingPet = unitsAttackingPet + 1; 
-						end
-	                		end 
-				end
-	            	end 
-		i, t = GetNextObject(i); 
-	       	end
-	end
-    return unitsAttackingPet;
-end
-
-
-function script_grind:isTargetingPet(i) 
-	local pet = GetPet();
-
-	-- if we have a pet
-	if (pet ~= nil and pet ~= 0 and not IsDead(pet)) then
-
-		-- if target is targeting pet then
-		if (GetUnitsTarget(i) ~= nil and GetUnitsTarget(i) ~= 0) then
-
-			-- return true
-			return GetUnitsTarget(GetTargetGUID(i)) == GetTargetGUID(pet);
-		end
-	end
-	return false;
 end

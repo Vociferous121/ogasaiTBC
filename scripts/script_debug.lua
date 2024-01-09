@@ -64,4 +64,15 @@ function script_debug:menu()
 	--end
 	local path = script_pather.updatePathDist;
 	Text("Pather update path distance " ..path);
+
+
+	Separator();
+	Text("Paranoia Time...");
+	local paraTime = script_grind.currentTime;
+	local paraTime2 = script_grind.currentTime2;
+	Text(""..paraTime);
+	Text(""..paraTime2);
+
+	local testTimer = (script_grind.currentTime + script_grind.setLogoutTime) - script_grind.currentTime2;
+	Text(""..testTimer);
 end

@@ -82,7 +82,6 @@ end
 
 function script_path:distToSavedPos()
 	local x, y, z = GetPosition(GetLocalPlayer());
-
 	return math.sqrt((x-self.savedPos['x'])^2 + (y-self.savedPos['y'])^2);
 end
 

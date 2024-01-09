@@ -7,6 +7,7 @@ script_paranoid = {
 	logoutOnParanoid = false,
 	logoutTimerSet =  false,
 	paranoiaUsed = false,
+	stopMovement = true,
 }
 
 function script_paranoid:doParanoia()
@@ -19,10 +20,18 @@ function script_paranoid:doParanoia()
 		-- if players in range
 		if (script_paranoid:playersWithinRange(self.paranoidRange)) then
 
-			if (not script_grind.timerSet) then
-				script_grind.timerSet = true;
-				script_grind.currentTime = GetTimeEX();
+			if (not self.logoutTimerSet) then
 				script_grind.currentTime2 = GetTimeEX();
+				self.logoutTimerSet = true;
+			end
+			
+			if (HasSpell("Stealth")) and (not IsInCombat()) and (not IsSpellOnCD("Stealth")) and (not HasBuff(localObj, "Stealth")) then
+				CastSpellByName("Stealth");
+				return;
+			end
+			if (HasSpell("Prowl")) and (HasBuff(localObj, "Cat Form")) and (not IsInCombat()) and (not IsSpelOnCD("Prowl")) and (not HasBuff(localObj, "Prowl")) then
+				CastSpellByName("Prowl");
+				return;
 			end
 
 		return true;
