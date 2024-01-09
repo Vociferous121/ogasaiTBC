@@ -259,7 +259,7 @@ function script_rogue:run(targetObj)
 					return;
 				else
 					-- Auto attack
-					UnitInteract(targetObj);
+					--UnitInteract(targetObj);
 					script_debug.debugCombat = "unit interact";
 	
 				end
@@ -344,7 +344,7 @@ function script_rogue:run(targetObj)
 				-- Auto attack
 				if (not self.useRotation) then
 					script_debug.debugCombat = "unit interact";
-					UnitInteract(targetObj);
+					--UnitInteract(targetObj);
 				end
 
 				-- Check: Use Riposte whenever we can

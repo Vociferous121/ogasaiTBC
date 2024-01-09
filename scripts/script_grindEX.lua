@@ -104,12 +104,10 @@ function script_grindEX:doChecks()
 
 	if (script_grind.unStuckTime > GetTimeEX()) then
 		script_target:resetLoot(); -- remove loot so we dont stuck on loot targets we cant reach
-		if (not self.unstuckRight) and (not IsMoving()) then
+		if (not self.unstuckRight) then
 			StrafeRightStart();
 		else
-			if (not IsMoving()) then
-				StrafeLeftStart();
-			end
+			StrafeLeftStart();
 		end
 		script_helper:jump();
 		if (script_grind.raycastPathing) then
@@ -118,12 +116,10 @@ function script_grindEX:doChecks()
 		return true;
 	end
 
-	if (not self.unstuckRight) and (not IsMoving()) then
+	if (not self.unstuckRight) then
 		StrafeRightStop();
 	else
-		if (not IsMoving()) then
-			StrafeLeftStop();
-		end
+		StrafeLeftStop();
 	end
 
 	-- Check: Unstuck feature

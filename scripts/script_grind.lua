@@ -527,7 +527,14 @@ function script_grind:run()
 			end
 
 			if (IsInCombat()) and (not script_grindEX2:isAnyTargetTargetingMe()) and (GetNumPartyMembers() == 0) then
+				-- Loot
+				if (script_target:isThereLoot() and not IsInCombat() and not AreBagsFull() and not self.bagsFull) then
+					self.message = "Looting... (enable auto loot)";
+					script_target:doLoot();
+					script_debug.debugGrind = "trying to loot";
 				return;
+				end
+			return;
 			end
 
 			-- stop when we get close enough to target and we are a ranged class
@@ -575,6 +582,9 @@ function script_grind:run()
 						script_grind.tickRate = 50;
 					end
 					local moveBuffer = math.random(-1, 1);
+					if (HasBuff(localObj, "Stealth")) or (HasBuff(localObj, "Prowl")) then
+						moveBuffer = 0;
+					end
 					local x, y, z = GetPosition(self.target);
 					if (MoveToTarget(x+moveBuffer, y+moveBuffer, z)) then
 						self.waitTimer = GetTimeEX() + 100;
@@ -591,6 +601,9 @@ function script_grind:run()
 						script_grind.tickRate = 50;
 					end
 					local moveBuffer = math.random(-1, 1);
+					if (HasBuff(localObj, "Stealth")) or (HasBuff(localObj, "Prowl")) then
+						moveBuffer = 0;
+					end
 					local x, y, z = GetPosition(self.target);
 					MoveToTarget(x+moveBuffer, y+moveBuffer, z);
 					self.waitTimer = GetTimeEX() + 100;
