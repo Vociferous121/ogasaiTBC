@@ -24,8 +24,8 @@ script_grind = {
 	targetTimer = GetTimeEX();
 	pullDistance = 30,
 	waitTimer = 0,
-	tickRate = 550,
-	adjustTickRate = false,
+	tickRate = 1000,
+	adjustTickRate = true,
 	restHp = 60,
 	restMana = 60,
 	potHp = 10,
@@ -149,6 +149,9 @@ function script_grind:run()
 	end
 
 	self.currentTime = GetTimeEX();
+	script_rogue.waitTimer = GetTimeEX();
+	--script_mage.waitTimer = GetTimeEX();
+
 
 	-- draw move path
 	if (IsMoving()) and (self.drawPath) then
@@ -387,10 +390,18 @@ function script_grind:run()
 
 	-- Loot
 	if (script_target:isThereLoot() and not IsInCombat() and not AreBagsFull() and not self.bagsFull) then
-		self.message = "Looting... (enable auto loot)";
-		script_target:doLoot();
-		script_debug.debugGrind = "trying to loot";
-	return;
+		self.message = "Looting... (enable auto loot)"; script_target:doLoot(); return;
+	end
+
+	-- stuck in combat
+	if (IsInCombat()) and (not script_grindEX2:isAnyTargetTargetingMe()) and (GetHealthPercentage(GetUnitsTarget(localObj)) >= 100)
+		and (GetDistance(GetUnitsTarget(localObj)) > 10) then
+		self.message = "Stuck in combat... waiting...";
+		if (IsMoving()) then
+			StopMoving();
+			return;
+		end
+	return true;
 	end
 
 	-- Wait for group members
@@ -422,7 +433,7 @@ function script_grind:run()
 	
 	-- stop then we reach target if we are ranged class
 	if (HasSpell("Fireball") or HasSpell("Smite") or HasSpell("Shadow Bolt")) or (HasSpell("Wrath") and not HasBuff(localObj, "Cat Form") and not HasBuff(localObj, "Bear Form") and not HasBuff(localObj, "Dire Bear Form")) then
-		if (script_pather.reachedHotspot) and (not IsInCombat()) and (GetDistance(self.target) <= 27) then
+		if (script_path.reachedHotspot) and (not IsInCombat()) and (GetDistance(self.target) <= 27) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
 			if (IsMoving()) then
 				StopMoving();
 				return;
@@ -432,8 +443,8 @@ function script_grind:run()
 	
 	-- stop when we have reached hotspot to attack target if we are a hunter class
 	if (HasSpell("Raptor Strike")) then
-		if (script_pather.reachedHotspot) and (not IsInCombat())
-			and (GetDistance(self.target) <= 30) and (IsInLineOfSight(self.target)) then
+		if (script_path.reachedHotspot) and (not IsInCombat())
+			and (GetDistance(self.target) <= 30) and (IsInLineOfSight(self.target)) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
 			if (IsMoving()) then
 				StopMoving();
 				return;
@@ -495,11 +506,14 @@ function script_grind:run()
 	
 	-- If we have a valid target attack it
 	if (self.target ~= 0 and self.target ~= nil) then
+
 		script_debug.debugGrind = "attack valid target";
 		if (GetDistance(self.target) < self.pullDistance and IsInLineOfSight(self.target)) and (not IsMoving() or GetDistance(self.target) <= 4) then
-			if (IsMoving()) then
-				StopMoving();
-				return;
+			if (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
+				if (IsMoving()) then
+					StopMoving();
+					return;
+				end
 			end
 			if (not IsMoving()) then
 				FaceTarget(self.target);
@@ -532,20 +546,9 @@ function script_grind:run()
 				end
 			end
 
-			if (IsInCombat()) and (not script_grindEX2:isAnyTargetTargetingMe()) and (GetNumPartyMembers() == 0) then
-				-- Loot
-				if (script_target:isThereLoot() and not IsInCombat() and not AreBagsFull() and not self.bagsFull) then
-					self.message = "Looting... (enable auto loot)";
-					script_target:doLoot();
-					script_debug.debugGrind = "trying to loot";
-				return;
-				end
-			return;
-			end
-
 			-- stop when we get close enough to target and we are a ranged class
 			if (HasSpell("Fireball") or HasSpell("Smite") or HasSpell("Shadow Bolt")) or (HasSpell("Wrath") and not HasBuff(localObj, "Cat Form") and not HasBuff(localObj, "Bear Form") and not HasBuff(localObj, "Dire Bear Form")) then
-				if (GetDistance(self.target) <= 27) and (IsInLineOfSight(self.target)) then
+				if (GetDistance(self.target) <= 27) and (IsInLineOfSight(self.target)) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
 					if (IsMoving()) then
 						StopMoving();
 						return;
@@ -555,7 +558,7 @@ function script_grind:run()
 
 			-- stop when we get close enough to target and we are a hunter class
 			if (HasSpell("Raptor Strike")) then
-				if (GetDistance(self.target) <= 30) and (IsInLineOfSight(self.target)) then
+				if (GetDistance(self.target) <= 30) and (IsInLineOfSight(self.target)) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
 					if (IsMoving()) then
 						StopMoving();
 						return;
@@ -564,7 +567,7 @@ function script_grind:run()
 			end
 
 			-- stop when we get close enough to target and we are a melee class
-			if (GetDistance(self.target) <= 4) and (GetHealthPercentage(self.target) > 30) then
+			if (GetDistance(self.target) <= 4) and (GetHealthPercentage(self.target) > 30) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
 				if (IsMoving()) then
 					StopMoving();
 					return;
@@ -578,9 +581,10 @@ function script_grind:run()
 				self.message = "Waiting for stealth cooldown...";
 				if (IsMoving()) then
 					StopMoving();
+					return;
 				end
-				script_path.savedPos['time'] = GetTimeEX();
-				return;
+			script_path.savedPos['time'] = GetTimeEX();
+			return;
 			end
 
 			-- force rogue stealth
@@ -593,6 +597,7 @@ function script_grind:run()
 
 			-- move to target...
 			if (not self.raycastPathing) then
+
 				if (not HasSpell("Fireball") or not HasSpell("Shadow Bolt") or not HasSpell("Smite") or not HasSpell("Raptor Strike")) or (HasBuff(localObj, "Cat Form")) or (HasBuff(localObj, "Bear Form")) or (HasBuff(localObj, "Dire Bear Form")) and (GetDistance(self.target) > 2) then
 					if (not self.adjustTickRate) then
 						script_grind.tickRate = 50;
@@ -602,17 +607,19 @@ function script_grind:run()
 						moveBuffer = 0;
 					end
 					local x, y, z = GetPosition(self.target);
-					if (MoveToTarget(x+moveBuffer, y+moveBuffer, z)) then
-						self.waitTimer = GetTimeEX() + 100;
-					else
-						if (GetDistance(self.target) <= 2) then
-							if (IsMoving()) then
-								StopMoving();
-								return;
+					if (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
+						if (MoveToTarget(x+moveBuffer, y+moveBuffer, z)) then
+							self.waitTimer = GetTimeEX() + 300;
+						else
+							if (GetDistance(self.target) <= 2) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
+								if (IsMoving()) then
+									StopMoving();
+									return;
+								end
 							end
 						end
 					end
-				elseif (GetDistance(self.target) > 27) or (not IsInLineOfSight(self.target)) then
+				elseif (GetDistance(self.target) > 27 or not IsInLineOfSight(self.target)) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
 					if (not self.adjustTickRate) then
 						script_grind.tickRate = 50;
 					end
@@ -622,7 +629,7 @@ function script_grind:run()
 					end
 					local x, y, z = GetPosition(self.target);
 					MoveToTarget(x+moveBuffer, y+moveBuffer, z);
-					self.waitTimer = GetTimeEX() + 100;
+					self.waitTimer = GetTimeEX() + 300;
 				end
 				return;
 			end
@@ -633,7 +640,7 @@ function script_grind:run()
 				local cx, cy, cz = GetPosition(self.target);
 				if (not HasSpell("Fireball") or not HasSpell("Shadow Bolt") or not HasSpell("Smite") or not HasSpell("Raptor Strike")) or (HasBuff(localObj, "Cat Form")) or (HasBuff(localObj, "Bear Form")) or (HasBuff(localObj, "Dire Bear Form")) and (tarDist > 2) then
 					script_pather:moveToTarget(cx, cy, cz);
-					if (GetDistance(self.target) <= 2) then
+					if (GetDistance(self.target) <= 2)and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
 						if (IsMoving()) then
 							StopMoving();
 							return;
@@ -643,7 +650,7 @@ function script_grind:run()
 				elseif (GetDistance(self.target) > 27) then
 					script_pather:moveToTarget(cx, cy, cz);
 					self.waitTimer = GetTimeEX() + 50;
-					if (GetDistance(self.target) <= 27) then
+					if (GetDistance(self.target) <= 27) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
 						if (IsMoving()) then
 							StopMoving();
 							return;
@@ -654,14 +661,14 @@ function script_grind:run()
 			end
 		
 		end
-		
-		-- Loot
-		if (script_target:isThereLoot() and not IsInCombat() and not AreBagsFull() and not self.bagsFull) then
-			self.message = "Looting... (enable auto loot)";
-			script_target:doLoot();
-			script_debug.debugGrind = "trying to loot";
-		return;
-		end
+
+		if (IsInCombat()) and ( (script_grindEX2.enemiesAttackingUs() >= 2 and GetHealthPercentage(GetLocalPlayer()) <= 75) or 
+			(GetHealthPercentage(GetLocalPlayer()) <= 40) ) then
+			if (HasSpell("Gift of the Naaru")) and (not IsSpellOnCD("Gift of the Naaru")) and (not HasBuff(localObj, "Gift of the Naaru")) then
+				Cast("Gift of the Naaru");
+				
+			end
+		end	
 
 		self.message = 'Attacking target...';
 		script_debug.debugGrind = "Attacking the target";
@@ -669,14 +676,6 @@ function script_grind:run()
 		script_pather:resetPath();
 		ResetNavigate();
 		RunCombatScript(self.target)
-
-		if (IsInCombat()) and ( (script_grindEX2.enemiesAttackingUs() >= 2 and GetHealthPercentage(GetLocalPlayer()) <= 75) or 
-			(GetHealthPercentage(GetLocalPlayer()) <= 40) ) then
-			if (HasSpell("Gift of the Naaru")) and (not IsSpellOnCD("Gift of the Naaru")) and (not HasBuff(localObj, "Gift of the Naaru")) then
-				Cast("Gift of the Naaru", localObj);
-				
-			end
-		end	
 
 		-- Unstuck feature on valid "working" targets
 		if (GetTarget() ~= 0 and GetTarget() ~= nil) then

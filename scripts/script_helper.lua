@@ -56,20 +56,30 @@ function script_helper:ress(x, y, z)
 
 	self.waitTimer = GetTimeEX() + 350;
 
-	RepopMe();
+	if (not IsDead(GetLocalPlayer())) then
+		RepopMe();
+	end
 
-	RetrieveCorpse();
-	
+	local x, y, z = GetCorpsePosition();
+	local xx, yy, zz = GetPosition(GetLocalPlayer());
+	if (GetDistance3D(x, y, z, xx, yy, zz) <= 30) then
+		RetrieveCorpse();
+	end
+
 	if (IsUsingNavmesh() or script_grind.raycastPathing) then
 		if (not script_grind.raycastPathing) then
 			MoveToTarget(x, y, z);
+			script_grind.waitTimer = GetTimeEX() + 350;
+
 		else
 			script_pather:moveToTarget(x, y, z);
+			script_grind.waitTimer = GetTimeEX() + 350;
+
 
 		end
 	else
 		if (IsPathLoaded(1)) then
-			script_grind.waitTimer = GetTimeEX() + 200;
+			script_grind.waitTimer = GetTimeEX() + 350;
 			Grave();
 		else
 			return "No grave path loaded...";

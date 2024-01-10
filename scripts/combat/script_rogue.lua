@@ -20,8 +20,6 @@ script_rogue = {
 
 function script_rogue:setup()
 
-	self.waitTimer = GetTimeEX();
-
 	DEFAULT_CHAT_FRAME:AddMessage('script_rogue: loaded...');
 
 --set backstab as opener
@@ -65,6 +63,8 @@ function script_rogue:setup()
 	if (not HasSpell("Pick Pocket")) then
 		usePickPocket = false;
 	end
+
+	--self.waitTimer = GetTimeEX();
 
 	self.isSetup = true;
 end
@@ -139,7 +139,7 @@ function script_rogue:run(targetObj)
 	local targetHealth = GetHealthPercentage(targetObj);
 
 	-- Pre Check
-	if (IsChanneling() or IsCasting() or self.waitTimer > GetTimeEX()) then
+	if (self.waitTimer > GetTimeEX()) then
 		return;
 	end
 
@@ -170,6 +170,8 @@ function script_rogue:run(targetObj)
 		-- cast stealth
 		if (not IsInCombat()) and (script_rogue.useStealth) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not HasBuff(localObj, "Stealth")) then
 			if (CastSpellByName("Stealth")) then
+				self.waitTimer = GetTimeEX() + 1650;
+				script_grind.waitTimer = GetTimeEX() + 1650;
 				return;
 			end
 		end
@@ -186,20 +188,6 @@ function script_rogue:run(targetObj)
 			end
 		end
 
-		-- set tick rate for script to run
-		if (not script_grind.adjustTickRate) then
-	
-			local tickRandom = random(256, 311);
-	
-			if (IsMoving()) or (not IsInCombat()) or (IsFleeing(targetObj)) then
-				script_grind.tickRate = 135;
-			elseif (not IsInCombat()) and (not IsMoving()) and (not IsFleeing(targetObj)) then
-				script_grind.tickRate = tickRandom
-			elseif (IsInCombat()) and (not IsMoving())and (not IsFleeing(targetObj)) then
-				script_grind.tickRate = tickRandom;
-			end
-		end
-
 		-- try to stop if we are stunned...
 		if (IsStunned(GetLocalPlayer())) then
 			return;
@@ -208,7 +196,8 @@ function script_rogue:run(targetObj)
 		-- cold blood
 		if (HasSpell("Cold Blood")) and (not IsSpellOnCD("Cold Blood")) and (not localObj:HasBuff("Cold Blood")) and (not IsInCombat()) then
 			if (CastSpellByName("Cold Blood")) then
-				return;
+				self.waitTimer = GetTimeEX() + 1650;
+				return true;
 			end
 		end
 
@@ -217,14 +206,15 @@ function script_rogue:run(targetObj)
 		if (not IsInCombat()) then
 
 			-- Check: Use Stealth before oponer
-			if (self.useStealth and HasSpell('Stealth')) and (not HasBuff(localObj, 'Stealth')) and (GetDistance(self.target) <= self.stealthRange) then
+			if (self.useStealth and HasSpell('Stealth')) and (not HasBuff(localObj, 'Stealth')) and (GetDistance(self.target) <= self.stealthRange) and (not IsSpellOnCD("Stealth")) then
 				script_debug.debugCombat = "using stealth";
 				if (CastSpellByName('Stealth')) then
-					return;
+					self.waitTimer = GetTimeEX() + 1650;
+					return true;
 				end
 			else
 				-- Check: Use Throw	
-				if (self.useThrow and script_rogue:hasThrow()) then
+				if (self.useThrow and script_rogue:hasThrow()) and (not IsSpellOnCD("Throw")) then
 					if (IsSpellOnCD('Throw')) then
 						script_debug.debugCombat = "using throw";
 						self.waitTimer = GetTimeEX() + 4000;
@@ -235,7 +225,8 @@ function script_rogue:run(targetObj)
 						return;
 					end
 					if (Cast('Throw', targetGUID)) then 
-						return;
+						self.waitTimer = GetTimeEX() + 1500;
+						return true;
 					end 
 					return;
 				end
@@ -243,35 +234,38 @@ function script_rogue:run(targetObj)
 
 			local creatureType = GetCreatureType(GetUnitsTarget(GetLocalPlayer()));
 
-			if (strfind("Humanoid", creatureType)) and (HasBuff(localObj, "Stealth")) and (HasSpell("Pick Pocket")) and (GetDistance(targetObj) <= 6) and (self.useStealth) then
+			if (strfind("Humanoid", creatureType)) and (HasBuff(localObj, "Stealth")) and (HasSpell("Pick Pocket")) and (GetDistance(targetObj) <= 6) and (self.useStealth) and (not IsSpellOnCD("Pick Pocket")) then
 					if (not script_grind.adjustTickRate) then
 						script_grind.tickRate = 1500;
 					end
 				if (CastSpellByName("Pick Pocket")) then
 					StopMoving();
+					self.waitTimer = GetTimeEX() + 1650;
 					script_grind.waitTimer = GetTimeEX() + 4500;
 				return;
 				end
 			end
 				
 			-- Open with stealth opener
-			if (GetDistance(targetObj) <= 5 and self.useStealth and HasSpell(self.stealthOpener) and HasBuff(localObj, "Stealth")) and (not IsInCombat()) and (GetUnitsTarget(GetLocalPlayer()) ~= 0) then
-				CastSpellByName(self.stealthOpener);
-				local x, y, z = GetPosition(GetUnitsTarget(GetLocalPlayer()));
-				script_grind.waitTimer = GetTimeEX() + 2500;
-				if (not self.useRotation) then
-					if (Move(x+2, y+2, z)) then	
-						script_grind.waitTimer = GetTimeEX() + 2500;
+			if (GetDistance(targetObj) <= 5 and self.useStealth and HasSpell(self.stealthOpener) and HasBuff(localObj, "Stealth")) and (not IsInCombat()) and (GetUnitsTarget(GetLocalPlayer()) ~= 0) and (not IsSpellOnCD(self.stealthOpener)) then
+				if (CastSpellByName(self.stealthOpener)) then
+					local x, y, z = GetPosition(GetUnitsTarget(GetLocalPlayer()));
+					self.waitTimer = GetTimeEX() + 1650;
+					script_grind.waitTimer = GetTimeEX() + 2500;
+					if (not self.useRotation) then
+						if (Move(x+2, y+2, z)) then	
+							self.waitTimer = GetTimeEX() + 1650;
+							script_grind.waitTimer = GetTimeEX() + 2500;
+						end
 					end
 				end
 			end
 
 			-- Use CP generator attack 
-			if (not self.useStealth or not HasBuff(localObj, "Stealth")) and (localEnergy >= self.cpGeneratorCost) and (HasSpell(self.cpGenerator)) and (GetDistance(self.target) <= 5) then
+			if (not self.useStealth or not HasBuff(localObj, "Stealth")) and (localEnergy >= self.cpGeneratorCost) and (HasSpell(self.cpGenerator)) and (GetDistance(self.target) <= 5) and (not IsSpellOnCD(self.cpGenerator)) then
 				if (CastSpellByName(self.cpGenerator)) then
-					self.waitTimer = GetTimeEX() + 1500;
-					script_grind.waitTimer = GetTimeEX() + 1250;
-					return true;
+					self.waitTimer = GetTimeEX() + 2050;
+					script_grind.waitTimer = GetTimeEX() + 2050;
 				end
 			end
 
@@ -324,18 +318,21 @@ function script_rogue:run(targetObj)
 			if (HasSpell('Evasion') and not IsSpellOnCD('Evasion')) then
 				if (localHealth < targetHealth and localHealth < 50) then
 					script_debug.debugCombat = "use evasion";
-					CastSpellByName('Evasion');
-					return; 
+					if (CastSpellByName('Evasion')) then
+						self.waitTimer = GetTimeEX() + 1650;
+						return true;
+					end 
 				end
 			end
 
 			-- Check: Kick Spells
-			if (HasSpell('Kick')) then
+			if (HasSpell('Kick')) and (not IsSpellOnCD("Kick")) then
 			local name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo("target");
 				if (name ~= nil) then
 					script_debug.debugCombat = "use kick";
 					if (Cast('Kick', targetGUID)) then 
-						return;
+						self.waitTimer = GetTimeEX() + 1650;
+						return true;
 					end 
 				end
 			end
@@ -345,19 +342,21 @@ function script_rogue:run(targetObj)
 				if (name ~= nil) then
 					if (cp >= 1) and (not IsSpellOnCD('Kidney Shot')) and (localEnergy >= 25) then	
 						if (Cast('Kidney Shot', targetObj)) then
-							return;
+							self.waitTimer = GetTimeEX() + 1650;
+							return true;
 						end
 					end
 				end
 			end
 
 			-- Check: gouge Spells
-			if (HasSpell('Gouge')) then
+			if (HasSpell('Gouge')) and (not IsSpellOnCD("Gouge")) then
 			local name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo("target");
 				if (name ~= nil) then
 					script_debug.debugCombat = "use gouge";
 					if (Cast('Gouge', targetGUID)) then 
-						return;
+						self.waitTimer = GetTimeEX() + 1650;
+						return true;
 					end 
 				end
 			end
@@ -377,19 +376,23 @@ function script_rogue:run(targetObj)
 				-- Check: Use Riposte whenever we can
 				if (HasSpell("Riposte")) and (script_rogue:canRiposte() and not IsSpellOnCD("Riposte")) and (localEnergy >= 10) then 
 					if (Cast("Riposte", targetObj)) then
-						self.waitTimer = GetTimeEX() + 1500;
-						return;					
+						self.waitTimer = GetTimeEX() + 1650;
+						script_grind.waitTimer = GetTimeEX() + 1650;
+						return true;					
 					end
 				end
 
 				if (GetNumPartyMembers() >= 1) and (HasSpell("Feint")) and (script_grindEX2:isTargetingMe(targetObj))
-					and (not IsSpellOnCD("Feint")) and (localEnergy >= 20) then
-					CastSpellByName("Feint");
-					return true;
+					and (not IsSpellOnCD("Feint")) and (localEnergy >= 20) and (not IsSpellOnCD("Feint")) then
+					if (CastSpellByName("Feint")) then
+						self.waitTimer = GetTimeEX() + 1650;
+						return true;
+					end
 				end
 
 				if (HasSpell("Ghostly Strike")) and (not IsSpellOnCD("Ghostly Strike")) and (localEnergy >= 40) then
 					if (CastSpellByName("Ghostly Strike")) then
+						self.waitTimer = GetTimeEX() + 1650;
 						return true;
 					end
 				end
@@ -400,32 +403,41 @@ function script_rogue:run(targetObj)
 				if (add ~= nil and HasSpell('Blade Flurry') and not IsSpellOnCD('Blade Flurry')) then
 					if (GetDistance(add) < 5) then
 					script_debug.debugCombat = "blade flurry";
-						CastSpellByName("Blade Flurry");
-						return;
+						if (CastSpellByName("Blade Flurry")) then
+							self.waitTimer = GetTimeEX() + 1650;
+							return true;
+						end
 					end
 				end
 
 				if (script_info:nrTargetingMe() >= 3) then
 					if (HasSpell('Adrenaline Rush') and not IsSpellOnCD('Adrenaline Rush')) then
 						script_debug.debugCombat = "adrenaline rush";
-						CastSpellByName('Adrenaline Rush');
+						if (CastSpellByName('Adrenaline Rush')) then
+							self.waitTimer = GetTimeEX() + 1650;
+							return true;
+						end
 					end
 				end
 
 				-- Use Riposte when we can
-				if(script_rogue:canRiposte() and HasSpell("Riposte")) then
+				if(script_rogue:canRiposte() and HasSpell("Riposte")) and (not IsSpellOnCD("Riposte")) then
 				script_debug.debugCombat = "Use riposte";
-					CastSpellByName("Riposte");
-					return;
+					if (CastSpellByName("Riposte")) then
+						self.waitTimer = GetTimeEX() + 1650;
+						return true;
+					end
 				end
 
 				-- Eviscerate
-				if (HasSpell('Eviscerate') and ((cp == 5) or targetHealth <= cp*10)) then 
+				if (HasSpell('Eviscerate') and ((cp == 5) or targetHealth <= cp*10)) and (not IsSpellOnCD("Eviscerate")) then 
 					if (localEnergy >= 35) then
 						script_debug.debugCombat = "eviscerate";
-						CastSpellByName('Eviscerate');
-						script_grind.waitTimer = GetTimeEX() + 1650;
-						return;
+						if (CastSpellByName('Eviscerate')) then
+							self.waitTimer = GetTimeEX() + 1650;
+							script_grind.waitTimer = GetTimeEX() + 1650;
+							return true;
+						end
 					else
 						script_debug.debugCombat = "saving energy for eviscerate";
 						-- save energy
@@ -434,28 +446,31 @@ function script_rogue:run(targetObj)
 				end 
 
 				-- Keep Slice and Dice up when 1-4 CP
-				if (cp < 5 and cp > 0 and HasSpell('Slice and Dice') and targetHealth > 50) then 
+				if (cp < 5) and (cp > 0) and (HasSpell('Slice and Dice')) and (targetHealth > 50) and (not IsSpellOnCD("Slice and Dice")) then 
 					-- Keep Slice and Dice up
 					if (not HasBuff(localObj, 'Slice and Dice') and targetHealth > 50 and localEnergy >= 25) then
 						script_debug.debugCombat = "slice and dice";
 
-						CastSpellByName('Slice and Dice'); 
+						if (Cast('Slice and Dice')) then
+							self.waitTimer = GetTimeEX() + 1650;
+						end
 					end 
 				end
 
 				-- Sinister Strike
-				if (localEnergy >= self.cpGeneratorCost) then
+				if (localEnergy >= self.cpGeneratorCost) and (not IsSpellOnCD(self.cpGenerator)) then
 					script_debug.debugCombat = "sinister strike";
-					CastSpellByName(self.cpGenerator);
-					script_grind.waitTimer = GetTimeEX() + 1250;
-					self.waitTimer = GetTimeEX() + 1250;
+					if (CastSpellByName(self.cpGenerator)) then
+						script_grind.waitTimer = GetTimeEX() + 2050;
+						self.waitTimer = GetTimeEX() + 2050;
+					end
 				end 
 			
-			return;
 			end
-		return;
 		end
 	end
+self.waitTimer = GetTimeEX() + 1500;
+return;
 end
 
 function script_rogue:rest()

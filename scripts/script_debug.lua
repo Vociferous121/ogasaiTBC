@@ -34,7 +34,6 @@ function script_debug:menu()
 		Separator();
 	end
 
-
 	if (script_grindMenu.debug) then
 		--garbage data..
 		Text("Garbage Data Lost (object manager) ");
@@ -44,18 +43,17 @@ function script_debug:menu()
 	end
 		Separator();
 
-	Text("");
-	local mytarget = GetUnitsTarget(GetLocalPlayer());
 
-	Text("target angle..." ..math.floor(GetAngle(mytarget)).. " ..Unstuck info");
-	Text("my angle...    " ..math.floor(GetAngle(GetLocalPlayer())));
-	local test2 = math.floor(GetAngle(mytarget) - GetAngle(GetLocalPlayer()));
-	Text(test2);
+	if (CollapsingHeader("Unstuck Debuf")) then
+		Text("Face Angle (rogue/mage)");
+		local mytarget = GetUnitsTarget(GetLocalPlayer());
 	
-
-	
-	Text("");
+		Text("target angle..." ..math.floor(GetAngle(mytarget)).. " ..Unstuck info");
+		Text("my angle...    " ..math.floor(GetAngle(GetLocalPlayer())));
+		local test2 = math.floor(GetAngle(mytarget) - GetAngle(GetLocalPlayer()));
+		Text("Target Angle - My Angle - "..test2);
 		Separator();
+	end
 
 
 
@@ -69,17 +67,32 @@ function script_debug:menu()
 	--		Text("Please Reload Game - Navmesh errors");
 	--	end
 	--end
-	local path = script_pather.updatePathDist;
-	Text("Pather update path distance " ..path);
 
 
-	Separator();
-	Text("Paranoia Time...");
-	local paraTime = script_grind.currentTime;
-	local paraTime2 = script_grind.currentTime2;
-	Text(""..paraTime);
-	Text(""..paraTime2);
+	if (CollapsingHeader("Path Script Debug")) then
+		Text("Update Path Dist");
+		local path = script_pather.updatePathDist;
+		Text("Pather update path distance " ..path);
+		Separator();
+	end
 
-	local testTimer = (script_grind.currentTime + script_grind.setLogoutTime) - script_grind.currentTime2;
-	Text(""..testTimer);
+
+	if (CollapsingHeader("Timers")) then
+		Text("Paranoia Time...");
+		local paraTime = script_grind.currentTime;
+		local paraTime2 = script_grind.currentTime2;
+		Text("Grind Current Time - "..paraTime);
+		Text("Grind Current Time 2 - "..paraTime2);
+		local testTimer = (script_grind.currentTime + script_grind.setLogoutTime) - script_grind.currentTime2;
+		Text("Paranoia Logout Timer - "..testTimer);
+
+		Text("script wait timers");
+		Text("Grinder Wait Timer - "..script_grind.waitTimer);
+		Text("Rogue Wait Timer - "..script_rogue.waitTimer);
+		--Text("Warlock Wait Timer - "..script_warlock.waitTimer);
+		--Text("Current Bot Time - "..GetTimeEX());
+		--Text("Mage Wait Timer - "..script_mage.waitTimer);
+		--Text("Mage Rest Timer - "..script_mage.restWaitTimer);
+	end
+		
 end

@@ -144,11 +144,11 @@ end
 function script_path:autoPath()
 	-- No path nodes yet
 	if (self.numSavedPathNodes == 0 or not self.reachedHotspot) then
-		if (script_path:distanceToHotspot() <= 10) then
+		if (script_path:distanceToHotspot() <= 50) then
 			self.reachedHotspot = true;	
 		end
 		
-		if (script_path:distanceToHotspot() > 5) then
+		if (script_path:distanceToHotspot() > 50) then
 			if (not script_grind.raycastPathing) then
 				MoveToTarget(self.hx, self.hy, self.hz);
 			else

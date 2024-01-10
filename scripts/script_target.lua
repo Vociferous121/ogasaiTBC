@@ -177,14 +177,6 @@ end
 function script_target:getTarget()
 	local targetObj = 0; 
 
-
-	-- Loot
-	if (script_target:isThereLoot() and not IsInCombat() and not AreBagsFull() and not script_grind.bagsFull) then
-		script_target:doLoot();
-		script_debug.debugGrind = "trying to loot";
-	return;
-	end
-
 	-- Fetch last target
 	local lastTarget = self.currentTarget;
 
