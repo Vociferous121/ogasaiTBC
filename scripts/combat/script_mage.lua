@@ -419,6 +419,7 @@ function script_mage:rest()
 				if (CastSpellByName('Conjure Water')) then
 					script_grind.waitTimer = GetTimeEX() + 3050;
 					self.restWaitTimer = GetTimeEX() + 3050;
+					self.waitTimer = GetTimeEX() + 2500;
 					script_grind:restOn();
 					return true;
 				end
@@ -452,6 +453,7 @@ function script_mage:rest()
 		if (localMana > 10 and not IsDrinking() and not IsEating() and not AreBagsFull()) then
 			if (CastSpellByName('Conjure Food')) then
 				self.restWaitTimer = GetTimeEX() + 3050;
+				self.waitTimer = GetTimeEX() + 2500;
 				script_grind.waitTimer = GetTimeEX() + 3050;
 				script_grind:restOn();
 				return true;

@@ -28,12 +28,6 @@ function script_warlock:addHealthStone(name)
 end
 
 function script_warlock:setup()
-	self.waitTimer = GetTimeEX();
-	self.siphonTime = GetTimeEX();
-	self.agonyTime = GetTimeEX();
-	self.corruptTime = GetTimeEX();
-	self.immoTime = GetTimeEX();
-	self.stoneTime = GetTimeEX();
 
 	script_warlock:addHealthStone('Master Healthstone');
 	script_warlock:addHealthStone('Major Healthstone');
@@ -42,12 +36,20 @@ function script_warlock:setup()
 	script_warlock:addHealthStone('Lesser Healthstone');
 	script_warlock:addHealthStone('Minor Healthstone');
 
+	script_warlock.waitTimer = GetTimeEX();
+	script_warlocksiphonTime = GetTimeEX();
+	script_warlockagonyTime = GetTimeEX();
+	script_warlockcorruptTime = GetTimeEX();
+	script_warlockimmoTime = GetTimeEX();
+	script_warlockstoneTime = GetTimeEX();
+
 	DEFAULT_CHAT_FRAME:AddMessage('script_warlock: loaded...');
 
 	self.isSetup = true;
 end
 
 function script_warlock:run(targetObj)
+
 	if(not self.isSetup) then
 		script_warlock:setup();
 		return;
@@ -63,26 +65,44 @@ function script_warlock:run(targetObj)
 	local localMana = GetManaPercentage(localObj);
 	local localHealth = GetHealthPercentage(localObj);
 	local localLevel = GetLevel(localObj);
-	local hasPet = false; if(GetPet() ~= 0) then hasPet = true; end
+
+	local hasPet = false;
+	if(GetPet() ~= 0) then
+		hasPet = true;
+	end
 
 	-- Check: Do we have a pet?
 	local pet = GetPet(); local petHP = 0;
-	if (pet ~= nil and pet ~= 0) then petHP = GetHealthPercentage(pet); end
+	if (pet ~= nil and pet ~= 0) then
+		petHP = GetHealthPercentage(pet);
+	end
 
 	-- Pre Check
-	if (IsChanneling() or IsCasting() or self.waitTimer > GetTimeEX()) then return; end
+	if (IsChanneling() or IsCasting() or self.waitTimer > GetTimeEX()) then
+		return;
+	end
+	if (script_grind.waitTimer > GetTimeEX()) then
+		return;
+	end
 
 	-- Use Soul Link
-	if (HasSpell('Soul Link') and not HasBuff(localObj, 'Soul Link') and petHP > 0) then
-		CastSpellByName('Soul Link');
+	if (HasSpell('Soul Link')) and (not HasBuff(localObj, 'Soul Link')) and (petHP > 0) then
+		if (CastSpellByName('Soul Link')) then
+			self.waitTimer = GetTimeEX() + 1650;
+			return true;
+		end
 	end
 	
 	--Valid Enemy
 	if (targetObj ~= 0) then
 		
 		-- Cant Attack dead targets
-		if (IsDead(targetObj)) then return; end
-		if (not CanAttack(targetObj)) then return; end
+		if (IsDead(targetObj)) then
+			return;
+		end
+		if (not CanAttack(targetObj)) then
+			return;
+		end
 		
 		targetHealth = GetHealthPercentage(targetObj);
 
@@ -90,39 +110,108 @@ function script_warlock:run(targetObj)
 		if (hasPet) then
 			if (HasBuff(GetPet(), "Health Funnel") and localHealth < 40) and (not self.useRotation) then
 				local _x, _y, _z = GetPosition(localObj);
-				MoveToTarget(_x + 1, _y + 1, _z); 
+				if (MoveToTarget(_x + 1, _y + 1, _z)) then
+					self.waitTimer = GetTimeEX() + 500;
+					return true;
+				end
+			end
+		end
+
+		if (GetPet() ~= 0) and (GetHealthPercentage(GetPet()) > 1) then
+			if (IsInCombat()) and (not IsInLineOfSight(targetObj) or not IsInLineOfSight(GetPet())) then
+				PetFollow();
 				return;
+	
 			end
 		end
 
 		--Opener
 		if (not IsInCombat()) then
 
-			if (HasSpell("Shadow Bolt")) then
-				if (HasSpell('Unstable Affliction')) then
-					if (Cast("Unstable Affliction", targetGUID)) then self.waitTimer = GetTimeEX() + 1600; return; end
-				elseif (HasSpell("Siphon Life")) then
-					if (Cast("Siphon Life", targetGUID)) then self.waitTimer = GetTimeEX() + 1600; return; end
-				elseif (HasSpell("Curse of Agony")) then
-					if (Cast('Curse of Agony', targetGUID)) then self.waitTimer = GetTimeEX() + 1600; return; end
-				elseif (HasSpell("Immolate")) then
-					if (Cast('Immolate', targetGUID)) then self.waitTimer = GetTimeEX() + 2500; return; end
-				else
-					if (Cast('Shadow Bolt', targetGUID)) then return 0; end
-					
+			if (HasSpell('Unstable Affliction')) and (not script_target:hasDebuff("Unstable Affliction")) then
+				if (Cast("Unstable Affliction", targetGUID)) then
+					self.waitTimer = GetTimeEX() + 1600;
+					return true;
 				end
-				-- Perhaps we are not in line of sight
-				if (not Cast('Shadow Bolt', targetGUID)) then return 4; end
-			end	
+			end
+			if (HasSpell("Siphon Life")) and (not script_target:hasDebuff("Siphon Life")) then
+				if (Cast("Siphon Life", targetGUID)) then
+					self.waitTimer = GetTimeEX() + 1600;
+					return true;
+				end
+			end
+			if (HasSpell("Curse of Agony"))  and (not script_target:hasDebuff("Curse of Agony")) then
+				if (Cast('Curse of Agony', targetGUID)) then
+					self.waitTimer = GetTimeEX() + 1600;
+					return true;
+				end
+			end
+			if (HasSpell("Immolate")) and (GetTimeEX() > self.immoTime) then
+				if (not IsSpellOnCD("Immolate")) then
+					if (not IsCasting()) then
+						if (not IsChanneling()) then
+							if (not IsInCombat()) then
+								if (GetHealthPercentage(targetObj) >= 100) then
+									if (not script_target:hasDebuff("Immolate")) then
+										CastSpellByName('Immolate');
+										self.waitTimer = GetTimeEX() + 3050;
+										script_grind:setWaitTimer(2500);
+									end
+								end
+							end
+						end
+					end
+				end
+			end
+
+			if (Cast('Shadow Bolt', targetGUID)) and (not IsSpellOnCD("Shadow Bolt")) then
+				self.waitTimer = GetTimeEX() + 2550;
+				return true;
+			end
+
+			--self.waitTimer = GetTimeEX() + 1650;
 
 		-- Combat
 		else	
 			-- Set the pet to attack
-			if (hasPet) then PetAttack(); end
+			if (hasPet) and (GetUnitsTarget(GetLocalPlayer()) ~= 0) then
+				PetAttack();
+			end
+
+			-- if pet goes too far then recall
+			if (GetPet() ~= 0 and self.hasPet and GetHealthPercentage(GetPet()) > 1) and (self.useVoid or self.useImp or self.useSuccubus or self.useFelhunter) and (GetDistance(GetPet()) > 40) then
+				PetFollow();
+			end
+
+			-- force bot to attack pets target
+			if (GetNumPartyMembers() == 0) and (IsInCombat()) and (GetPet() ~= 0 and GetHealthPercentage(GetPet()) > 1) and (GetUnitsTarget(GetLocalPlayer()) == 0) and (self.hasPet) then
+				if (GetUnitsTarget(GetPet()) ~= 0) then
+					if (GetDistance(GetPet()) > 10) then
+						AssistUnit("pet");
+						PetFollow();
+					end
+				elseif (GetUnitsTarget(GetPet()) == 0) then
+					AssistUnit("pet");
+					self.message = "Stuck in combat! WAITING!";
+					return;
+				end
+			end
+
+			-- Amplify Curse on CD
+			if (HasSpell("Amplify Curse")) and (not IsSpellOnCD("Amplify Curse")) and (GetUnitsTarget(localObj) ~= 0) then
+				if (CastSpellByName("Amplify Curse")) then
+					self.waitTimer = GetTimeEX() + 1650;
+					script_warlock:petAttack();
+					return true;
+				end
+			end
 
 			-- Check: If we got Nightfall buff then cast Shadow Bolt
 			if (HasBuff(localObj, "Shadow Trance")) then
-				if (Cast('Shadow Bolt', targetGUID)) then return; end
+				if (Cast('Shadow Bolt', targetGUID)) then
+					self.waitTimer = GetTimeEX() + 2550;
+					return true;
+				end
 			end	
 
 			-- Use Healthstone
@@ -131,30 +220,40 @@ function script_warlock:run(targetObj)
 					if(HasItem(self.healthStone[i])) then
 						if (UseItem(self.healthStone[i])) then
 							self.stoneTime = GetTimeEX() + 125000;
-							return 0;
+							self.waitTimer = GetTimeEX() + 1750;
+							return true;
 						end
 					end
 				end
 			end
 
 			-- Check: If we don't got a soul shard, try to make one
-			if (targetHealth < 25 and HasSpell("Drain Soul") and not script_warlock:haveSoulshard()) then
-				if (Cast('Drain Soul', targetGUID)) then return; end
+			if (targetHealth < 25) and (HasSpell("Drain Soul")) and (not script_warlock:haveSoulshard()) then
+				if (Cast('Drain Soul', targetGUID)) then
+					self.waitTimer = GetTimeEX() + 1750;
+					return true;
+				end
 			end
 
 			-- Check: Heal the pet if it's below 50 perc and we are above 50 perc
 			local petHP = 0; 
-			if (hasPet) then local petHP = GetHealthPercentage(GetPet()); end
+			if (hasPet) then
+				local petHP = GetHealthPercentage(GetPet());
+			end
 			if (hasPet and petHP > 0 and petHP < 50 and HasSpell("Health Funnel") and localHealth > 50) then
 				if (GetDistance(GetPet()) > 20 or not IsInLineOfSight(GetPet())) and (not self.useRotation) then
-					MoveToTarget(GetPet()); 
-					script_grind.waitTimer = GetTimeEX() + 2000;
-					return;
+					if (MoveToTarget(GetPet())) then
+						script_grind.waitTimer = GetTimeEX() + 2000;
+						self.waitTimer = GetTimeEX() + 2000;
+						return true;
+					end
 				else
 					StopMoving();
 				end
-				CastSpellByName("Health Funnel"); 
-				return;
+				if (CastSpellByName("Health Funnel")) then
+					self.waitTimer = GetTimeEX() + 1750;
+					return true;
+				end
 			end
 
 			local max = 0;
@@ -177,32 +276,49 @@ function script_warlock:run(targetObj)
 
 			-- Check: Keep Siphon Life up (30 s duration)
 			if (not script_target:hasDebuff('Siphon Life') and self.siphonTime < GetTimeEX() and targetHealth > 20) then
-				if (Cast('Siphon Life', targetGUID)) then self.siphonTime = GetTimeEX()+5000; self.waitTimer = GetTimeEX() + 1600; return 0; end
+				if (Cast('Siphon Life', targetGUID)) then
+					self.siphonTime = GetTimeEX()+5000;
+					self.waitTimer = GetTimeEX() + 1650;
+					return true;
+				end
 			end
 
 			-- Check: Keep the Curse of Agony up (24 s duration)
 			if (not script_target:hasDebuff('Curse of Agony') and self.agonyTime < GetTimeEX() and targetHealth > 20) then
-				if (Cast('Curse of Agony', targetGUID)) then self.agonyTime = GetTimeEX()+5000; self.waitTimer = GetTimeEX() + 1600; return 0; end
+				if (Cast('Curse of Agony', targetGUID)) then
+					self.agonyTime = GetTimeEX()+5000;
+					self.waitTimer = GetTimeEX() + 1600;
+					return true;
+				end
 			end
 	
 			-- Check: Keep the Corruption DoT up (15 s duration)
 			if (not script_target:hasDebuff('Corruption') and self.corruptTime < GetTimeEX() and targetHealth > 20) then
-				if (Cast('Corruption', targetGUID)) then self.corruptTime = GetTimeEX()+5000; self.waitTimer = GetTimeEX() + 1600 + self.corruptionCastTime; return 0; end
+				if (Cast('Corruption', targetGUID)) then
+					self.corruptTime = GetTimeEX()+5000;
+					self.waitTimer = GetTimeEX() + 1600 + self.corruptionCastTime;
+					script_grind:setWaitTimer(2000);
+					return true;
+				end
 			end
 	
-			-- Check: Keep the Immolate DoT up (15 s duration)
-			if (not script_target:hasDebuff('Immolate') and self.immoTime < GetTimeEX() and targetHealth > 20) then
-				if (Cast('Immolate', targetGUID)) then self.immoTime = GetTimeEX()+5000; self.waitTimer = GetTimeEX() + 2500; return 0; end
-			end
-	
+			
 			-- Cast: Life Tap if conditions are right, see the function
-			if (script_warlock:lifeTap(localHealth, localMana)) then return; end
+			if (script_warlock:lifeTap(localHealth, localMana)) then
+				return;
+			end
 
 			-- Cast: Drain Life, don't use Drain Life if we need a soul shard
 			if (HasSpell("Drain Life") and script_warlock:haveSoulshard() and GetCreatureType(targetObj) ~= "Mechanic") then
 				if (GetDistance(targetObj) < 20) then
-					if (IsMoving()) then StopMoving(); return; end
-					if (Cast('Drain Life', targetGUID)) then return; end
+					if (IsMoving()) then
+						StopMoving();
+						return;
+					end
+					if (Cast('Drain Life', targetGUID)) then
+						self.waitTimer = GetTimeEX() + 1750;
+						return;
+					end
 				else
 					if (not self.useRotation) then
 						MoveToTarget(targetObj); 
@@ -214,29 +330,29 @@ function script_warlock:run(targetObj)
 				-- Cast: Shadow Bolt
 				if (localMana >= 10) then
 					if (Cast('Shadow Bolt', targetGUID)) then
-						return;
+						self.waitTimer = GetTimeEX() + 2550;
+						return true;
 					end
 				end
-			end
 
-			-- Auto Attack if no mana
-			if (localMana < 5) then
-				if (not self.useRotation) then
-					UnitInteract(targetObj);
-				elseif (self.useRotation) then
-					AutoAttack(targetObj);
-				end
-			end
-			
-			return;	
+				-- Auto Attack if no mana
+				if (localMana < 5) then
+					if (not self.useRotation) then
+						UnitInteract(targetObj);
+					elseif (self.useRotation) then
+						AutoAttack(targetObj);
+					end
+				end	
+			end	
 		end
-	
 	end
+return;	
 end
 
 function script_warlock:lifeTap(localHealth, localMana)
 	if (localMana < localHealth and self.useLifeTap) then
-		if (HasSpell("Life Tap") and localHealth > 50 and localMana < 90) then
+		if (HasSpell("Life Tap") and localHealth > 50 and localMana < 90 and not IsInCombat())
+			or (HasSpell("Life Tap") and localHealth > 60 and localMana < 30 and IsInCombat()) then
 			if(IsSpellOnCD("Life Tap")) then 
 				return false; 
 			else 
@@ -265,7 +381,14 @@ function script_warlock:haveSoulshard()
 end
 
 function script_warlock:rest()
-	if(not self.isSetup) then script_warlock:setup(); return true; end
+	if(not self.isSetup) then
+		script_warlock:setup();
+		return true;
+	end
+
+	if (self.waitTimer > GetTimeEX() or IsCasting() or IsChanneling()) then
+		return;
+	end
 
 	local localObj = GetLocalPlayer();
 	local localMana = GetManaPercentage(localObj);
@@ -385,19 +508,27 @@ function script_warlock:rest()
 		if(HasSpell("Demon Armor")) then
 			if (not HasBuff(localObj, "Demon Armor")) then
 				if (Buff("Demon Armor", localObj)) then
+					self.waitTimer = GetTimeEX() + 1850;
 					script_grind:restOn();
 					return true;
 				end
 			end
-		elseif (not HasBuff(localObj, 'Demon Skin') and HasSpell('Demon Skin')) then
+		end
+	end
+	if (localMana > 30) then
+		if (not HasSpell("Demon Armor")) and (not HasBuff(localObj, 'Demon Skin') and HasSpell('Demon Skin')) and (not IsSpellOnCD("Demon Skin")) then
 			if (Buff('Demon Skin', localObj)) then
+				self.waitTimer = GetTimeEX() + 2050;
+				script_grind.waitTimer = GetTimeEX() + 2000;
 				script_grind:restOn();
-				return true;
 			end
 		end
+	end
+	if (localMana > 30) then
 		--if (HasSpell("Unending Breath")) then
 			--if (not HasBuff(localObj, 'Unending Breath')) then
 				--if (Buff('Unending Breath', localObj)) then
+					--self.waitTimer = GetTimeEX() + 1850;
 					--return true;
 				--end
 			--end

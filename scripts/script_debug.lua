@@ -93,6 +93,20 @@ function script_debug:menu()
 		--Text("Current Bot Time - "..GetTimeEX());
 		--Text("Mage Wait Timer - "..script_mage.waitTimer);
 		--Text("Mage Rest Timer - "..script_mage.restWaitTimer);
+
+		Text("Warlock Timers");
+		local wt1 = script_warlock.waitTimer;
+		local wt2 = script_warlocksiphonTime;
+		local wt3 = script_warlockagonyTime;
+		local wt4 = script_warlockcorruptTime;
+		local wt5 = script_warlockimmoTime;
+		local wt6 = script_warlockstoneTime;
+		Text("wait timer "..wt1);
+		Text("siphon timer "..wt2);
+		Text("agony timer "..wt3);
+		Text("corrupt timer "..wt4);
+		Text("immo timer "..wt5);
+		Text("stone timer "..wt6);
 	end
 		
 end

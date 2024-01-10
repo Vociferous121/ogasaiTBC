@@ -21,7 +21,7 @@ script_grind = {
 	message = 'Starting the grinder...',
 	alive = true,
 	target = 0,
-	targetTimer = GetTimeEX();
+	targetTimer = GetTimeEX(),
 	pullDistance = 30,
 	waitTimer = 0,
 	tickRate = 1000,
@@ -79,11 +79,9 @@ function script_grind:setup()
 	SetAutoLoot();
 	DrawNavMeshPath(true);
 
-	self.waitTimer = GetTimeEX();
 	self.skipMobTimer = GetTimeEX();
 	self.unStuckTime = GetTimeEX();
 	self.tryMountTime = GetTimeEX();
-
 
 	-- Classes that doesn't use mana
 	local class, classFileName = UnitClass("player");
@@ -135,6 +133,11 @@ function script_grind:draw()
 	script_grindEX:draw();
 end
 
+-- set timer for grind script to run
+function script_grind:setWaitTimer(ms)
+	self.waitTimer = (GetTimeEX() + (ms));
+end
+
 function script_grind:run()
 	-- Run the setup function once
 	if (not self.isSetup) then
@@ -151,7 +154,12 @@ function script_grind:run()
 	self.currentTime = GetTimeEX();
 	script_rogue.waitTimer = GetTimeEX();
 	--script_mage.waitTimer = GetTimeEX();
-
+	script_warlock.waitTimer = GetTimeEX();
+	script_warlocksiphonTime = GetTimeEX();
+	script_warlockagonyTime = GetTimeEX();
+	script_warlockcorruptTime = GetTimeEX();
+	script_warlockimmoTime = GetTimeEX();
+	script_warlockstoneTime = GetTimeEX();
 
 	-- draw move path
 	if (IsMoving()) and (self.drawPath) then
@@ -180,6 +188,12 @@ function script_grind:run()
 			return;
 		end
 	end
+
+	if (self.waitTimer > GetTimeEX()) then
+		return;
+	end
+
+	self.waitTimer = GetTimeEX();
 
 	-- Update min/max level if we level up
 	if (script_target.currentLevel ~= GetLevel(GetLocalPlayer())) then
@@ -389,8 +403,13 @@ function script_grind:run()
 	end
 
 	-- Loot
-	if (script_target:isThereLoot() and not IsInCombat() and not AreBagsFull() and not self.bagsFull) then
-		self.message = "Looting... (enable auto loot)"; script_target:doLoot(); return;
+	if (script_target:isThereLoot()) then
+		if (not IsInCombat() and not AreBagsFull() and not self.bagsFull) then
+			self.message = "Looting... (enable auto loot)";
+			script_target:doLoot(); 
+			self.waitTimer = GetTimeEX() + 1750;
+		end
+		return;
 	end
 
 	-- stuck in combat
@@ -609,7 +628,7 @@ function script_grind:run()
 					local x, y, z = GetPosition(self.target);
 					if (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
 						if (MoveToTarget(x+moveBuffer, y+moveBuffer, z)) then
-							self.waitTimer = GetTimeEX() + 300;
+							self.waitTimer = GetTimeEX() + 150;
 						else
 							if (GetDistance(self.target) <= 2) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
 								if (IsMoving()) then
@@ -629,7 +648,7 @@ function script_grind:run()
 					end
 					local x, y, z = GetPosition(self.target);
 					MoveToTarget(x+moveBuffer, y+moveBuffer, z);
-					self.waitTimer = GetTimeEX() + 300;
+					self.waitTimer = GetTimeEX() + 150;
 				end
 				return;
 			end
