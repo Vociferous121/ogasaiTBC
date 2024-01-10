@@ -153,9 +153,11 @@ function script_warlock:run(targetObj)
 							if (not IsInCombat()) then
 								if (GetHealthPercentage(targetObj) >= 100) then
 									if (not script_target:hasDebuff("Immolate")) then
-										CastSpellByName('Immolate');
-										self.waitTimer = GetTimeEX() + 3050;
-										script_grind:setWaitTimer(2500);
+										if (not IsMoving()) and (IsInLineOfSight(targetObj)) then
+											CastSpellByName('Immolate');
+											self.waitTimer = GetTimeEX() + 3050;
+											script_grind:setWaitTimer(2500);
+										end
 									end
 								end
 							end
@@ -305,7 +307,7 @@ function script_warlock:run(targetObj)
 			
 			-- Cast: Life Tap if conditions are right, see the function
 			if (script_warlock:lifeTap(localHealth, localMana)) then
-				return;
+				return true;
 			end
 
 			-- Cast: Drain Life, don't use Drain Life if we need a soul shard
@@ -328,7 +330,7 @@ function script_warlock:run(targetObj)
 				end
 			else	
 				-- Cast: Shadow Bolt
-				if (localMana >= 10) then
+				if (localMana >= 10) and (GetHealthPercentage(targetObj) >= 5) then
 					if (Cast('Shadow Bolt', targetGUID)) then
 						self.waitTimer = GetTimeEX() + 2550;
 						return true;
@@ -343,7 +345,8 @@ function script_warlock:run(targetObj)
 						AutoAttack(targetObj);
 					end
 				end	
-			end	
+			end
+		return;	
 		end
 	end
 return;	
@@ -352,13 +355,11 @@ end
 function script_warlock:lifeTap(localHealth, localMana)
 	if (localMana < localHealth and self.useLifeTap) then
 		if (HasSpell("Life Tap") and localHealth > 50 and localMana < 90 and not IsInCombat())
-			or (HasSpell("Life Tap") and localHealth > 60 and localMana < 30 and IsInCombat()) then
-			if(IsSpellOnCD("Life Tap")) then 
-				return false; 
-			else 
-				CastSpellByName("Life Tap"); 
-				return true; 
-			end
+			or (HasSpell("Life Tap") and localHealth > 60 and localMana < 30 and IsInCombat()) and (IsSpellOnCD("Life Tap")) then 
+				if (CastSpellByName("Life Tap")) then
+					return true;
+				end
+			
 		end
 	end
 	return false;
@@ -407,7 +408,9 @@ function script_warlock:rest()
 
 	-- Cast: Life Tap if conditions are right, see the function
 	if (not IsDrinking() and not IsEating() and localMana < self.drinkMana) then
-		if (script_warlock:lifeTap(localHealth, localMana)) then return true; end
+		if (script_warlock:lifeTap(localHealth, localMana)) then
+			return true;
+		end
 	end
 
 	--Eat and Drink
