@@ -628,7 +628,6 @@ function script_grind:run()
 					local x, y, z = GetPosition(self.target);
 					if (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
 						if (MoveToTarget(x+moveBuffer, y+moveBuffer, z)) then
-							self.waitTimer = GetTimeEX() + 150;
 						else
 							if (GetDistance(self.target) <= 2) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
 								if (IsMoving()) then
@@ -648,7 +647,6 @@ function script_grind:run()
 					end
 					local x, y, z = GetPosition(self.target);
 					MoveToTarget(x+moveBuffer, y+moveBuffer, z);
-					self.waitTimer = GetTimeEX() + 150;
 				end
 				return;
 			end
@@ -668,7 +666,6 @@ function script_grind:run()
 
 				elseif (GetDistance(self.target) > 27) then
 					script_pather:moveToTarget(cx, cy, cz);
-					self.waitTimer = GetTimeEX() + 50;
 					if (GetDistance(self.target) <= 27) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
 						if (IsMoving()) then
 							StopMoving();
