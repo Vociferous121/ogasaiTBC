@@ -185,7 +185,7 @@ function script_warlock:run(targetObj)
 	end
 
 	-- Pre Check
-	if (IsChanneling() or IsCasting() or self.waitTimer > GetTimeEX() + (script_grind.tickRate*1000)) then
+	if (IsChanneling() or IsCasting() or self.waitTimer > GetTimeEX()) then
 		return;
 	end
 
@@ -484,7 +484,7 @@ function script_warlock:run(targetObj)
 			end
 			-- Cast: Shadow Bolt
 			if (localMana >= 10) and (GetHealthPercentage(targetObj) >= 5) then
-				if (Cast('Shadow Bolt', targetGUID)) then
+				if (not Cast('Shadow Bolt', targetGUID)) then
 					self.waitTimer = GetTimeEX() + 2550;
 				end
 			end
