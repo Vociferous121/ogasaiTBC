@@ -312,7 +312,7 @@ function script_grind:run()
 			self.alive = false;
 			RepopMe();
 			self.message = "Releasing spirit...";
-			self.waitTimer = GetTimeEX() + 4500;
+			self.waitTimer = GetTimeEX() + 1500;
 			return;
 		end
 			self.message = script_helper:ress(GetCorpsePosition()); 
@@ -388,8 +388,6 @@ function script_grind:run()
 		script_debug.debugGrind = "reset navigate";
 	end
 
-	-- Check: Summon our Demon if we are not in combat (Voidwalker is Summoned in favor of the Imp)
-
 	if (HasItem("Small Barnacled Clam")) then
 		if (UseItem("Small Barnacled Clam")) then
 			self.waitTimer = GetTimeEX() + 1650;
@@ -402,52 +400,10 @@ function script_grind:run()
 		end
 	end
 
-	local hasPet = false;
-	if(GetPet() ~= 0) then
-		hasPet = true;
-	end
-
-	-- Check: Summon our Demon if we are not in combat (Voidwalker is Summoned in favor of the Imp)
-	if (not IsEating() and not IsDrinking() and not IsMounted() and not hasPet) then
-
-		local localMana = GetManaPercentage(GetLocalPlayer());
-
-		if ((not hasPet or petIsVoid or petIsImp) and self.useFelguard and HasSpell('Summon Felguard') and script_warlock:haveSoulshard()) then
-			if (not IsStanding() or IsMoving()) then
-				StopMoving();
-			end
-			if (localMana > 40) then
-				if (not CastSpellByName("Summon Felguard")) then
-					self.waitTimer = GetTimeEX() + 12000;
-					script_path.savedPos['time'] = GetTimeEX() + 10000;
-					script_grind:restOn();
-					return true;
-				end
-			end
-		elseif ((not hasPet or petIsImp) and self.useVoid and HasSpell("Summon Voidwalker") and script_warlock:haveSoulshard()) then
-			if (not IsStanding() or IsMoving()) then
-				StopMoving();
-			end
-			if (localMana > 40) then
-				if (not CastSpellByName("Summon Voidwalker")) then
-					self.waitTimer = GetTimeEX() + 12000;
-					script_path.savedPos['time'] = GetTimeEX() + 10000;
-					script_grind:restOn();
-					return true;
-				end
-			end
-		elseif (not hasPet and HasSpell("Summon Imp")) and (GetPet() == 0) then
-			if (not IsStanding() or IsMoving()) then
-				StopMoving();
-			end
-			if (localMana > 30) and (not hasPet) and (GetPet() == 0) then
-				if (not CastSpellByName("Summon Imp")) then
-					script_grind:restOn();
-					self.waitTimer = GetTimeEX() + 12000;
-					script_path.savedPos['time'] = GetTimeEX() + 10000;
-					return true;
-				end
-			end
+		-- Check: Summon our Demon if we are not in combat (Voidwalker is Summoned in favor of the Imp)
+	if (HasSpell("Summon Imp")) then
+		if (script_warlock:summonPet()) then
+			return;
 		end
 	end
 

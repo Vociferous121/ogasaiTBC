@@ -58,6 +58,16 @@ function script_rotation:setup()
 
 	DEFAULT_CHAT_FRAME:AddMessage('script_rotation: loaded...');
 
+	if (HasSpell("Summon Imp")) and (not HasSpell("Summon Voidwalker")) then
+		script_warlock.useImp = true;
+	end
+	if (HasSpell("Summon Voidwalker")) and (not HasSpell("Summon Felguard")) then
+		script_warlock.useVoid = true;
+	end
+	if (HasSpell("Summon Felguard")) then
+		script_warlock.useFelguard = true;
+	end
+
 	self.isSetup = true;
 	
 
@@ -108,46 +118,9 @@ function script_rotation:run()
 	self.waitTimer = GetTimeEX() + self.tickRate;
 
 	-- Check: Summon our Demon if we are not in combat (Voidwalker is Summoned in favor of the Imp)
-	if (not IsEating() and not IsDrinking() and not IsMounted() and not hasPet) then
-
-		local localMana = GetManaPercentage(GetLocalPlayer());
-
-		if ((not hasPet or petIsVoid or petIsImp) and self.useFelguard and HasSpell('Summon Felguard') and script_warlock:haveSoulshard()) then
-			if (not IsStanding() or IsMoving()) then
-				StopMoving();
-			end
-			if (localMana > 40) then
-				if (not CastSpellByName("Summon Felguard")) then
-					self.waitTimer = GetTimeEX() + 12000;
-					script_path.savedPos['time'] = GetTimeEX() + 10000;
-					script_grind:restOn();
-					return true;
-				end
-			end
-		elseif ((not hasPet or petIsImp) and self.useVoid and HasSpell("Summon Voidwalker") and script_warlock:haveSoulshard()) then
-			if (not IsStanding() or IsMoving()) then
-				StopMoving();
-			end
-			if (localMana > 40) then
-				if (not CastSpellByName("Summon Voidwalker")) then
-					self.waitTimer = GetTimeEX() + 12000;
-					script_path.savedPos['time'] = GetTimeEX() + 10000;
-					script_grind:restOn();
-					return true;
-				end
-			end
-		elseif (not hasPet and HasSpell("Summon Imp")) and (GetPet() == 0) then
-			if (not IsStanding() or IsMoving()) then
-				StopMoving();
-			end
-			if (localMana > 30) and (not hasPet) and (GetPet() == 0) then
-				if (not CastSpellByName("Summon Imp")) then
-					script_grind:restOn();
-					self.waitTimer = GetTimeEX() + 12000;
-					script_path.savedPos['time'] = GetTimeEX() + 10000;
-					return true;
-				end
-			end
+	if (HasSpell("Summon Imp")) then
+		if (script_warlock:summonPet()) then
+			return;
 		end
 	end
 

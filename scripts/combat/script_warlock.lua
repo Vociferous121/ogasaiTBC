@@ -15,8 +15,8 @@ script_warlock = {
 	agonyTime = 0,
 	corruptTime = 0,
 	immoTime = 0,
-	useFelguard = true,
-	useVoid = true,
+	useFelguard = false,
+	useVoid = false,
 	useImp = false,
 	useLifeTap = true,
 	stoneTime = 0,
@@ -56,19 +56,20 @@ function script_warlock:setup()
 
 	local level = GetLevel(GetLocalPlayer());
 	if (level == 10) then
-		self.corruptionCastTime = 1.6;
+		self.corruptionCastTime = 1600;
 	end
-	if (level == 11) then
-		self.corruptionCastTime = 1.4;
+	if (level >= 11) then
+		self.corruptionCastTime = 1500;
 	end
-	if (level == 12) then
-	self.corruptionCastTime = 1.0;
+
+	if (HasSpell("Summon Imp")) and (not HasSpell("Summon Voidwalker")) then
+		self.useImp = true;
 	end
-	if (level == 13) then
-	self.corruptionCastTime = .6;
+	if (HasSpell("Summon Voidwalker")) and (not HasSpell("Summon Felguard")) then
+		self.useVoid = true;
 	end
-	if (level >= 14) then
-		self.corruptionCastTime = 0;
+	if (HasSpell("Summon Felguard")) then
+		self.useFelguard = true;
 	end
 
 	DEFAULT_CHAT_FRAME:AddMessage('script_warlock: loaded...');
@@ -130,7 +131,7 @@ function script_warlock:run(targetObj)
 	-- Use Soul Link
 	if (HasSpell('Soul Link')) and (not HasBuff(localObj, 'Soul Link')) and (petHP > 0) then
 		if (CastSpellByName('Soul Link')) then
-			self.waitTimer = GetTimeEX() + 1650;
+			self.waitTimer = GetTimeEX() + 1550;
 			return true;
 		end
 	end	
@@ -172,13 +173,15 @@ function script_warlock:run(targetObj)
 
 		--Opener
 		if (not IsInCombat()) then
-			PetAttack();
+			if (GetUnitsTarget(GetLocalPlayer()) ~= 0) then
+				PetAttack();
+			end
 			if (HasSpell('Unstable Affliction')) and (not script_target:hasDebuff("Unstable Affliction")) then
 				if (Cast("Unstable Affliction", targetGUID)) then
 					if (GetPet() ~= nil) then
 						PetAttack();
 					end
-					self.waitTimer = GetTimeEX() + 1600;
+					self.waitTimer = GetTimeEX() + 1550;
 					return true;
 				end
 			end
@@ -188,7 +191,7 @@ function script_warlock:run(targetObj)
 						PetAttack();
 					end
 					FaceTarget(targetObj);
-					self.waitTimer = GetTimeEX() + 1600;
+					self.waitTimer = GetTimeEX() + 1550;
 					return true;
 				end
 			end
@@ -198,7 +201,7 @@ function script_warlock:run(targetObj)
 						PetAttack();
 					end
 					FaceTarget(targetObj);
-					self.waitTimer = GetTimeEX() + 1600;
+					self.waitTimer = GetTimeEX() + 1550;
 					return true;
 				end
 			end
@@ -210,7 +213,7 @@ function script_warlock:run(targetObj)
 						PetAttack();
 					end;
 					if (IsCasting()) then
-						self.waitTimer = GetTimeEX() + 3050;
+						self.waitTimer = GetTimeEX() + 2050;
 						script_grind:setWaitTimer(2500);
 					end
 				end
@@ -224,8 +227,6 @@ function script_warlock:run(targetObj)
 				self.waitTimer = GetTimeEX() + 2550;
 				return true;
 			end
-
-			--self.waitTimer = GetTimeEX() + 1650;
 
 		-- Combat
 		else	
@@ -243,7 +244,7 @@ function script_warlock:run(targetObj)
 			-- Amplify Curse on CD
 			if (HasSpell("Amplify Curse")) and (not IsSpellOnCD("Amplify Curse")) and (GetUnitsTarget(localObj) ~= 0) then
 				if (CastSpellByName("Amplify Curse")) then
-					self.waitTimer = GetTimeEX() + 1650;
+					self.waitTimer = GetTimeEX() + 1550;
 					script_warlock:petAttack();
 					return true;
 				end
@@ -263,7 +264,7 @@ function script_warlock:run(targetObj)
 					if(HasItem(self.healthStone[i])) then
 						if (UseItem(self.healthStone[i])) then
 							self.stoneTime = GetTimeEX() + 125000;
-							self.waitTimer = GetTimeEX() + 1750;
+							self.waitTimer = GetTimeEX() + 1550;
 							return true;
 						end
 					end
@@ -273,7 +274,7 @@ function script_warlock:run(targetObj)
 			-- Check: If we don't got a soul shard, try to make one
 			if (targetHealth < 25) and (HasSpell("Drain Soul")) and (not script_warlock:haveSoulshard()) then
 				if (Cast('Drain Soul', targetGUID)) then
-					self.waitTimer = GetTimeEX() + 1750;
+					self.waitTimer = GetTimeEX() + 1550;
 					return true;
 				end
 			end
@@ -294,7 +295,7 @@ function script_warlock:run(targetObj)
 					StopMoving();
 				end
 				if (CastSpellByName("Health Funnel")) then
-					self.waitTimer = GetTimeEX() + 1750;
+					self.waitTimer = GetTimeEX() + 1550;
 					return true;
 				end
 			end
@@ -320,9 +321,10 @@ function script_warlock:run(targetObj)
 			-- Check: Keep Siphon Life up (30 s duration)
 			if (self.useSiphonLife) then
 				if (not script_target:hasDebuff('Siphon Life') and self.siphonTime < GetTimeEX() and targetHealth > 20) then
+					FaceTarget(targetObj);
 					if (Cast('Siphon Life', targetGUID)) then
 						self.siphonTime = GetTimeEX()+5000;
-						self.waitTimer = GetTimeEX() + 1650;
+						self.waitTimer = GetTimeEX() + 1550;
 						return true;
 					end
 				end
@@ -331,9 +333,10 @@ function script_warlock:run(targetObj)
 			-- Check: Keep the Curse of Agony up (24 s duration)
 			if (self.useCurseOfAgony) then
 				if (not script_target:hasDebuff('Curse of Agony') and self.agonyTime < GetTimeEX() and targetHealth > 20) then
+					FaceTarget(targetObj);
 					if (Cast('Curse of Agony', targetGUID)) then
 						self.agonyTime = GetTimeEX()+5000;
-						self.waitTimer = GetTimeEX() + 1600;
+						self.waitTimer = GetTimeEX() + 1550;
 						return true;
 					end
 				end
@@ -341,9 +344,10 @@ function script_warlock:run(targetObj)
 			-- Check: Keep the Corruption DoT up (15 s duration)
 			if (self.useCorruption) then
 			if (not script_target:hasDebuff('Corruption') and self.corruptTime < GetTimeEX() and targetHealth > 20) then
+				FaceTarget(targetObj);
 				if (Cast('Corruption', targetGUID)) then
 					self.corruptTime = GetTimeEX()+5000;
-					self.waitTimer = GetTimeEX() + (self.corruptionCastTime * 1000);
+					self.waitTimer = GetTimeEX() + self.corruptionCastTime;
 					if (IsCasting()) then
 						script_grind:setWaitTimer(2000);
 					end
@@ -355,9 +359,10 @@ function script_warlock:run(targetObj)
 			-- Check: Keep the Immolate DoT up (15 s duration)
 			if (self.useImmolate) then
 			if (not script_target:hasDebuff('Immolate') and self.immoTime < GetTimeEX() and targetHealth > 20) then
+				FaceTarget(targetObj);
 				if (Cast('Immolate', targetGUID)) then
 					self.immoTime = GetTimeEX()+5000;
-					self.waitTimer = GetTimeEX() + 2500;
+					self.waitTimer = GetTimeEX() + 2050;
 					if (IsCasting()) then
 						script_grind:setWaitTimer(2000);
 					end
@@ -371,10 +376,10 @@ function script_warlock:run(targetObj)
 			if self.useLifeTap and HasSpell("Life Tap") and not IsSpellOnCD("Life Tap") and localHealth > 35 and localMana < 15 then
 				if (not IsSpellOnCD("Life Tap")) then
 					if (not CastSpellByName("Life Tap")) then
-					self.waitTimer = GetTimeEX() + 1600;
+					self.waitTimer = GetTimeEX() + 1550;
 					script_grind.waitTimer = GetTimeEX() + 1650;
 					self.message = "Using Life Tap!";
-					return;
+					return true;
 					end
 				end
 			end
@@ -388,7 +393,7 @@ function script_warlock:run(targetObj)
 						return;
 					end
 					if (Cast('Drain Life', targetGUID)) then
-						self.waitTimer = GetTimeEX() + 1750;
+						self.waitTimer = GetTimeEX() + 1550;
 						return;
 					end
 				else
@@ -476,16 +481,23 @@ function script_warlock:rest()
 		self.eatHealth = script_grind.restHp;
 	end
 	if (script_grind.restMana ~= 0) then
+
 		self.drinkMana = script_grind.restMana;
+
+		if (GetLevel(GetLocalPlayer()) >= 10) then
+			script_grind.restMana = 35;
+			self.drinkMana = 35;
+		end
 	end
 
 	-- Cast: Life Tap if conditions are right
 	if (self.useLifeTap) and (localMana < self.lifeTapMana) and (HasSpell("Life Tap")) and (localHealth > self.lifeTapHealth) then
-		if (not IsInCombat()) and (not IsEating()) and (not IsDrinking()) and (not IsLooting()) and (IsStanding()) then
+		if (not IsInCombat()) and (not IsEating()) and (not IsDrinking()) and (IsStanding()) then
 			if (not IsSpellOnCD("Life Tap")) then
-				if (not CastSpellByName("Life Tap")) then
-					--self.waitTimer = GetTimeEX() + 1650;
-					script_grind.waitTimer = GetTimeEX() + 1650;
+				script_grind.tickRate = 0;
+				if (CastSpellByName("Life Tap")) then
+					--self.waitTimer = GetTimeEX() + 1550;
+					--script_grind.waitTimer = GetTimeEX() + 1650;
 					return;
 				end
 			end	
@@ -542,8 +554,12 @@ function script_warlock:rest()
 	local petIsVoid = false;
 	if (hasPet) then
 		name, __, __, __, __, __, __ = GetPetActionInfo(4);
-		if (name == "Firebolt") then petIsImp = true; end
-		if (name == "Torment") then petIsVoid = true; end
+		if (name == "Firebolt") then
+			petIsImp = true;
+		end
+		if (name == "Torment") then
+			petIsVoid = true;
+		end
 	end
 	
 	-- Check: Summon our Demon if we are not in combat (Voidwalker is Summoned in favor of the Imp)
@@ -563,19 +579,21 @@ function script_warlock:rest()
 					return true;
 				end
 			end
-		elseif ((not hasPet or petIsImp) and self.useVoid and HasSpell("Summon Voidwalker") and script_warlock:haveSoulshard()) then
+		end
+		if ((not hasPet or petIsImp) and self.useVoid and HasSpell("Summon Voidwalker") and HasItem("Soul Shard")) then
 			if (not IsStanding() or IsMoving()) then
 				StopMoving();
 			end
 			if (localMana > 40) then
-				if (not CastSpellByName("Summon Voidwalker")) then
+				if (CastSpellByName("Summon Voidwalker")) then
 					script_path.savedPos['time'] = GetTimeEX();
 					self.waitTimer = GetTimeEX() + 12000;
 					script_grind:restOn();
 					return true;
 				end
 			end
-		elseif (not hasPet and HasSpell("Summon Imp")) and (GetPet() == 0) then
+		end
+		if (not hasPet and HasSpell("Summon Imp")) and (GetPet() == 0) then
 			if (not IsStanding() or IsMoving()) then
 				StopMoving();
 			end
@@ -618,7 +636,7 @@ function script_warlock:rest()
 		if(HasSpell("Demon Armor")) then
 			if (not HasBuff(localObj, "Demon Armor")) then
 				if (Buff("Demon Armor", localObj)) then
-					self.waitTimer = GetTimeEX() + 1850;
+					self.waitTimer = GetTimeEX() + 1550;
 					script_grind:restOn();
 					return true;
 				end
@@ -628,7 +646,7 @@ function script_warlock:rest()
 	if (localMana > 30) then
 		if (not HasSpell("Demon Armor")) and (not HasBuff(localObj, 'Demon Skin') and HasSpell('Demon Skin')) and (not IsSpellOnCD("Demon Skin")) then
 			if (Buff('Demon Skin', localObj)) then
-				self.waitTimer = GetTimeEX() + 2050;
+				self.waitTimer = GetTimeEX() + 1550;
 				script_grind.waitTimer = GetTimeEX() + 2000;
 				script_grind:restOn();
 			end
@@ -638,7 +656,7 @@ function script_warlock:rest()
 		--if (HasSpell("Unending Breath")) then
 			--if (not HasBuff(localObj, 'Unending Breath')) then
 				--if (Buff('Unending Breath', localObj)) then
-					--self.waitTimer = GetTimeEX() + 1850;
+					--self.waitTimer = GetTimeEX() + 1550;
 					--return true;
 				--end
 			--end
@@ -654,7 +672,7 @@ function script_warlock:rest()
 		if (petHP < 70) then
 			if (GetDistance(GetPet()) > 8) then
 				PetFollow();
-				self.waitTimer = GetTimeEX() + 1850; 
+				self.waitTimer = GetTimeEX() + 1550; 
 				script_grind:restOn();
 				return true;
 			end
@@ -662,7 +680,7 @@ function script_warlock:rest()
 				if (hasPet and petHP < 70 and petHP > 0) then
 					DEFAULT_CHAT_FRAME:AddMessage('script_Warlock: Pet health below 70 percent, resting...');
 					if (HasSpell('Health Funnel')) then CastSpellByName('Health Funnel'); end
-					self.waitTimer = GetTimeEX() + 1850; 
+					self.waitTimer = GetTimeEX() + 1550; 
 					script_grind:restOn();
 					return true;
 				end
@@ -714,13 +732,33 @@ function script_warlock:menu()
 
 		Separator();
 
-		if (HasSpell("Summon Felguard")) then
-			wasClicked, self.useFelguard = Checkbox("Use Felguard before Voidwalker", self.useFelguard);
+		if (self.useFelguard) then
+			self.useVoid = false;
+			self.useImp = false;
 		end
-		if (HasSpell("Summon Voidwalker")) then
-			wasClicked, self.useVoid = Checkbox("Use Voidwalker before Imp", self.useVoid);
+			
+		if (self.useVoid) then
+			self.useFelguard = false;
+			self.useImp = false;
+		end
+		if (self.useImp) then
+			self.useFelguard = false;
+			self.useVoid = false;
 		end
 
+		if (HasSpell("Summon Imp")) then
+			wasClicked, self.useImp = Checkbox("Use Imp", self.useImp);
+		end
+		if (HasSpell("Summon Voidwalker")) then
+			SameLine();
+			wasClicked, self.useVoid = Checkbox("Use Voidwalker", self.useVoid);
+		end
+		if (HasSpell("Summon Felguard")) then
+			SameLine();
+			wasClicked, self.useFelguard = Checkbox("Use Felguard", self.useFelguard);
+		end
+		
+		
 		if (CollapsingHeader("|+| DoT Options")) then
 			if (HasSpell("Immolate")) then
 				wasClicked, self.useImmolate = Checkbox("Use Immolate", self.useImmolate);
@@ -735,14 +773,7 @@ function script_warlock:menu()
 			if (HasSpell("Siphon Life")) then
 				SameLine();
 				wasClicked, self.useSiphonLife = Checkbox("Use Siphon Life", self.useSiphonLife);
-			end
-
-			Separator();
-				
-			if (HasSpell("Corruption")) and (self.useCorruption) then
-				Text('Corruption cast time');
-				self.corruptionCastTime = SliderFloat("CCT (seconds)", 0, 2, self.corruptionCastTime);
-			end
+			end			
 		end
 
 		if (self.useWand) then
@@ -763,4 +794,71 @@ function script_warlock:menu()
 			end
 		end
 	end
+end
+
+function script_warlock:summonPet()
+
+	if (not IsEating() and not IsDrinking() and not IsMounted()) and (not IsCasting()) and (not IsChanneling()) then
+			local localMana = GetManaPercentage(GetLocalPlayer());
+			local hasPet = false;
+			if(GetPet() ~= 0) then
+				hasPet = true;
+			end
+			local petIsImp = false;
+			local petIsVoid = false;
+			if (hasPet) then
+				name, __, __, __, __, __, __ = GetPetActionInfo(4);
+				if (name == "Firebolt") then
+					petIsImp = true;
+				end
+				if (name == "Torment") then
+					petIsVoid = true;
+				end
+			end
+
+			if ((not hasPet or petIsVoid or petIsImp)
+				and script_warlock.useFelguard and HasSpell('Summon Felguard')
+				and script_warlock:haveSoulshard()) then
+				if (not IsStanding() or IsMoving()) then
+					StopMoving();
+				end
+				if (localMana > 40) then
+					if (not CastSpellByName("Summon Felguard")) then
+						self.waitTimer = GetTimeEX() + 12000;
+						script_path.savedPos['time'] = GetTimeEX() + 10000;
+						script_grind:restOn();
+						return true;
+					end
+				end
+			end
+			if ((not hasPet or petIsImp)
+				and script_warlock.useVoid and HasSpell("Summon Voidwalker")
+				and script_warlock:haveSoulshard()) then
+				if (not IsStanding() or IsMoving()) then
+					StopMoving();
+				end
+				if (localMana > 40) then
+					if (not CastSpellByName("Summon Voidwalker")) then
+						self.waitTimer = GetTimeEX() + 12000;
+						script_path.savedPos['time'] = GetTimeEX() + 10000;
+						script_grind:restOn();
+						return true;
+					end
+				end
+			end
+			if (script_warlock.useImp) and (not hasPet and HasSpell("Summon Imp")) and (GetPet() == 0) then
+				if (not IsStanding() or IsMoving()) then
+					StopMoving();
+				end
+				if (localMana > 30) and (not hasPet) and (GetPet() == 0) then
+					if (not CastSpellByName("Summon Imp")) then
+						script_grind:restOn();
+						self.waitTimer = GetTimeEX() + 12000;
+						script_path.savedPos['time'] = GetTimeEX() + 10000;
+						return true;
+					end
+				end
+			end
+		end
+	return false;
 end

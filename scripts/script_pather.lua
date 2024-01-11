@@ -91,9 +91,6 @@ function script_pather:moveToTarget(xx, yy, zz)
 	if (genNewPath) then
 		self.status = 1;
 		self.goToIndex = 2;
-		if (IsDead(GetLocalPlayer())) then
-			self.goToIndex = 3;
-		end
 		self.sx, self.sy, self.sz = x, y, z;
 
 		--if (IsMoving()) and (GetUnitsTarget(GetLocalPlayer()) == 0) then
@@ -146,7 +143,7 @@ function script_pather:moveToTarget(xx, yy, zz)
 		return true;
 	end
 
-	if (self.pathSize < 30) then
+	if (self.pathSize < 15) then
 		self.updatePathDist = 10;
 	end
 
