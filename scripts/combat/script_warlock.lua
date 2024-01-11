@@ -58,7 +58,7 @@ function script_warlock:run(targetObj)
 		return;
 	end
 
-	if (targetObj == 0) then
+	if (targetObj == 0) or (IsDead(targetObj)) then
 		targetObj = GetTarget();
 	end
 
@@ -195,19 +195,6 @@ function script_warlock:run(targetObj)
 				PetFollow();
 			end
 
-			-- force bot to attack pets target
-			if (GetNumPartyMembers() == 0) and (IsInCombat()) and (GetPet() ~= 0 and GetHealthPercentage(GetPet()) > 1) and (GetUnitsTarget(GetLocalPlayer()) == 0) and (self.hasPet) then
-				if (GetUnitsTarget(GetPet()) ~= 0) then
-					if (GetDistance(GetPet()) > 10) then
-						AssistUnit("pet");
-						PetFollow();
-					end
-				elseif (GetUnitsTarget(GetPet()) == 0) then
-					AssistUnit("pet");
-					self.message = "Stuck in combat! WAITING!";
-					return;
-				end
-			end
 
 			-- Amplify Curse on CD
 			if (HasSpell("Amplify Curse")) and (not IsSpellOnCD("Amplify Curse")) and (GetUnitsTarget(localObj) ~= 0) then
@@ -362,10 +349,9 @@ function script_warlock:run(targetObj)
 					AutoAttack(targetObj);
 				end
 			end
-		return;	
+		return;
 		end
 	end
-return;	
 end
 
 function script_warlock:lifeTap(localHealth, localMana)
