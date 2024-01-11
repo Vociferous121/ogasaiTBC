@@ -400,7 +400,7 @@ function script_grind:run()
 		end
 	end
 
-		-- Check: Summon our Demon if we are not in combat (Voidwalker is Summoned in favor of the Imp)
+	-- Check: Summon our Demon if we are not in combat (Voidwalker is Summoned in favor of the Imp)
 	if (HasSpell("Summon Imp")) then
 		if (script_warlock:summonPet()) then
 			return;
@@ -410,8 +410,10 @@ function script_grind:run()
 	-- Loot
 	if (script_target:isThereLoot() and not AreBagsFull() and not self.bagsFull) then
 		self.message = "Looting... (enable auto loot)";
-		script_target:doLoot(); 
-		self.waitTimer = GetTimeEX() + 750;
+		script_target:doLoot();
+		if (IsLooting()) then 
+			self.waitTimer = GetTimeEX() + 750;
+		end
 		return;
 	end
 
