@@ -24,8 +24,8 @@ script_grind = {
 	targetTimer = GetTimeEX(),
 	pullDistance = 30,
 	waitTimer = 0,
-	tickRate = 1000,
-	adjustTickRate = true,
+	tickRate = 1500,
+	adjustTickRate = false,
 	restHp = 60,
 	restMana = 60,
 	potHp = 10,
@@ -173,10 +173,9 @@ function script_grind:run()
 		if (not IsInCombat() or IsMoving()) then
 			self.tickRate = 50;
 		end
-
 		-- combat tick rate
-		if (not IsMoving()) and (IsInCombat()) then
-			self.tickRate = 650;
+		if (not IsMoving() or IsInCombat()) then
+			self.tickRate = 750;
 		end
 	end
 
@@ -189,11 +188,10 @@ function script_grind:run()
 		end
 	end
 
-	if (self.waitTimer > GetTimeEX()) then
+	if (self.waitTimer > GetTimeEX() + self.tickRate) then
 		return;
 	end
 
-	self.waitTimer = GetTimeEX();
 
 	-- Update min/max level if we level up
 	if (script_target.currentLevel ~= GetLevel(GetLocalPlayer())) then
@@ -390,6 +388,8 @@ function script_grind:run()
 		script_debug.debugGrind = "reset navigate";
 	end
 
+	-- Check: Summon our Demon if we are not in combat (Voidwalker is Summoned in favor of the Imp)
+
 	if (HasItem("Small Barnacled Clam")) then
 		if (UseItem("Small Barnacled Clam")) then
 			self.waitTimer = GetTimeEX() + 1650;
@@ -399,6 +399,55 @@ function script_grind:run()
 	if (HasItem("Cracked Power Core")) then
 		if (DeleteItem("Cracked Power Core")) then
 			self.waitTimer = GetTimeEX() + 1650;
+		end
+	end
+
+	local hasPet = false;
+	if(GetPet() ~= 0) then
+		hasPet = true;
+	end
+
+	-- Check: Summon our Demon if we are not in combat (Voidwalker is Summoned in favor of the Imp)
+	if (not IsEating() and not IsDrinking() and not IsMounted() and not hasPet) then
+
+		local localMana = GetManaPercentage(GetLocalPlayer());
+
+		if ((not hasPet or petIsVoid or petIsImp) and self.useFelguard and HasSpell('Summon Felguard') and script_warlock:haveSoulshard()) then
+			if (not IsStanding() or IsMoving()) then
+				StopMoving();
+			end
+			if (localMana > 40) then
+				if (not CastSpellByName("Summon Felguard")) then
+					self.waitTimer = GetTimeEX() + 12000;
+					script_path.savedPos['time'] = GetTimeEX() + 10000;
+					script_grind:restOn();
+					return true;
+				end
+			end
+		elseif ((not hasPet or petIsImp) and self.useVoid and HasSpell("Summon Voidwalker") and script_warlock:haveSoulshard()) then
+			if (not IsStanding() or IsMoving()) then
+				StopMoving();
+			end
+			if (localMana > 40) then
+				if (not CastSpellByName("Summon Voidwalker")) then
+					self.waitTimer = GetTimeEX() + 12000;
+					script_path.savedPos['time'] = GetTimeEX() + 10000;
+					script_grind:restOn();
+					return true;
+				end
+			end
+		elseif (not hasPet and HasSpell("Summon Imp")) and (GetPet() == 0) then
+			if (not IsStanding() or IsMoving()) then
+				StopMoving();
+			end
+			if (localMana > 30) and (not hasPet) and (GetPet() == 0) then
+				if (not CastSpellByName("Summon Imp")) then
+					script_grind:restOn();
+					self.waitTimer = GetTimeEX() + 12000;
+					script_path.savedPos['time'] = GetTimeEX() + 10000;
+					return true;
+				end
+			end
 		end
 	end
 
@@ -684,7 +733,7 @@ function script_grind:run()
 				Cast("Gift of the Naaru");
 				
 			end
-		end	
+		end
 
 		self.message = 'Attacking target...';
 		script_debug.debugGrind = "Attacking the target";
