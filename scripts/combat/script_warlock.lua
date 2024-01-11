@@ -77,6 +77,84 @@ function script_warlock:setup()
 	self.isSetup = true;
 end
 
+function script_warlock:summonPet()
+
+	if (not IsEating() and not IsDrinking() and not IsMounted()) and (not IsCasting()) and (not IsChanneling()) then
+			local localMana = GetManaPercentage(GetLocalPlayer());
+			local hasPet = false;
+			if(GetPet() ~= 0) then
+				hasPet = true;
+			end
+			local petIsImp = false;
+			local petIsVoid = false;
+			if (hasPet) then
+				name, __, __, __, __, __, __ = GetPetActionInfo(4);
+				if (name == "Firebolt") then
+					petIsImp = true;
+				end
+				if (name == "Torment") then
+					petIsVoid = true;
+				end
+			end
+			
+			-- summon felguard
+			if ((not hasPet or petIsVoid or petIsImp)
+				and script_warlock.useFelguard and HasSpell('Summon Felguard')
+				and script_warlock:haveSoulshard())
+				and (self.useFelguard) then
+				if (not IsStanding() or IsMoving()) then
+					StopMoving();
+				end
+				if (localMana > 40) then
+					if (not CastSpellByName("Summon Felguard")) then
+						self.waitTimer = GetTimeEX() + 12000;
+						script_grind.waitTimer = GetTimeEX() + 12000;
+						script_path.savedPos['time'] = GetTimeEX() + 10000;
+						script_grind:restOn();
+						return true;
+					end
+				end
+			end
+		
+			-- summon voidwalker
+			if ((not hasPet or petIsImp)
+				and script_warlock.useVoid and HasSpell("Summon Voidwalker")
+				and script_warlock:haveSoulshard()) 
+				and (self.useVoid) then
+				if (not IsStanding() or IsMoving()) then
+					StopMoving();
+				end
+				if (localMana > 40) then
+					if (not CastSpellByName("Summon Voidwalker")) then
+						self.waitTimer = GetTimeEX() + 12000;
+						script_grind.waitTimer = GetTimeEX() + 12000;
+						script_path.savedPos['time'] = GetTimeEX() + 10000;
+						script_grind:restOn();
+						return true;
+					end
+				end
+			end
+			
+			-- summon imp
+			if (script_warlock.useImp) and (not hasPet and HasSpell("Summon Imp")) and (GetPet() == 0) then
+				if (not IsStanding() or IsMoving()) then
+					StopMoving();
+				end
+				if (localMana > 30) and (not hasPet) and (GetPet() == 0) then
+					if (not CastSpellByName("Summon Imp")) then
+						script_grind:restOn();
+						self.waitTimer = GetTimeEX() + 12000;
+						script_path.savedPos['time'] = GetTimeEX() + 10000;
+						script_grind.waitTimer = GetTimeEX() + 12000;
+						return true;
+					end
+				end
+			end
+		end
+	return false;
+end
+
+
 function script_warlock:run(targetObj)
 
 	if(not self.isSetup) then
@@ -479,7 +557,9 @@ function script_warlock:rest()
 	if (self.useLifeTap) and (HasSpell("Life Tap")) and (localMana < self.lifeTapMana) and (localHealth > self.lifeTapHealth) then
 		if (not IsEating()) and (not IsDrinking()) and (IsStanding()) then
 			if (not IsSpellOnCD("Life Tap")) then
-				script_grind.tickRate = 0;
+				if (not script_grind.adjustTickRate) then
+					script_grind.tickRate = 0;
+				end
 				if (CastSpellByName("Life Tap")) then
 					self.waitTimer = GetTimeEX();
 					script_grind.waitTimer = GetTimeEX();
@@ -731,81 +811,4 @@ function script_warlock:menu()
 			end
 		end
 	end
-end
-
-function script_warlock:summonPet()
-
-	if (not IsEating() and not IsDrinking() and not IsMounted()) and (not IsCasting()) and (not IsChanneling()) then
-			local localMana = GetManaPercentage(GetLocalPlayer());
-			local hasPet = false;
-			if(GetPet() ~= 0) then
-				hasPet = true;
-			end
-			local petIsImp = false;
-			local petIsVoid = false;
-			if (hasPet) then
-				name, __, __, __, __, __, __ = GetPetActionInfo(4);
-				if (name == "Firebolt") then
-					petIsImp = true;
-				end
-				if (name == "Torment") then
-					petIsVoid = true;
-				end
-			end
-			
-			-- summon felguard
-			if ((not hasPet or petIsVoid or petIsImp)
-				and script_warlock.useFelguard and HasSpell('Summon Felguard')
-				and script_warlock:haveSoulshard())
-				and (self.useFelguard) then
-				if (not IsStanding() or IsMoving()) then
-					StopMoving();
-				end
-				if (localMana > 40) then
-					if (not CastSpellByName("Summon Felguard")) then
-						self.waitTimer = GetTimeEX() + 12000;
-						script_grind.waitTimer = GetTimeEX() + 12000;
-						script_path.savedPos['time'] = GetTimeEX() + 10000;
-						script_grind:restOn();
-						return true;
-					end
-				end
-			end
-		
-			-- summon voidwalker
-			if ((not hasPet or petIsImp)
-				and script_warlock.useVoid and HasSpell("Summon Voidwalker")
-				and script_warlock:haveSoulshard()) 
-				and (self.useVoid) then
-				if (not IsStanding() or IsMoving()) then
-					StopMoving();
-				end
-				if (localMana > 40) then
-					if (not CastSpellByName("Summon Voidwalker")) then
-						self.waitTimer = GetTimeEX() + 12000;
-						script_grind.waitTimer = GetTimeEX() + 12000;
-						script_path.savedPos['time'] = GetTimeEX() + 10000;
-						script_grind:restOn();
-						return true;
-					end
-				end
-			end
-			
-			-- summon imp
-			if (script_warlock.useImp) and (not hasPet and HasSpell("Summon Imp")) and (GetPet() == 0) then
-				if (not IsStanding() or IsMoving()) then
-					StopMoving();
-				end
-				if (localMana > 30) and (not hasPet) and (GetPet() == 0) then
-					if (not CastSpellByName("Summon Imp")) then
-						script_grind:restOn();
-						self.waitTimer = GetTimeEX() + 12000;
-						script_path.savedPos['time'] = GetTimeEX() + 10000;
-						script_grind.waitTimer = GetTimeEX() + 12000;
-						return true;
-					end
-				end
-			end
-		end
-	return false;
 end
