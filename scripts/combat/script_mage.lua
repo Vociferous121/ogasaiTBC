@@ -20,7 +20,7 @@ script_mage = {
 	useFireBlast = true,
 	useWand = true,
 	gemTimer = 0,
-	waiTimer = 0,
+	waitTimer = 0,
 	useRotation = false,
 	useFrostNova = true,
 	useWandMana = 10,
@@ -29,9 +29,7 @@ script_mage = {
 	useEvocation = true,
 	useConeOfCold = true,
 	coneOfColdMana = 35,
-	coneOfColdHealth = 15,
-	restWaitTimer = 0,
-	
+	coneOfColdHealth = 15,	
 }
 
 function script_mage:setup()
@@ -44,7 +42,6 @@ function script_mage:setup()
 
 	self.waitTimer = GetTimeEX();
 	self.gemTimer = GetTimeEX();
-	self.restWaitTimer = GetTimeEX();
 
 	DEFAULT_CHAT_FRAME:AddMessage('script_mage: loaded...');
 	self.isSetup = true;
@@ -56,7 +53,8 @@ function script_mage:coneOfCold(spellName) -- cone of cold function needed to wo
 	if (HasSpell(spellName)) then
 		if (not IsSpellOnCD(spellName)) then
 			if (not IsAutoCasting(spellName)) then
-				Cast(spellName);
+				CastSpellByName(spellName);
+				return true;
 			end
 		end
 	end
@@ -76,15 +74,19 @@ function script_mage:runBackwards(targetObj, range)
 			local xUV, yUV, zUV = (1/vectorLength)*xV, (1/vectorLength)*yV, (1/vectorLength)*zV;		
  			local moveX, moveY, moveZ = xT + xUV*15, yT + yUV*15, zT + zUV;	
 			if (distance < 7 and IsInLineOfSight(targetObj)) then 
-				if (script_grind.waitTimer ~= 0) then
-					script_grind.waitTimer = GetTimeEX() + 1000;
-				end
 				Move(moveX, moveY, moveZ);
 				self.waitTimer = GetTimeEX() + 250;
  				return;
  			end
 	end
 return false;
+end
+
+function script_mage:setTimers(miliseconds)
+
+	script_mage.waitTimer = GetTimeEX() + miliseconds;
+	script_grind.waitTimer = GetTimeEX() + miliseconds;
+
 end
 
 function script_mage:run(targetObj)
@@ -106,13 +108,8 @@ function script_mage:run(targetObj)
 
 	targetHealth = GetHealthPercentage(targetObj);
 
-	-- Timer
-	if (self.waitTimer > GetTimeEX()) then
-		return;
-	end
-
 	-- Pre Check
-	if (IsChanneling() or IsCasting() or HasBuff(localObj, 'Ice Block')) then
+	if (IsChanneling() or IsCasting() or self.waitTimer > GetTimeEX() + (script_grind.tickRate*1000)) or (HasBuff(localObj, "Ice Block")) then
 		return;
 	end
 	
@@ -130,13 +127,17 @@ function script_mage:run(targetObj)
 
 		-- Check: Keep Ice Barrier up if possible
 		if (HasSpell("Ice Barrier") and not IsSpellOnCD("Ice Barrier") and not HasBuff(localObj, "Ice Barrier")) then
-			CastSpellByName('Ice Barrier');
-			return;
+			if (CastSpellByName('Ice Barrier')) then
+				script_mage:setTimers(1550);
+				return true;
+			end
 		-- Check: If we have Cold Snap use it to clear the Ice Barrier CD
 		elseif (HasSpell("Ice Barrier") and IsSpellOnCD("Ice Barrier") and HasSpell('Cold Snap') and 
 			not IsSpellOnCD("Cold Snap") and not HasBuff(localObj, 'Ice Barrier')) then
-				CastSpellByName('Cold Snap');
-				return;
+				if (CastSpellByName('Cold Snap')) then
+					script_mage:setTimers(1550);
+					return true;
+				end
 		end
 
 		local pet = GetPet(); 
@@ -147,8 +148,10 @@ function script_mage:run(targetObj)
 
 		-- Summon Elemental
 		if (HasSpell("Summon Water Elemental") and not IsSpellOnCD("Summon Water Elemental") and not (petHP > 0)) then
-			CastSpellByName("Summon Water Elemental");
-			return;
+			if (CastSpellByName("Summon Water Elemental")) then
+				script_mage:setTimers(1550);
+				return true;
+			end
 		end
 		
 		--Opener
@@ -163,17 +166,15 @@ function script_mage:run(targetObj)
 
 			--Cast Spell
 			if (localMana >= 8) then
-				if (Cast('Frostbolt', targetGUID)) then
-					self.waitTimer = GetTimeEX() + 2850;
-					script_grind.waitTimer = GetTimeEX() + 3000;
+				if (not Cast('Frostbolt', targetGUID)) then
+					script_mage:setTimers(2250);
 					return true;
 				end
 			end
 
 			if (localMana >= 10) then
 				if (Cast('Fireball', targetGUID)) then
-					self.waitTimer = GetTimeEX() + 2850;
-					script_grind.waitTimer = GetTimeEX() + 3000;
+					script_mage:setTimers(2250);
 					return true;
 				end
 			end
@@ -185,7 +186,7 @@ function script_mage:run(targetObj)
 				for i=0,self.numGem do
 					if(HasItem(self.manaGem[i])) then
 						if (UseItem(self.manaGem[i])) then
-							self.waitTimer = GetTimeEX() + 1850;
+							script_mage:setTimers(1550);
 							self.gemTimer = GetTimeEX() + 120000;
 						return true;
 						end
@@ -198,7 +199,7 @@ function script_mage:run(targetObj)
 				or (GetHealthPercentage(GetLocalPlayer()) <= 40) ) then
 				if (HasSpell("Gift of the Naaru")) and (not IsSpellOnCD("Gift of the Naaru")) and (not HasBuff(localObj, "Gift of the Naaru")) then
 					if (Cast("Gift of the Naaru", localObj)) then
-						self.waitTimer = GetTimeEX() + 1850;
+						script_mage:setTimers(1550);
 						return true;
 					end
 				
@@ -207,7 +208,7 @@ function script_mage:run(targetObj)
 			
 			if (targetHealth <= 15 or targetHealth >= 65) and (localMana >= 6) and (HasSpell('Fire Blast')) and (self.useFireBlast) then
 				if (Cast('Fire Blast', targetGUID)) then
-					self.waitTimer = GetTimeEX() + 1850;
+					script_mage:setTimers(1550);
 					return true;
 				end
 			end
@@ -225,7 +226,6 @@ function script_mage:run(targetObj)
 			if (self.useFrostNova) and (GetDistance(targetObj) < 5 and not script_target:hasDebuff("Frostbite") and HasSpell("Frost Nova") and not IsSpellOnCD("Frost Nova") and targetHealth > 15) then
 				self.message = "Frost nova the target(s)...";
 				if (CastSpellByName("Frost Nova")) then
-					self.waitTimer = GetTimeEX() + 1850;
 					return true;
 				end
 			end
@@ -233,14 +233,14 @@ function script_mage:run(targetObj)
 			-- Check: Move backwards if the target is affected by Frost Nova or Frost Bite
 			if (GetNumPartyMembers() < 1) and (self.useFrostNova) then
 				if (HasDebuff(targetObj, "Frostbite") or HasDebuff(targetObj, "Frost Nova")) and (targetHealth > 10 or localHealth < 35) and (not HasBuff(localObj, 'Evocation')) and (not IsSwimming()) and (IsInLineOfSight(targetObj)) then
-					script_grind.tickRate = 0;
-
+					if (not script_grind.adjustTickRate) then
+						script_grind.tickRate = 0;
+					end
 					if (script_mage:runBackwards(targetObj, 8)) then -- Moves if the target is closer than 7 yards
 
 						self.message = "Moving away from target...";
 						if (not IsSpellOnCD("Frost Nova")) and (GetDistance(targetObj) < 9) and (not HasDebuff(targetObj, "Frostbite")) then
 							if (CastSpellByName("Frost Nova")) then
-								self.waitTimer = GetTimeEX() + 1750;
 								return true;
 							end
 						end
@@ -257,8 +257,8 @@ function script_mage:run(targetObj)
 			-- counterspell if target is casting
 			if (HasSpell("Counterspell")) and (not IsSpellOnCD("Counterspell")) and (localMana > 15) and (IsCasting(targetObj)) then
 				if (Cast("Counterspell", targetObj)) then
-					self.waitTimer = GetTimeEX() + 1500;
-					return;
+					script_mage:setTimers(1550);
+					return true;
 				end
 			end
 
@@ -266,8 +266,8 @@ function script_mage:run(targetObj)
 			if (self.useEvocation) and (localMana < self.evocationMana and localHealth > self.evocationHealth and HasSpell("Evocation") and not IsSpellOnCD("Evocation")) and (targetHealth >= 15) and (IsInCombat()) then		
 				self.message = "Using Evocation...";
 				if (CastSpellByName("Evocation")) then
-					self.waitTimer = GetTimeEX() + 1850;
-					return;
+					script_mage:setTimers(1550);
+					return true;
 				end
 			end
 
@@ -276,8 +276,7 @@ function script_mage:run(targetObj)
 				not HasBuff(localObj, 'Mana Shield') and GetDistance(targetObj) < 15) then
 				if (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
 					if (CastSpellByName('Mana Shield')) then
-						self.waitTimer = GetTimeEX() + 2350;
-						script_grind.waitTimer = GetTimeEX() + 2350;
+						script_mage:setTimers(1550);
 						return true;
 					end
 				end
@@ -288,7 +287,7 @@ function script_mage:run(targetObj)
 				localHealth < self.iceBlockHealth and localMana < self.iceBlockMana) then
 				self.message = "Using Ice Block...";
 				if (CastSpellByName('Ice Block')) then
-					self.waitTimer = GetTimeEX() + 1850;
+					script_mage:setTimers(1550);
 					return true;
 				end
 			end
@@ -299,7 +298,7 @@ function script_mage:run(targetObj)
 					local angle = GetAngle(targetObj);
 					FaceAngle(angle);
 					if (CastSpellByName("Blink")) then
-						self.waitTimer = GetTimeEX() + 1850;
+						script_mage:setTimers(1550);
 						return true;
 					end
 				end
@@ -317,7 +316,7 @@ function script_mage:run(targetObj)
 						FaceTarget(targetObj);
 					if (script_mage:coneOfCold('Cone of Cold')) then
 						FaceTarget(targetObj);
-						self.waitTimer = GetTimeEX() + 1850;
+						script_mage:setTimers(1550);
 						return true;
 					end
 				end
@@ -339,7 +338,6 @@ function script_mage:run(targetObj)
 			-- Auto Attack if no mana
 			if (localMana < 5) and (not HasDebuff(targetObj, "Frost Nova")) and (not HasDebuff(targetObj, "Frost Bite")) and (not self.useRotation) then
 				UnitInteract(targetObj);
-				self.interactTimer = GetTimeEX() + 2500;
 				
 			else
 				if (localMana < 5) and (self.useRotation) then
@@ -350,8 +348,8 @@ function script_mage:run(targetObj)
 
 			--Cast Spell
 			if (not IsMoving()) and (localMana >= 10) then
-				if (Cast('Frostbolt', targetGUID)) then
-					self.waitTimer = GetTimeEX() + 1850;
+				if (not Cast('Frostbolt', targetGUID)) then
+					script_mage:setTimers(1550);
 					return true;
 				end
 			end
@@ -359,7 +357,7 @@ function script_mage:run(targetObj)
 			-- Fireball at level 1
 			if (not IsMoving()) and (not HasSpell("Frostbolt")) and (localMana >= 20) then
 				if (Cast('Fireball', targetGUID)) then
-					self.waitTimer = GetTimeEX() + 1850;
+					script_mage:setTimers(1550);
 					return true;
 				end
 			end
@@ -371,10 +369,6 @@ function script_mage:run(targetObj)
 end
 
 function script_mage:rest()
-
-	if (self.restWaitTimer > GetTimeEX()) then
-		return;
-	end
 
 	if(not self.isSetup) then
 		script_mage:setup();
@@ -394,6 +388,9 @@ function script_mage:rest()
 		self.drinkMana = script_grind.restMana;
 	end
 	
+	if (self.waitTimer > GetTimeEX() or IsCasting() or IsChanneling()) then
+		return;
+	end
 	--Create Water
 	local waterIndex = -1;
 	for i=0,self.numWater do
@@ -416,10 +413,9 @@ function script_mage:rest()
 					script_grind:restOn();
 					return true;
 				end
-				if (CastSpellByName('Conjure Water')) then
-					script_grind.waitTimer = GetTimeEX() + 3050;
-					self.restWaitTimer = GetTimeEX() + 3050;
-					self.waitTimer = GetTimeEX() + 2500;
+				if (not CastSpellByName('Conjure Water')) then
+					script_grind.waitTimer = GetTimeEX() + 1550;
+					self.waitTimer = GetTimeEX() + 1550;
 					script_grind:restOn();
 					return true;
 				end
@@ -451,10 +447,9 @@ function script_mage:rest()
 			return true;
 		end
 		if (localMana > 10 and not IsDrinking() and not IsEating() and not AreBagsFull()) then
-			if (CastSpellByName('Conjure Food')) then
-				self.restWaitTimer = GetTimeEX() + 3050;
-				self.waitTimer = GetTimeEX() + 2500;
-				script_grind.waitTimer = GetTimeEX() + 3050;
+			if (not CastSpellByName('Conjure Food')) then
+				self.waitTimer = GetTimeEX() + 1550;
+				script_grind.waitTimer = GetTimeEX() + 1550;
 				script_grind:restOn();
 				return true;
 			end
@@ -486,21 +481,33 @@ function script_mage:rest()
 		end
 		if (localMana > 20 and not IsDrinking() and not IsEating() and not AreBagsFull()) then
 			if (HasSpell('Conjure Mana Ruby')) then
-				CastSpellByName('Conjure Mana Ruby')
-				script_grind:restOn();
-				return;
+				if (CastSpellByName('Conjure Mana Ruby')) then
+					self.waitTimer = GetTimeEX() + 1550;
+					script_grind.waitTimer = GetTimeEX() + 1550;
+					script_grind:restOn();
+					return true;
+				end
 			elseif (HasSpell('Conjure Mana Citrine')) then
-				CastSpellByName('Conjure Mana Citrine')
-				script_grind:restOn();
-				return;
+				if (CastSpellByName('Conjure Mana Citrine')) then
+					self.waitTimer = GetTimeEX() + 1550;
+					script_grind.waitTimer = GetTimeEX() + 1550;
+					script_grind:restOn();
+					return true;
+				end
 			elseif (HasSpell('Conjure Mana Jade')) then
-				CastSpellByName('Conjure Mana Jade')
-				script_grind:restOn();
-				return;
+				if (CastSpellByName('Conjure Mana Jade')) then
+					self.waitTimer = GetTimeEX() + 1550;
+					script_grind.waitTimer = GetTimeEX() + 1550;
+					script_grind:restOn();
+					return true;
+				end
 			elseif (HasSpell('Conjure Mana Agate')) then
-				CastSpellByName('Conjure Mana Agate')
-				script_grind:restOn();
-				return;
+				if (CastSpellByName('Conjure Mana Agate')) then
+					self.waitTimer = GetTimeEX() + 1550;
+					script_grind.waitTimer = GetTimeEX() + 1550;
+					script_grind:restOn();
+					return true;
+				end
 			end
 		end
 	end
@@ -514,8 +521,8 @@ function script_mage:rest()
 		end
 
 		if(script_helper:drinkWater()) then
-			self.restWaitTimer = GetTimeEX() + 1500;
-			script_grind.waitTimer = GetTimeEX() + 1500;
+			self.waitTimer = GetTimeEX() + 1550;
+			script_grind.waitTimer = GetTimeEX() + 1550;
 			script_grind:restOn();
 			return true;
 		end
@@ -529,8 +536,8 @@ function script_mage:rest()
 		end
 
 		if(script_helper:eat()) then
-			self.restWaitTimer = GetTimeEX() + 1500;
-			script_grind.waitTimer = GetTimeEX() + 1500;
+			self.waitTimer = GetTimeEX() + 1550;
+			script_grind.waitTimer = GetTimeEX() + 1550;
 			script_grind:restOn();
 			return true;
 		end
@@ -551,30 +558,35 @@ function script_mage:rest()
 		Move(x-1, y, z)
 	end
 
+	if (localMana < self.drinkMana and not IsDrinking()) and (localHealth < self.eatHealth and not IsEating()) then
+		script_grind.message = "No food/water or none included in helper...";
+	end
+
+
 	-- Do Buff
 	if (not IsInCombat()) then
 		if (Buff('Arcane Intellect', localObj)) then
-			self.restWaitTimer = GetTimeEX() + 1850;
-			script_grind.waitTimer = GetTimeEX() + 2850;
+			self.waitTimer = GetTimeEX() + 1550;
+			script_grind.waitTimer = GetTimeEX() + 1550;
 			return true;
 		end
 		if (Buff('Dampen Magic', localObj)) then
-			self.restWaitTimer = GetTimeEX() + 1850;
-			script_grind.waitTimer = GetTimeEX() + 2850;
+			self.waitTimer = GetTimeEX() + 1550;
+			script_grind.waitTimer = GetTimeEX() + 1550;
 			return true;
 		end
 		if (HasSpell('Ice Armor')) then
 			if (Buff('Ice Armor', localObj)) then
-				self.restWaitTimer = GetTimeEX() + 1850;
-				script_grind.waitTimer = GetTimeEX() + 2850;
+				self.waitTimer = GetTimeEX() + 1550;
+				script_grind.waitTimer = GetTimeEX() + 1550;
 				return true;
 			end
 		
 		end
 		if (not HasSpell("Ice Armor")) then
 			if (Buff('Frost Armor', localObj)) then
-				self.restWaitTimer = GetTimeEX() + 1850;
-				script_grind.waitTimer = GetTimeEX() + 2850;
+				self.waitTimer = GetTimeEX() + 1550;
+				script_grind.waitTimer = GetTimeEX() + 1550;
 				return true;
 			end
 		end

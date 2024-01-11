@@ -151,15 +151,33 @@ function script_grind:run()
 		script_aggro:drawAggroCircles(65);
 	end
 
+	-- paranoia timer
 	self.currentTime = GetTimeEX();
+
+	-- rogue wait timers
 	script_rogue.waitTimer = GetTimeEX();
-	--script_mage.waitTimer = GetTimeEX();
+	--mage wait timers
+	script_mage.waitTimer = GetTimeEX();
+	script_mage.gemTimer = GetTimeEX();
+	--warlock timers
 	script_warlock.waitTimer = GetTimeEX();
 	script_warlocksiphonTime = GetTimeEX();
 	script_warlockagonyTime = GetTimeEX();
 	script_warlockcorruptTime = GetTimeEX();
 	script_warlockimmoTime = GetTimeEX();
 	script_warlockstoneTime = GetTimeEX();
+	-- warrior timers
+	script_warrior.waitTimer = GetTimeEX();
+	-- paladin timers
+	script_paladin.waitTimer = GetTimeEX();
+	-- priest timers
+	script_priest.waitTimer = GetTimeEX();
+	-- shaman timers
+	script_shaman.waitTimer = GetTimeEX();
+	-- hunter timers
+	script_hunter.waitTimer = GetTimeEX();
+	-- druid timers
+	script_druid.waitTimer = GetTimeEX();
 
 	-- draw move path
 	if (IsMoving()) and (self.drawPath) then

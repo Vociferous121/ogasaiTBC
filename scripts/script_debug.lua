@@ -107,6 +107,13 @@ function script_debug:menu()
 		Text("corrupt timer "..wt4);
 		Text("immo timer "..wt5);
 		Text("stone timer "..wt6);
+
+		Text("");
+		Text("Mage Timers");
+		local mwt1 = script_mage.waitTimer;
+		local mwt2 = script_mage.gemTimer;
+		Text("wait timer - "..mwt1);
+		Text("gem timer - "..mwt2);
 	end
 		
 end
