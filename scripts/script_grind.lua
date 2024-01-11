@@ -188,7 +188,7 @@ function script_grind:run()
 		end
 	end
 
-	if (self.waitTimer > GetTimeEX() + self.tickRate) then
+	if (self.waitTimer + self.tickRate > GetTimeEX()) then
 		return;
 	end
 
@@ -456,7 +456,7 @@ function script_grind:run()
 		if (not IsInCombat() and not AreBagsFull() and not self.bagsFull) then
 			self.message = "Looting... (enable auto loot)";
 			script_target:doLoot(); 
-			self.waitTimer = GetTimeEX() + 1750;
+			self.waitTimer = GetTimeEX() + 750;
 		end
 		return;
 	end
