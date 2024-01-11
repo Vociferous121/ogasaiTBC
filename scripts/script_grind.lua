@@ -452,7 +452,7 @@ function script_grind:run()
 	end
 
 	-- Loot
-	if (script_target:isThereLoot() and not IsInCombat() and not AreBagsFull() and not self.bagsFull) then
+	if (script_target:isThereLoot() and not AreBagsFull() and not self.bagsFull) then
 		self.message = "Looting... (enable auto loot)";
 		script_target:doLoot(); 
 		self.waitTimer = GetTimeEX() + 750;
@@ -460,15 +460,15 @@ function script_grind:run()
 	end
 
 	-- stuck in combat
-	--if (IsInCombat()) and (not script_grindEX2:isAnyTargetTargetingMe()) and (GetHealthPercentage(GetUnitsTarget(localObj)) >= 100)
-	--	and (GetDistance(GetUnitsTarget(localObj)) > 10) then
-	--	self.message = "Stuck in combat... waiting...";
-	--	if (IsMoving()) then
-	--		StopMoving();
-	--		return;
-	--	end
-	--return true;
-	--end
+	if (IsInCombat()) and (not script_grindEX2:isAnyTargetTargetingMe()) and (GetHealthPercentage(GetUnitsTarget(localObj)) >= 100)
+		and (GetDistance(GetUnitsTarget(localObj)) > 10) then
+		self.message = "Stuck in combat... waiting...";
+		if (IsMoving()) then
+			StopMoving();
+			return;
+		end
+	return true;
+	end
 
 	-- Wait for group members
 	if (GetNumPartyMembers() > 2) then
@@ -598,19 +598,19 @@ function script_grind:run()
 			end
 
 			-- stuck in combat
-		--	if (IsInCombat()) and (GetPet() ~= 0) and (not script_hunter.useRotation) then
-		--		if (GetUnitsTarget(localObj) == 0) and (GetUnitsTarget(GetPet()) == 0) and (GetNumPartyMembers() < 1) then
-		--			if (GetUnitsTarget(GetPet()) ~= 0) then
-		--				AssistUnit("pet");
-		--			end
-		--			self.message = "No Target - stuck in combat! WAITING!";
-		--			if (IsMoving()) then
-		--				StopMoving();
-		--				return;
-		--			end
-		--			return;
-		--		end
-		--	end
+			if (IsInCombat()) and (GetPet() ~= 0) and (not script_hunter.useRotation) then
+				if (GetUnitsTarget(localObj) == 0) and (GetUnitsTarget(GetPet()) == 0) and (GetNumPartyMembers() < 1) then
+					if (GetUnitsTarget(GetPet()) ~= 0) then
+						AssistUnit("pet");
+					end
+					self.message = "No Target - stuck in combat! WAITING!";
+					if (IsMoving()) then
+						StopMoving();
+						return;
+					end
+					return;
+				end
+			end
 
 			-- stop when we get close enough to target and we are a ranged class
 			if (HasSpell("Fireball") or HasSpell("Smite") or HasSpell("Shadow Bolt")) or (HasSpell("Wrath") and not HasBuff(localObj, "Cat Form") and not HasBuff(localObj, "Bear Form") and not HasBuff(localObj, "Dire Bear Form")) then

@@ -1,6 +1,7 @@
 script_warlock = {
-	version = '0.1',
-	message = 'Warlock Combat',
+	version = '1.0 by Vociferous',
+	message = 'Warlock Combat Script',
+	warlockDOTS = include("scripts\\combat\\script_warlockDOTS.lua"),
 	drinkMana = 50,
 	eatHealth = 50,
 	isSetup = false,
@@ -23,6 +24,13 @@ script_warlock = {
 	useWandHealth = 15,
 	useWandMana = 10,
 	corruptionCastTime = 2,
+	useCorruption = true,
+	useImmolate = true,
+	useDrainLife = true,
+	useSiphonLife = true,
+	useCurseOfAgony = true,
+	lifeTapMana = 75,
+	lifeTapHealth = 80,
 }
 
 function script_warlock:addHealthStone(name)
@@ -45,6 +53,23 @@ function script_warlock:setup()
 	script_warlockcorruptTime = GetTimeEX();
 	script_warlockimmoTime = GetTimeEX();
 	script_warlockstoneTime = GetTimeEX();
+
+	local level = GetLevel(GetLocalPlayer());
+	if (level == 10) then
+		self.corruptionCastTime = 1.6;
+	end
+	if (level == 11) then
+		self.corruptionCastTime = 1.4;
+	end
+	if (level == 12) then
+	self.corruptionCastTime = 1.0;
+	end
+	if (level == 13) then
+	self.corruptionCastTime = .6;
+	end
+	if (level >= 14) then
+		self.corruptionCastTime = 0;
+	end
 
 	DEFAULT_CHAT_FRAME:AddMessage('script_warlock: loaded...');
 
@@ -84,6 +109,22 @@ function script_warlock:run(targetObj)
 	if (IsChanneling() or IsCasting() or self.waitTimer > GetTimeEX() + (script_grind.tickRate*1000)) then
 		return;
 	end
+
+	-- force bot to attack pets target
+	local playerHasTarget = GetUnitsTarget(GetLocalPlayer());
+	local petHasTarget = GetUnitsTarget(GetPet());
+	if (GetNumPartyMembers() == 0) and (IsInCombat()) and (GetPet() ~= 0 and GetHealthPercentage(GetPet()) >= 1) and (playerHasTarget == 0) then
+		if (petHasTarget ~= 0) then
+			if (GetDistance(GetPet()) > 10) then
+				AssistUnit("pet");
+				PetFollow();
+			end
+		elseif (petHasTarget == 0) then
+			AssistUnit("pet");
+			self.message = "Stuck in combat! WAITING!";
+			return;
+		end
+	end
 	
 
 	-- Use Soul Link
@@ -96,6 +137,9 @@ function script_warlock:run(targetObj)
 	
 	--Valid Enemy
 	if (targetObj ~= 0) then
+
+	--script_warlockDOTS:corruption(targetObj);
+
 		
 		-- Cant Attack dead targets
 		if (IsDead(targetObj)) then
@@ -138,7 +182,7 @@ function script_warlock:run(targetObj)
 					return true;
 				end
 			end
-			if (HasSpell("Siphon Life")) and (not script_target:hasDebuff("Siphon Life")) then
+			if (self.useSiphonLife) and (HasSpell("Siphon Life")) and (not script_target:hasDebuff("Siphon Life")) then
 				if (Cast("Siphon Life", targetGUID)) then
 					if (GetPet() ~= nil) then
 						PetAttack();
@@ -148,7 +192,7 @@ function script_warlock:run(targetObj)
 					return true;
 				end
 			end
-			if (HasSpell("Curse of Agony"))  and (not script_target:hasDebuff("Curse of Agony")) then
+			if (self.useCurseOfAgony) and (HasSpell("Curse of Agony"))  and (not script_target:hasDebuff("Curse of Agony")) then
 				if (Cast('Curse of Agony', targetGUID)) then
 					if (GetPet() ~= nil) then
 						PetAttack();
@@ -158,7 +202,7 @@ function script_warlock:run(targetObj)
 					return true;
 				end
 			end
-			if (HasSpell("Immolate")) and (GetTimeEX() > self.immoTime) then
+			if (self.useImmolate) and (HasSpell("Immolate")) and (GetTimeEX() > self.immoTime) then
 				if (not IsSpellOnCD("Immolate")) and (not IsCasting()) and (not IsChanneling()) and (not IsInCombat()) and (GetHealthPercentage(targetObj) >= 100) and (not script_target:hasDebuff("Immolate")) and (not IsMoving()) and (IsInLineOfSight(targetObj)) then
 					FaceTarget(targetObj);
 					CastSpellByName('Immolate');
@@ -274,24 +318,28 @@ function script_warlock:run(targetObj)
 			end
 
 			-- Check: Keep Siphon Life up (30 s duration)
-			if (not script_target:hasDebuff('Siphon Life') and self.siphonTime < GetTimeEX() and targetHealth > 20) then
-				if (Cast('Siphon Life', targetGUID)) then
-					self.siphonTime = GetTimeEX()+5000;
-					self.waitTimer = GetTimeEX() + 1650;
-					return true;
+			if (self.useSiphonLife) then
+				if (not script_target:hasDebuff('Siphon Life') and self.siphonTime < GetTimeEX() and targetHealth > 20) then
+					if (Cast('Siphon Life', targetGUID)) then
+						self.siphonTime = GetTimeEX()+5000;
+						self.waitTimer = GetTimeEX() + 1650;
+						return true;
+					end
 				end
 			end
 
 			-- Check: Keep the Curse of Agony up (24 s duration)
-			if (not script_target:hasDebuff('Curse of Agony') and self.agonyTime < GetTimeEX() and targetHealth > 20) then
-				if (Cast('Curse of Agony', targetGUID)) then
-					self.agonyTime = GetTimeEX()+5000;
-					self.waitTimer = GetTimeEX() + 1600;
-					return true;
+			if (self.useCurseOfAgony) then
+				if (not script_target:hasDebuff('Curse of Agony') and self.agonyTime < GetTimeEX() and targetHealth > 20) then
+					if (Cast('Curse of Agony', targetGUID)) then
+						self.agonyTime = GetTimeEX()+5000;
+						self.waitTimer = GetTimeEX() + 1600;
+						return true;
+					end
 				end
 			end
-	
 			-- Check: Keep the Corruption DoT up (15 s duration)
+			if (self.useCorruption) then
 			if (not script_target:hasDebuff('Corruption') and self.corruptTime < GetTimeEX() and targetHealth > 20) then
 				if (Cast('Corruption', targetGUID)) then
 					self.corruptTime = GetTimeEX()+5000;
@@ -299,13 +347,28 @@ function script_warlock:run(targetObj)
 					if (IsCasting()) then
 						script_grind:setWaitTimer(2000);
 					end
-					return true;
+				return true;
 				end
+			end
+			end
+
+			-- Check: Keep the Immolate DoT up (15 s duration)
+			if (self.useImmolate) then
+			if (not script_target:hasDebuff('Immolate') and self.immoTime < GetTimeEX() and targetHealth > 20) then
+				if (Cast('Immolate', targetGUID)) then
+					self.immoTime = GetTimeEX()+5000;
+					self.waitTimer = GetTimeEX() + 2500;
+					if (IsCasting()) then
+						script_grind:setWaitTimer(2000);
+					end
+				return true;
+				end
+			end
 			end
 	
 			
 			-- life tap in combat
-			if HasSpell("Life Tap") and not IsSpellOnCD("Life Tap") and localHealth > 35 and localMana < 15 then
+			if self.useLifeTap and HasSpell("Life Tap") and not IsSpellOnCD("Life Tap") and localHealth > 35 and localMana < 15 then
 				if (not IsSpellOnCD("Life Tap")) then
 					if (not CastSpellByName("Life Tap")) then
 					self.waitTimer = GetTimeEX() + 1600;
@@ -317,6 +380,7 @@ function script_warlock:run(targetObj)
 			end
 
 			-- Cast: Drain Life, don't use Drain Life if we need a soul shard
+			if (self.useDrainLife) then
 			if (HasSpell("Drain Life") and script_warlock:haveSoulshard() and GetCreatureType(targetObj) ~= "Mechanic") then
 				if (GetDistance(targetObj) < 20) then
 					if (IsMoving()) then
@@ -333,7 +397,8 @@ function script_warlock:run(targetObj)
 						return;
 					end
 				end
-			end	
+			end
+			end
 			-- Cast: Shadow Bolt
 			if (localMana >= 10) and (GetHealthPercentage(targetObj) >= 5) then
 				if (Cast('Shadow Bolt', targetGUID)) then
@@ -401,20 +466,25 @@ function script_warlock:rest()
 	-- Check: Do we have a pet?
 	local pet = GetPet(); local petHP = 0;
 	local hasPet = false;
-	if (pet ~= nil and pet ~= 0) then hasPet = true; petHP = GetHealthPercentage(pet); end
+	if (pet ~= nil and pet ~= 0) then
+		hasPet = true;
+		petHP = GetHealthPercentage(pet);
+	end
 
 	-- Update rest values
-	if (script_grind.restHp ~= 0) then self.eatHealth = script_grind.restHp; end
-	if (script_grind.restMana ~= 0) then self.drinkMana = script_grind.restMana; end
+	if (script_grind.restHp ~= 0) then
+		self.eatHealth = script_grind.restHp;
+	end
+	if (script_grind.restMana ~= 0) then
+		self.drinkMana = script_grind.restMana;
+	end
 
-	--if (self.waitTimer > GetTimeEX()) then return true; end
-
-	-- Cast: Life Tap if conditions are right, see the function
-	if (localMana < localHealth) and (HasSpell("Life Tap")) and (localHealth > self.eatHealth) then
+	-- Cast: Life Tap if conditions are right
+	if (self.useLifeTap) and (localMana < self.lifeTapMana) and (HasSpell("Life Tap")) and (localHealth > self.lifeTapHealth) then
 		if (not IsInCombat()) and (not IsEating()) and (not IsDrinking()) and (not IsLooting()) and (IsStanding()) then
 			if (not IsSpellOnCD("Life Tap")) then
 				if (not CastSpellByName("Life Tap")) then
-					self.waitTimer = GetTimeEX() + 1650;
+					--self.waitTimer = GetTimeEX() + 1650;
 					script_grind.waitTimer = GetTimeEX() + 1650;
 					return;
 				end
@@ -606,24 +676,91 @@ function script_warlock:rest()
 end
 
 function script_warlock:menu()
-	if (CollapsingHeader("[Warlock - Afflic/Demo")) then
-		local wasClicked = false;
-		Text('Skills options:');
-		Separator();
-		wasClicked, self.useWand = Checkbox("Use Wand", self.useWand);
-		wasClicked, self.useLifeTap = Checkbox("Use Life Tap", self.useLifeTap);
-		wasClicked, self.useFelguard = Checkbox("Use Felguard before Voidwalker", self.useFelguard);
-		wasClicked, self.useVoid = Checkbox("Use Voidwalker before Imp", self.useVoid);
-		Text('Corruption cast time');
-		self.corruptionCastTime = SliderFloat("CCT (seconds)", 0, 2, self.corruptionCastTime);
-		Text("Use Healthstones below HP percent");
-		self.stoneHealth = SliderFloat("HSHP", 1, 99, self.stoneHealth);
 
-		if (CollapsingHeader("|+| Wand Options")) then
-			Text("Use Wand Below Target Health Percent");
-			self.useWandHealth = SliderInt("Wand Health", 0, 100, self.useWandHealth);
-			Text("Use Wand Below Self Mana Percent");
-			self.useWandMana = SliderInt("Wand Mana", 0, 100, self.useWandMana);
+	if (CollapsingHeader("Warlock Combat Menu")) then
+
+		local wasClicked = false;
+		
+		if (HasSpell("Create Healthstone")) then
+			Text("Use Healthstones below HP percent");
+			self.stoneHealth = SliderFloat("HSHP", 1, 99, self.stoneHealth);
+			Separator();
+		end
+
+		-- wand
+		local max = 0;
+		local dur = 0;
+		if (GetInventoryItemDurability(18) ~= nil) then
+			dur, max = GetInventoryItemDurability(18);
+		end
+
+		if (dur > 0) then
+			wasClicked, self.useWand = Checkbox("Use Wand", self.useWand);
+		end
+		if (dur > 0) then
+			SameLine();
+		end
+
+		-- life tap
+		if (HasSpell("Life Tap")) then
+			wasClicked, self.useLifeTap = Checkbox("Use Life Tap", self.useLifeTap);
+		end
+
+		-- drain life
+		if (HasSpell("Drain Life")) then
+			SameLine();
+			wasClicked, self.useDrainLife = Checkbox("Use Drain Life", self.useDrainLife);
+		end
+
+		Separator();
+
+		if (HasSpell("Summon Felguard")) then
+			wasClicked, self.useFelguard = Checkbox("Use Felguard before Voidwalker", self.useFelguard);
+		end
+		if (HasSpell("Summon Voidwalker")) then
+			wasClicked, self.useVoid = Checkbox("Use Voidwalker before Imp", self.useVoid);
+		end
+
+		if (CollapsingHeader("|+| DoT Options")) then
+			if (HasSpell("Immolate")) then
+				wasClicked, self.useImmolate = Checkbox("Use Immolate", self.useImmolate);
+			end
+			if (HasSpell("Corruption")) then
+				SameLine();
+				wasClicked, self.useCorruption = Checkbox("Use Corruption", self.useCorruption)
+			end
+			if(HasSpell("Curse of Agony")) then
+				wasClicked, self.useCurseOfAgony = Checkbox("Use Agony", self.useCurseOfAgony);
+			end
+			if (HasSpell("Siphon Life")) then
+				SameLine();
+				wasClicked, self.useSiphonLife = Checkbox("Use Siphon Life", self.useSiphonLife);
+			end
+
+			Separator();
+				
+			if (HasSpell("Corruption")) and (self.useCorruption) then
+				Text('Corruption cast time');
+				self.corruptionCastTime = SliderFloat("CCT (seconds)", 0, 2, self.corruptionCastTime);
+			end
+		end
+
+		if (self.useWand) then
+			if (CollapsingHeader("|+| Wand Options")) then
+				Text("Use Wand Below Target Health Percent");
+				self.useWandHealth = SliderInt("Wand Health", 0, 100, self.useWandHealth);
+				Text("Use Wand Below Self Mana Percent");
+				self.useWandMana = SliderInt("Wand Mana", 0, 100, self.useWandMana);
+			end
+		end
+
+		if (HasSpell("Life Tap")) and (self.useLifeTap) then
+			if (CollapsingHeader("|+| Life Tap Options (out of combat)")) then
+				Text("Use Life Tap Above Self Health Percent");
+				self.lifeTapHealth = SliderInt("LTM", 1, 100, self.lifeTapHealth);
+				Text("Use Life Tap Below Self Mana Percent");
+				self.lifeTapMana = SliderInt("LTH", 1, 100, self.lifeTapMana);
+			end
 		end
 	end
 end
