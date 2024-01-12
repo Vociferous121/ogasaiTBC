@@ -311,6 +311,10 @@ function script_rogue:run(targetObj)
 
 			local cp = GetComboPoints(localObj);
 
+if (IsInCombat()) then
+			self.pickpocketUsed = false;
+		end
+
 			-- If too far away move to the target then stop
 			if (not self.useRotation) then
 				if (GetDistance(targetObj) > 6) then 
