@@ -186,6 +186,7 @@ function script_paladin:run(targetObj)
 				FaceTarget(targetObj);
 			end
 			AutoAttack(targetObj);
+			UnitInteract(targetObj);
 
 			-- Check: Use Lay of Hands
 			if (localHealth < self.lohHealth and HasSpell('Lay on Hands') and not IsSpellOnCD('Lay on Hands')) then 
@@ -241,21 +242,22 @@ function script_paladin:run(targetObj)
 					end
 				end
 				
-				if (not Buff('Holy Light', localObj)) then 
-					script_paladin:setTimers(3050);
+				if (Buff('Holy Light', localObj)) then 
+					script_paladin:setTimers(4050);
 					self.message = "Healing: Holy Light...";
-					return;
+					return true;
 				end
 			end
 
 			-- Check: If we are in meele range, do meele attacks
-			if (GetDistance(targetObj) < 5) then
-				if (script_paladinEX:meleeAttack(GetTargetGUID(targetObj))) then return; end
+			if (GetDistance(targetObj) <= 5) then
+				if (script_paladinEX:meleeAttack(GetTargetGUID(targetObj))) then
+					return true;
+				end
 			end
 			
-			return;	
-		end
 	
+		end
 	end
 end
 

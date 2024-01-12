@@ -232,10 +232,11 @@ function script_grind:run()
 		end
 		-- combat tick rate
 		if (not IsMoving() or IsInCombat()) then
-			local tickRandom = math.random(312, 721);
+			local tickRandom = math.random(242, 721);
 			self.tickRate = tickRandom;
 		end
 	end
+
 
 	-- Update min/max level if we level up
 	if (script_target.currentLevel ~= GetLevel(GetLocalPlayer())) then
@@ -347,7 +348,6 @@ function script_grind:run()
 		end
 		self.target = nil; 
 		ClearTarget();
-	return; 
 	end
 
 	-- Dead
@@ -433,15 +433,17 @@ function script_grind:run()
 		script_debug.debugGrind = "reset navigate";
 	end
 
-	if (HasItem("Small Barnacled Clam")) then
-		if (UseItem("Small Barnacled Clam")) then
-			self.waitTimer = GetTimeEX() + 1650;
+	if (not IsInCombat()) and (not AreBagsFull()) then
+		if (HasItem("Small Barnacled Clam")) then
+			if (UseItem("Small Barnacled Clam")) then
+				self.waitTimer = GetTimeEX() + 1650;
+			end
 		end
-	end
 
-	if (HasItem("Cracked Power Core")) then
-		if (DeleteItem("Cracked Power Core")) then
-			self.waitTimer = GetTimeEX() + 1650;
+		if (HasItem("Cracked Power Core")) then
+			if (DeleteItem("Cracked Power Core")) then
+				self.waitTimer = GetTimeEX() + 1650;
+			end
 		end
 	end
 
@@ -453,15 +455,13 @@ function script_grind:run()
 	end
 
 	-- Loot
-	if (script_target:isThereLoot() and not AreBagsFull() and not self.bagsFull) then
-		if (not script_grindEX2:isAnyTargetTargetingMe()) then
-			self.message = "Looting... (enable auto loot)";
-			script_target:doLoot();
-			if (IsLooting()) then 
-				self.waitTimer = GetTimeEX() + 750;
-			end
+	if (script_target:isThereLoot() and not AreBagsFull() and not self.bagsFull) and (not script_grindEX2:isAnyTargetTargetingMe()) then
+		self.message = "Looting... (enable auto loot)";
+		script_target:doLoot();
+		if (IsLooting()) then 
+			self.waitTimer = GetTimeEX() + 750;
 		end
-		return;
+	return;
 	end
 
 	-- stuck in combat
@@ -531,7 +531,9 @@ function script_grind:run()
 			self.target = GetGUIDTarget(targetGUID);
 			if (GetTarget() ~= self.target) then
 				-- this causes mage to walk to melee range...
-				--UnitInteract(self.target);
+				if (self.moveToMeleeRange) then
+					UnitInteract(self.target);
+				end
 				AutoAttack(self.target);
 			end	
 		end
@@ -759,7 +761,8 @@ function script_grind:run()
 		script_path:resetAutoPath();
 		script_pather:resetPath();
 		ResetNavigate();
-		RunCombatScript(self.target)
+		RunCombatScript(self.target);
+		AutoAttack(self.target);
 
 		-- Unstuck feature on valid "working" targets
 		if (GetTarget() ~= 0 and GetTarget() ~= nil) then

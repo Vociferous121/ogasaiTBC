@@ -134,5 +134,5 @@ function script_paladinEX:meleeAttack(targetGUID)
 		end 
 	end
 
-	return false;
+return false;
 end
