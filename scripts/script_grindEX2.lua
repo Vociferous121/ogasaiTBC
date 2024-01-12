@@ -105,3 +105,19 @@ function script_grindEX2:isTargetingPet(i)
 	end
 	return false;
 end
+
+function script_grindEX2:enemiesWithinRange() -- returns number of enemies within range
+	local unitsInRange = 0; 
+	local currentObj, typeObj = GetFirstObject(); 
+	while currentObj ~= 0 do 
+    	if (typeObj == 3) and (GetUnitsTarget(GetLocalPlayer()) ~= nil) then
+		if (CanAttack(currentObj)) and (not IsDead(currentObj)) then
+                	if (GetDistance(currentObj) < GetUnitsTarget(GetDistance(GetLocalPlayer())) + script_checkAdds.addsRange) then 
+                		unitsInRange = unitsInRange + 1; 
+                	end 
+            	end 
+       	end
+        currentObj, typeObj = GetNextObject(currentObj); 
+    end
+    return unitsInRange;
+end

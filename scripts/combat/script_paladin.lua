@@ -113,8 +113,9 @@ function script_paladin:run(targetObj)
 			if (not HasSpell('Seal of the Crusader') and localMana > 10) then
 				if (GetDistance(targetObj) < 15 and not script_paladinEX:isBuff("Seal of Righteousness")) then
 					if (not IsSpellOnCD("Seal of Righteousness")) and (self.sealTimer < GetTimeEX()) then
-						CastSpellByName('Seal of Righteousness');
-						script_paladin:setTimers(1550);
+						if (not CastSpellByName('Seal of Righteousness')) then
+							script_paladin:setTimers(1550);
+						end
 					end
 				end 
 			end
@@ -123,8 +124,9 @@ function script_paladin:run(targetObj)
 			if (not script_target:hasDebuff("Judgement of the Crusder") and GetDistance(targetObj) < 15 and not script_paladinEX:isBuff("Seal of the Crusader")) and (localMana >= 20) then
 				script_paladin:setTimers(1550);
 				if (not IsSpellOnCD("Seal of the Crusader")) then
-					CastSpellByName('Seal of the Crusader');
-					script_paladin:setTimers(1550);
+					if (not CastSpellByName('Seal of the Crusader')) then
+						script_paladin:setTimers(1550);
+					end
 				end
 			end 
 

@@ -85,7 +85,7 @@ function script_paladinEX:meleeAttack(targetGUID)
 	end 
 
 	-- Check: Judgement when we have crusader
-	if (GetDistance(targetObj) < 10  and script_paladinEX:isBuff('Seal of the Crusader') and
+	if (HasSpell("Seal of the Crusader")) and (GetDistance(targetObj) < 10  and script_paladinEX:isBuff('Seal of the Crusader') and
 		not IsSpellOnCD('Judgement') and HasSpell('Judgement')) and (localMana >= 10) then
 		if (not CastSpellByName('Judgement')) then
 			script_paladin:setTimers(1550);
@@ -120,7 +120,7 @@ function script_paladinEX:meleeAttack(targetGUID)
 	end
 
 	-- Check: Seal of Command
-	if (not script_paladinEX:isBuff("Seal of Command") and not script_paladinEX:isBuff("Seal of the Crusader")) and (localMana >= 10) then 
+	if (HasSpell("Seal of Command")) and (not script_paladinEX:isBuff("Seal of Command") and not script_paladinEX:isBuff("Seal of the Crusader")) and (localMana >= 10) then 
 		if (not CastSpellByName('Seal of Command')) then
 			script_paladin:setTimers(1550);
 			return true;

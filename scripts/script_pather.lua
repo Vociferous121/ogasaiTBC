@@ -1,5 +1,5 @@
 script_pather = {
-	updatePathDist = 200,
+	updatePathDist = 100,
 	movedDist = 0,
 	maxDist = 2000,
 	straightPathSize = 200,
@@ -146,8 +146,8 @@ function script_pather:moveToTarget(xx, yy, zz)
 	if (not IsDead(GetLocalPlayer())) then
 		if (self.pathSize < 5) then
 			self.updatePathDist = 10;
-		elseif (self.pathSize > 5 and self.pathSize < 15) then
-			self.updatePathDist = 15;
+		elseif (self.pathSize > 5 and self.pathSize < 10) then
+			self.updatePathDist = 20;
 		end
 	end
 

@@ -348,6 +348,7 @@ function script_grind:run()
 		end
 		self.target = nil; 
 		ClearTarget();
+		return;
 	end
 
 	-- Dead
@@ -562,7 +563,7 @@ function script_grind:run()
 	end
 
 	-- Dont fight if we are swimming
-	if (IsSwimming()) then
+	if (IsSwimming()) and (script_path.reachedHotspot) then
 		script_debug.debugGrind = "we are swimming don't attack";
 		self.target = nil;
 		if (IsUsingNavmesh() or self.raycastPathing) then 
