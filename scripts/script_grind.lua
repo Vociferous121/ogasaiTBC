@@ -427,7 +427,7 @@ function script_grind:run()
 	end
 
 	-- Loot
-	if (script_target:isThereLoot() and not AreBagsFull() and not self.bagsFull) then
+	if (script_target:isThereLoot() and not AreBagsFull() and not self.bagsFull) and (script_grindEX2.enemiesAttackingUs() == 0) then
 		self.message = "Looting... (enable auto loot)";
 		script_target:doLoot();
 		if (IsLooting()) then 
@@ -704,9 +704,13 @@ function script_grind:run()
 
 		if (IsInCombat()) and ( (script_grindEX2.enemiesAttackingUs() >= 2 and GetHealthPercentage(GetLocalPlayer()) <= 75) or 
 			(GetHealthPercentage(GetLocalPlayer()) <= 40) ) then
-			if (HasSpell("Gift of the Naaru")) and (not IsSpellOnCD("Gift of the Naaru")) and (not HasBuff(localObj, "Gift of the Naaru")) then
-				Cast("Gift of the Naaru");
-				
+			if (HasSpell("Gift of the Naaru")) and (not IsSpellOnCD("Gift of the Naaru")) then
+				if (not IsSpellOnCD("Gift of the Naaru")) then
+					Cast("Gift of the Naaru");
+					CastSpellByName("Gift of the Naaru");
+					self.waitTimer = GetTimeEX() + 2000;
+					return;
+				end
 			end
 		end
 

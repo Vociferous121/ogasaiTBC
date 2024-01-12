@@ -145,6 +145,8 @@ function script_pather:moveToTarget(xx, yy, zz)
 
 	if (self.pathSize < 5) then
 		self.updatePathDist = 10;
+	elseif (self.pathSize > 5 and self.pathSize < 15) then
+		self.updatePathDist = 15;
 	end
 
 	-- update path after some moved distance for collission detection

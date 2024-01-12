@@ -59,6 +59,19 @@ function script_paladin:run(targetObj)
 
 	local targetGUID = GetTargetGUID(targetObj);
 
+	-- gift of naaru
+	if (IsInCombat()) and ( (script_grindEX2.enemiesAttackingUs() >= 2 and GetHealthPercentage(GetLocalPlayer()) <= 75)
+		or (GetHealthPercentage(GetLocalPlayer()) <= 40) ) then
+		if (HasSpell("Gift of the Naaru")) and (not IsSpellOnCD("Gift of the Naaru")) then
+			if (not IsSpellOnCD("Gift of the Naaru")) then
+				Cast("Gift of the Naaru");
+				CastSpellByName("Gift of the Naaru");
+				script_paladin:setTimers(1550);
+				return true;
+			end			
+		end
+	end
+
 	--Valid Enemy
 	if (targetObj ~= 0 and targetObj ~= nil) then
 	

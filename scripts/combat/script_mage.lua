@@ -133,7 +133,7 @@ function script_mage:run(targetObj)
 	-- gift of naaru
 	if (IsInCombat()) and ( (script_grindEX2.enemiesAttackingUs() >= 2 and GetHealthPercentage(GetLocalPlayer()) <= 75)
 		or (GetHealthPercentage(GetLocalPlayer()) <= 40) ) then
-		if (HasSpell("Gift of the Naaru")) and (not IsSpellOnCD("Gift of the Naaru")) and (not HasBuff(localObj, "Gift of the Naaru")) then
+		if (HasSpell("Gift of the Naaru")) and (not IsSpellOnCD("Gift of the Naaru")) then
 			if (not IsSpellOnCD("Gift of the Naaru")) then
 				Cast("Gift of the Naaru");
 				CastSpellByName("Gift of the Naaru");
