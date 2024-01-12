@@ -8,7 +8,7 @@ script_hunter = {
 	drinkMana = 50,
 	eatHealth = 50,
 	isSetup = false,
-	timer = 0,
+	waitTimer = 0,
 	stopWhenNoPetFood = false,
 	stopWhenQuiverEmpty = false,
 	stopWhenBagsFull = false,
@@ -17,7 +17,6 @@ script_hunter = {
 	ammoIsArrow = true,
 	extraScript = include("scripts\\combat\\script_hunterEX.lua"),
 	useRotation = false,
-	waitTimer = GetTimeEX(),
 }
 
 -- Only the functions setup, run, rest and menu are located in this file
@@ -42,8 +41,14 @@ function script_hunter:runBackwards(targetObj, range)
 	return false;
 end
 
+function script_hunter:setTimers(miliseconds)
+
+	self.waitTimer = GetTimeEX() + miliseconds;
+	script_grind.waitTimer = GetTimeEX() + miliseconds;
+
+end
+
 function script_hunter:setup()
-	self.timer = GetTimeEX();
 
 	script_hunterEX:setup();
 
@@ -75,6 +80,8 @@ function script_hunter:setup()
 	else
 		DEFAULT_CHAT_FRAME:AddMessage('script_hunter: Please set the pet food name in hunter options...');
 	end
+
+	self.waitTimer = GetTimeEX();
 
 	self.isSetup = true;
 end
@@ -142,10 +149,10 @@ function script_hunter:run(targetObj)
 	if (pet ~= nil and pet ~= 0) then petHP = GetHealthPercentage(pet); end
 
 	-- Pre Check
-	if (IsChanneling() or IsCasting() or self.timer > GetTimeEX()) then return; end
-	if (self.waitTimer > GetTimeEX()) then
+	if (IsChanneling() or IsCasting() or self.waitTimer > GetTimeEX()) then
 		return;
 	end
+	
 	--Valid Enemy
 	if (targetObj ~= 0) then
 		-- Cant Attack dead targets
@@ -163,8 +170,7 @@ function script_hunter:run(targetObj)
 			and (not script_checkDebuffs:hasDisabledMovement()) then
 			script_hunter:runBackwards(targetObj, 12);
 				self.message = "Moving away from target for range attacks...";
-				script_grind.waitTimer = GetTimeEX() + 1500;
-				self.waitTimer = GetTimeEX() + 1500;
+				script_hunter:setTimers(1550);
 				if (not IsMoving()) then
 					if (not IsSpellOnCD("Arcane Shot")) then
 						CastSpellByName("Arcane Shot");
@@ -179,7 +185,7 @@ function script_hunter:run(targetObj)
 			if (hasAmmo) then
 				if (script_hunterEX:doOpenerRoutine(targetGUID)) then
 					PetAttack(targetObj);
-					script_grind.waitTimer = GetTimeEX() + 1950;
+					script_hunter:setTimers(1550);
 					return;
 				end
 			end
@@ -214,14 +220,17 @@ function script_hunter:run(targetObj)
 		-- Combat
 		else	
 
+			if (GetDistance(self.target) <= 6) and (GetPet() == 0) then
+				AutoAttack(targetObj);
+				UnitInteract(targetObj);
+				return true;
+			end
+
 			if (script_hunterEX:mendPet(localMana, petHP)) then
-				self.timer = GetTimeEX(
-) + 1850;
 				return;
 			end
 			
 			if (script_hunterEX:doInCombatRoutine(targetGUID, localMana)) then
-				self.timer = GetTimeEX() + 1850;
 				return;
 			else
 				if (script_grind.waitTimer ~= 0) then
@@ -247,11 +256,14 @@ function script_hunter:rest()
 	local localHealth = GetHealthPercentage(localObj);
 
 	-- Update rest values
-	if (script_grind.restHp ~= 0) then self.eatHealth = script_grind.restHp; end
-	if (script_grind.restMana ~= 0) then self.drinkMana = script_grind.restMana; end
+	if (script_grind.restHp ~= 0) then
+		self.eatHealth = script_grind.restHp;
+	end
+	if (script_grind.restMana ~= 0) then
+		self.drinkMana = script_grind.restMana;
+	end
 
-	if (self.timer > GetTimeEX()) then return true; end
-	if (self.waitTimer > GetTimeEX()) then
+	if (self.waitTimer > GetTimeEX() or IsCasting() or IsChanneling()) then
 		return;
 	end
 
@@ -260,7 +272,7 @@ function script_hunter:rest()
 		self.message = "Feeding the pet, pausing...";
 		if (GetDistance(GetPet()) > 8) then
 			PetFollow();
-			self.timer = GetTimeEX() + 1750;
+			script_hunter:setTimers(1550);
 			script_grind:restOn();
 			return true;
 		end
@@ -360,7 +372,12 @@ function script_hunter:rest()
 	script_hunterEX:chooseAspect(targetObj);
 
 	-- Check if we should buy ammo, don't call more than once
-	if (script_vendor.status == 0) then if (script_hunter:buyAmmo()) then self.timer = GetTimeEX() + 10000; return false; end end
+	if (script_vendor.status == 0) then
+		if (script_hunter:buyAmmo()) then
+			self.waitTimer = GetTimeEX() + 10000;
+			return false;
+		end 
+	end
 
 	script_grind:restOff();
 	return false;
