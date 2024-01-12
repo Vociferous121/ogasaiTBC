@@ -240,7 +240,7 @@ function script_rogue:run(targetObj)
 						return;
 					end
 					if (Cast('Throw', targetGUID)) then 
-						script_rogue:setTimers(1050);
+						script_rogue:setTimers(2550);
 						return true;
 					end 
 					return;
@@ -505,12 +505,19 @@ function script_rogue:rest()
 		end
 		
 		if (not IsInCombat()) then
-			if(script_helper:eat()) then
+			if (script_helper:eat()) then
 				script_debug.debugCombat = "use script_helper:eat";
-				script_rogue:setTimers(1050);
+				script_rogue:setTimers(1550);
 				script_grind:restOn();
 				return true;
 			end
+		end
+	end
+
+	if (IsEating()) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (self.useStealth) then
+		if (CastSpellByName("Stealth")) then
+		script_rogue:setTimers(1550);
+		return true;
 		end
 	end
 
@@ -556,11 +563,7 @@ function script_rogue:menu()
 		end
 
 		if (self.useStealth) then
-			self.useThrow = false;
 			wasClicked, self.usePickPocket = Checkbox("Use Pick Pocket", self.usePickPocket);
-		end
-		if (self.useThrow) then
-			self.useStealth = false;
 		end
 
 		if (CollapsingHeader("|+| Combo Point Generator")) then

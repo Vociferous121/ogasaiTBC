@@ -638,8 +638,9 @@ function script_grind:run()
 
 			self.message = "Moving to target...";
 
-			if (script_rogue.useThrow) and (not IsInCombat()) then
-				if (GetDistance(self.target) <= 25) and (IsInLineOfSight(self.target)) then
+			if (script_rogue.useThrow) and (not IsInCombat())
+				and (not HasBuff(localObj, "Stealth")) then
+				if (GetDistance(self.target) <= 25) and (GetDistance(self.target) >= 7) and (IsInLineOfSight(self.target)) then
 					if (IsMoving()) then
 						StopMoving();
 					end
