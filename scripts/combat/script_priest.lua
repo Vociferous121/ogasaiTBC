@@ -14,6 +14,7 @@ script_priest = {
 	useWand = true,
 	wandMana = 10,
 	useRotation = false,
+	wandHealth = 10,
 }
 
 function script_priest:draw()
@@ -21,6 +22,7 @@ function script_priest:draw()
 end
 
 function script_priest:setup()
+
 	self.waitTimer = GetTimeEX();
 
 	self.isSetup = true;
@@ -28,13 +30,25 @@ function script_priest:setup()
 	DEFAULT_CHAT_FRAME:AddMessage('script_priest: loaded...');
 end
 
+function script_priest:setTimers(miliseconds)
+	
+	self.waitTimer = GetTimeEX() + miliseconds;
+	script_grind.waitTimer = GetTimeEX() + miliseconds;
+
+end
+
 function script_priest:healAndBuff(targetObject, localMana)
 
 	local targetHealth = GetHealthPercentage(targetObject);
+
+	if (self.waitTimer > GetTimeEX() or IsCasting() or IsChanneling()) then
+		return;
+	end
 	
 	-- Buff Fortitude
 	if (localMana > 30 and not IsInCombat()) then
-		if (Buff('Power Word: Fortitude', targetObject)) then 
+		if (Buff('Power Word: Fortitude', targetObject)) then
+			script_priest:setTimers(1550);
 			return true; 
 		end
 	end
@@ -42,6 +56,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 	-- Renew
 	if (localMana > 10 and targetHealth < self.renewHP and not HasBuff(targetObject, "Renew")) then
 		if (Buff('Renew', targetObject)) then
+			script_priest:setTimers(1550);
 			return true;
 		end
 	end
@@ -49,6 +64,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 	-- Shield
 	if (localMana > 10 and targetHealth < self.shieldHP and not HasDebuff(targetObject, "Weakened Soul") and IsInCombat()) then
 		if (Buff('Power Word: Shield', targetObject)) then 
+			script_priest:setTimers(1550);
 			return true; 
 		end
 	end
@@ -56,6 +72,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 	-- Greater Heal
 	if (localMana > 20 and targetHealth < self.greaterHealHP) then
 		if (script_priest:heal('Heal', targetObject)) then
+			script_priest:setTimers(1550);
 			return true;
 		end
 	end
@@ -63,6 +80,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 	-- Heal
 	if (localMana > 15 and targetHealth < self.healHP) then
 		if (script_priest:heal('Heal', targetObject)) then
+			script_priest:setTimers(1550);
 			return true;
 		end
 	end
@@ -70,6 +88,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 	-- Lesser Heal
 	if (localMana > 10 and targetHealth < self.lesserHealHP) then
 		if (script_priest:heal('Lesser Heal', targetObject)) then
+			script_priest:setTimers(1550);
 			return true;
 		end
 	end
@@ -77,6 +96,7 @@ function script_priest:healAndBuff(targetObject, localMana)
 	-- Flash Heal
 	if (localMana > 8 and targetHealth < self.flashHealHP) then
 		if (script_priest:heal('Flash Heal', targetObject)) then
+			script_priest:setTimers(1550);
 			return true;
 		end
 	end
@@ -89,12 +109,13 @@ function script_priest:heal(spellName, target, killTarget)
 		if (IsSpellInRange(target, spellName)) then 
 			if (not IsSpellOnCD(spellName)) then 
 				if (not IsAutoCasting(spellName)) then
-					TargetEnemy(target); 
-					CastSpellByName(spellName); 
-					-- Wait for global CD before next spell cast
-					self.waitTimer = GetTimeEX() + 1800;
-					TargetEnemy(killTarget); 
-					return true; 
+					if (not IsMoving()) then
+						TargetEnemy(target); 
+						CastSpellByName(spellName); 
+						-- Wait for global CD before next spell cast
+						TargetEnemy(killTarget); 
+						return true; 
+					end
 				end 
 			end 
 		end 
@@ -115,7 +136,9 @@ function script_priest:run(targetObj)
 	local localLevel = GetLevel(localObj);
 
 	-- Pre Check
-	if (IsChanneling() or IsCasting() or self.waitTimer > GetTimeEX()) then return; end
+	if (IsChanneling() or IsCasting() or self.waitTimer > GetTimeEX()) then
+		return;
+	end
 
 	if (targetObj == 0) then
 		targetObj = GetTarget();
@@ -127,38 +150,45 @@ function script_priest:run(targetObj)
 	if (targetObj ~= 0) then
 		
 		-- Cant Attack dead targets
-		if (IsDead(targetObj)) then return; end
-		if (not CanAttack(targetObj)) then return; end
+		if (IsDead(targetObj)) then
+			return;
+		end
+		if (not CanAttack(targetObj)) then
+			return;
+		end
 		
 		targetHealth = GetHealthPercentage(targetObj);
 
-		if (HasSpell("Shadowform") and not HasBuff(localObj, "Shadowform")) then
+		if (HasSpell("Shadowform") and not HasBuff(localObj, "Shadowform")) and (localMana >= 20) then
 			CastSpellByName("Shadowform");
-			return;
+			script_priest:setTimers(1550);
+			return true;
 		end
 		
 		--Opener
 		if (not IsInCombat()) then
 			-- Auto Attack
-			if (GetDistance(targetObj) < 40) then AutoAttack(targetObj); end
+			if (GetDistance(targetObj) < 40) then
+				AutoAttack(targetObj);
+			end
 			
 			-- Opener
 	
-			if (Cast('Devouring Plague', targetGUID)) then
-				self.waitTimer = GetTimeEX() + 200;
-				return;
+			if (Cast('Devouring Plague', targetGUID)) and (localMana >= 10) then
+				script_priest:setTimers(1550);
+				return true;
 			end
 
 			-- Mind Blast
-			if (Cast('Mind Blast', targetGUID)) then
-				self.waitTimer = GetTimeEX() + 200;
-				return;
+			if (Cast('Mind Blast', targetGUID)) and (localMana >= 10)then
+				script_priest:setTimers(1550);
+				return true;
 			end
 
-			if (not HasBuff(localObj, "Shadowform")) then
+			if (not HasBuff(localObj, "Shadowform")) and (localMana >= 20) then
 				if (Cast('Smite', targetGUID)) then
-					self.waitTimer = GetTimeEX() + 200;
-					return;
+					script_priest:setTimers(1550);
+					return true;
 				end
 			end
 			
@@ -169,44 +199,50 @@ function script_priest:run(targetObj)
 
 			-- Desperate prayer
 			if (HasSpell("Desperate Prayer") and not IsSpellOnCD("Desperate Prayer") and not HasBuff(localObj, "Shadowform")) then
-				if (localHealth < 10) then
+				if (localHealth < 10) and (localMana >= 10) then
 					CastSpellByName("Desperate Prayer");
-					return;
+					script_priest:setTimers(1550);
+					return true;
 				end
 			end			
 
 			-- Cant heal with while in shadowform, use shield
-			if (not HasBuff(localObj, "Shadowform")) then	
+			if (not HasBuff(localObj, "Shadowform")) and (localMana >= 20) then	
 				if (script_priest:healAndBuff(localObj, localMana)) then 
-					return; 
+					script_priest:setTimers(550);
+					return true; 
 				end
 			else
 				-- Shield
 				if (localMana > 10 and localHealth < self.shieldHP and not HasDebuff(localObj, "Weakened Soul")) then
 					if (Buff('Power Word: Shield', localObj)) then 
-						return; 
+						script_priest:setTimers(1550);
+						return true; 
 					end
 				end
 			end
 
 			-- Check: Keep Shadow Word: Pain up
-			if (not script_target:hasDebuff("Shadow Word: Pain")) then
+			if (not script_target:hasDebuff("Shadow Word: Pain")) and (localMana >= 10) then
 				if (Cast('Shadow Word: Pain', targetGUID)) then 
-					return; 
+					script_priest:setTimers(1550);
+					return true; 
 				end
 			end
 
 			-- Check: Keep Vampiric Embrace up
-			if (not script_target:hasDebuff("Vampiric Embrace") and not IsSpellOnCD("Vampiric Embrace")) then
+			if (not script_target:hasDebuff("Vampiric Embrace") and not IsSpellOnCD("Vampiric Embrace")) and (localMana >= 10) then
 				if (Cast('Vampiric Embrace', targetGUID)) then 
-					return; 
+					script_priest:setTimers(1550);
+					return true; 
 				end
 			end
 
 			-- Check: Keep Vampiric Touch up
-			if (not script_target:hasDebuff("Vampiric Touch")) then
+			if (not script_target:hasDebuff("Vampiric Touch")) and (localMana >= 10) then
 				if (Cast('Vampiric Touch', targetGUID)) then 
-					return; 
+					script_priest:setTimers(1550);
+					return true; 
 				end
 			end
 
@@ -217,7 +253,7 @@ function script_priest:run(targetObj)
 				dur, max = GetInventoryItemDurability(18);
 			end
 
-			if (self.useWand and dur > 0 and (localMana < self.wandMana or targetHealth <= 5)) then
+			if (self.useWand and dur > 0 and (localMana < self.wandMana or targetHealth <= self.wandHealth)) then
 
 				if (not script_target:autoCastingWand()) then 
 					self.message = "Using wand...";
@@ -231,7 +267,7 @@ function script_priest:run(targetObj)
 			end
 
 			-- Auto Attack if no mana
-			if (localMana < 5) then
+			if (localMana < 10) then
 				if (not self.useRotation) then
 					UnitInteract(targetObj);
 				elseif (self.useRotation) then
@@ -241,21 +277,24 @@ function script_priest:run(targetObj)
 			end
 
 			-- Cast: Mind Blast
-			if (Cast('Mind Blast', targetGUID)) then
-				return; 
+			if (Cast('Mind Blast', targetGUID)) and (localMana >= 10) then
+				script_priest:setTimers(1550);
+				return true; 
 			end
 
 			-- Mind Flay
 			if (GetDistance(targetObj) < 20) then
-				if (Cast('Mind Flay', targetGUID)) then 
-					return; 
+				if (Cast('Mind Flay', targetGUID)) and (localMana >= 10) then 
+					script_priest:setTimers(1550);
+					return true; 
 				end
 			end
 
 			-- Cast: Smite (last choice e.g. at level 1)
-			if (not HasBuff(localObj, "Shadowform")) then
+			if (not HasBuff(localObj, "Shadowform")) and (localMana >= 10) then
 				if (Cast('Smite', targetGUID)) then 
-					return; 
+					script_priest:setTimers(1550);
+					return true; 
 				end
 			end
 			
@@ -266,30 +305,45 @@ function script_priest:run(targetObj)
 end
 
 function script_priest:rest()
-	if(not self.isSetup) then script_priest:setup(); return true; end
+	if(not self.isSetup) then
+		script_priest:setup();
+		return true;
+	end
 
 	local localObj = GetLocalPlayer();
 	local localMana = GetManaPercentage(localObj);
 	local localHealth = GetHealthPercentage(localObj);
 
+	if (self.waitTimer > GetTimeEX() or IsCasting() or IsChanneling()) then
+		return;
+	end
+
 	if (localHealth < self.eatHealth and HasBuff(localObj, "Shadowform")) then
 		CastSpellByName("Shadowform");
+		script_priest:setTimers(1550);
 		script_grind:restOn();
 		return true;
 	end
 
 	if (not HasBuff(localObj, "Shadowform")) then
-		if (script_priest:healAndBuff(localObj, localMana)) then 
+		if (script_priest:healAndBuff(localObj, localMana)) then
+			script_priest:setTimers(550); 
 			script_grind:restOn();
 			return true;
 		end
 	end
+
+	if (GetLevel(GetLocalPlayer()) < 6) then
+		script_grind.restMana = 10;
+	end
 	
 	-- Update rest values
-	if (script_grind.restHp ~= 0) then self.eatHealth = script_grind.restHp; end
-	if (script_grind.restMana ~= 0) then self.drinkMana = script_grind.restMana; end
-
-	if (self.waitTimer > GetTimeEX()) then return true; end
+	if (script_grind.restHp ~= 0) then
+		self.eatHealth = script_grind.restHp;
+	end
+	if (script_grind.restMana ~= 0) then
+		self.drinkMana = script_grind.restMana;
+	end
 
 	--Eat and Drink
 	if (not IsDrinking() and localMana < self.drinkMana) then
@@ -300,6 +354,7 @@ function script_priest:rest()
 		end
 
 		if(script_helper:drinkWater()) then
+			script_priest:setTimers(1550);
 			script_grind:restOn();
 			return true;
 		end
@@ -313,6 +368,7 @@ function script_priest:rest()
 		end
 		
 		if(script_helper:eat()) then
+			script_priest:setTimers(1550);
 			script_grind:restOn();
 			return true;
 		end
@@ -347,6 +403,7 @@ function script_priest:menu()
 		Separator();
 		wasClicked, self.useWand = Checkbox("Use Wand", self.useWand);
 		self.wandMana = SliderInt("Mana to Wand", 1, 99, self.wandMana);
+		self.wandHealth = SliderInt("Health to Wand", 1, 99, self.wandHealth);
 		self.renewHP = SliderInt("Renew HP", 1, 99, self.renewHP);
 		self.shieldHP = SliderInt("Shield HP", 1, 99, self.shieldHP);
 		self.flashHealHP = SliderInt("Flash HP", 1, 99, self.flashHealHP);
