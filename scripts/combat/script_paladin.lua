@@ -32,6 +32,7 @@ function script_paladin:setup()
 	self.waitTimer = GetTimeEX();
 	self.sealTimer = GetTimeEX();
 	script_paladinEX:setup();
+	script_grind.moveToMeleeRange = true;
 
 	self.isSetup = true;
 end

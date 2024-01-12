@@ -43,6 +43,8 @@ function script_mage:setup()
 	self.waitTimer = GetTimeEX();
 	self.gemTimer = GetTimeEX();
 
+	script_grind.moveToMeleeRange = false;
+
 	DEFAULT_CHAT_FRAME:AddMessage('script_mage: loaded...');
 	self.isSetup = true;
 

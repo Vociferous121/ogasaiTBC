@@ -82,6 +82,7 @@ function script_hunter:setup()
 	end
 
 	self.waitTimer = GetTimeEX();
+	script_grind.moveToMeleeRange = false;
 
 	self.isSetup = true;
 end

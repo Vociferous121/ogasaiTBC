@@ -75,6 +75,9 @@ function script_rogue:setup()
 
 	--self.waitTimer = GetTimeEX();
 
+	script_grind.moveToMeleeRange = true;
+
+
 	self.isSetup = true;
 end
 

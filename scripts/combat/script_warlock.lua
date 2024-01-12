@@ -71,6 +71,9 @@ function script_warlock:setup()
 	if (HasSpell("Summon Felguard")) then
 		self.useFelguard = true;
 	end
+	
+	script_grind.moveToMeleeRange = false;
+
 
 	DEFAULT_CHAT_FRAME:AddMessage('script_warlock: loaded...');
 

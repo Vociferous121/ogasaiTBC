@@ -12,6 +12,9 @@ script_warrior = {
 
 function script_warrior:setup()
 	self.timer = GetTimeEX();
+
+	script_grind.moveToMeleeRange = true;
+
 	DEFAULT_CHAT_FRAME:AddMessage('script_warrior: loaded...');
 	self.isSetup = true;
 end

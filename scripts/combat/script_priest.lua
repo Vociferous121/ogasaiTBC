@@ -25,6 +25,9 @@ function script_priest:setup()
 
 	self.waitTimer = GetTimeEX();
 
+	script_grind.moveToMeleeRange = false;
+
+
 	self.isSetup = true;
 
 	DEFAULT_CHAT_FRAME:AddMessage('script_priest: loaded...');

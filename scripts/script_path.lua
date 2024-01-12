@@ -149,10 +149,12 @@ function script_path:autoPath()
 		end
 		
 		if (script_path:distanceToHotspot() > 50) then
+				DrawMovePath();
 			if (not script_grind.raycastPathing) then
 				MoveToTarget(self.hx, self.hy, self.hz);
 			else
 				script_pather:moveToTarget(self.hx, self.hy, self.hz);
+				script_grindEX.drawRaycastPath = true;
 			end
 			return "Moving to hotspot...";
 		end
@@ -180,7 +182,7 @@ function script_path:autoPath()
 	end
 
 	-- When close to the next path node swap to the next one
-	if (self.numSavedPathNodes > 2) then
+	if (self.numSavedPathNodes > 1) then
 		if (script_path:distanceToPathNode(self.currentPathNode) < 5) then
 			if (self.currentPathNode < self.numSavedPathNodes) then
 				if (not self.backwards) then
