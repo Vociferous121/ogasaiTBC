@@ -143,10 +143,12 @@ function script_pather:moveToTarget(xx, yy, zz)
 		return true;
 	end
 
-	if (self.pathSize < 5) then
-		self.updatePathDist = 10;
-	elseif (self.pathSize > 5 and self.pathSize < 15) then
-		self.updatePathDist = 15;
+	if (not IsDead(GetLocalPlayer())) then
+		if (self.pathSize < 5) then
+			self.updatePathDist = 10;
+		elseif (self.pathSize > 5 and self.pathSize < 15) then
+			self.updatePathDist = 15;
+		end
 	end
 
 	-- update path after some moved distance for collission detection

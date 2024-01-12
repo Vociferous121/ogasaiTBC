@@ -42,7 +42,8 @@ function script_grindEX2:isAnyTargetTargetingMe()
 return false;
 end
 
-function script_grindEX2:enemiesAttackingUs() -- returns number of enemies attacking us
+function script_grindEX2:enemiesAttackingUs()
+
 	local unitsAttackingUs = 0; 
         local localPlayer = GetLocalPlayer();
 	local i, t = GetFirstObject(); 

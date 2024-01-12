@@ -11,7 +11,7 @@ function script_pathMenu:menu()
 		script_path.grindingDist = SliderInt("Dist (yds)", 50, 2000, script_path.grindingDist);
 		Separator();
 
-		wasClicked, script_grind.useUnstuckScript = Checkbox("Use Raycasting Unstuck Script", script_grind.useUnstuckScript);
+		wasClicked, script_grind.useUnstuckScript = Checkbox("Use Raycasting Unstuck Script (has bugs)", script_grind.useUnstuckScript);
 		wasClicked, script_grind.raycastPathing = Checkbox("Use raycast pathing (TBC Area)", script_grind.raycastPathing);
 		if (script_grind.raycastPathing) then
 			SameLine();

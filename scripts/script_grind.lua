@@ -133,6 +133,25 @@ function script_grind:draw()
 	script_grindEX:draw();
 end
 
+function script_grind:enemiesAttackingUs() -- returns number of enemies attacking us
+	local unitsAttackingUs = 0; 
+        local localPlayer = GetLocalPlayer();
+	local i, t = GetFirstObject(); 
+	while i ~= 0 do 
+    		if t == 3 then
+			if (CanAttack(i) and not IsDead(i)) then
+				if (localPlayer ~= nil and localPlayer ~= 0 and not IsDead(localPlayer)) then
+					if (GetUnitsTarget(i) ~= nil and GetUnitsTarget(i) ~= 0) then
+	                			unitsAttackingUs = unitsAttackingUs + 1; 
+	                		end 
+				end
+	            	end 
+	       	end
+	i, t = GetNextObject(i); 
+    	end
+    return unitsAttackingUs;
+end
+
 -- set timer for grind script to run
 function script_grind:setWaitTimer(ms)
 	self.waitTimer = (GetTimeEX() + (ms));
@@ -427,7 +446,7 @@ function script_grind:run()
 	end
 
 	-- Loot
-	if (script_target:isThereLoot() and not AreBagsFull() and not self.bagsFull) and (script_grindEX2:enemiesAttackingUs() == 0) then
+	if (script_target:isThereLoot() and not AreBagsFull() and not self.bagsFull) and (script_grind:enemiesAttackingUs() == 0) then
 		self.message = "Looting... (enable auto loot)";
 		script_target:doLoot();
 		if (IsLooting()) then 
@@ -619,8 +638,16 @@ function script_grind:run()
 
 			self.message = "Moving to target...";
 
+			if (script_rogue.useThrow) and (not IsInCombat()) then
+				if (GetDistance(self.target) <= 25) and (IsInLineOfSight(self.target)) then
+					if (IsMoving()) then
+						StopMoving();
+					end
+				end
+			end
+
 			if (not IsInCombat()) and (HasSpell("Stealth")) and (script_rogue.alwaysStealth) and (script_rogue.useStealth) and (not HasBuff(localObj, "Stealth")) and (IsSpellOnCD("Stealth")) then
-				self.waitTimer = GetTimeEX() + 1500;
+				self.waitTimer = GetTimeEX() + 250;
 				self.message = "Waiting for stealth cooldown...";
 				if (IsMoving()) then
 					StopMoving();
@@ -702,7 +729,7 @@ function script_grind:run()
 		
 		end
 
-		if (IsInCombat()) and ( (script_grindEX2.enemiesAttackingUs() >= 2 and GetHealthPercentage(GetLocalPlayer()) <= 75) or 
+		if (IsInCombat()) and ( (script_grind.enemiesAttackingUs() >= 2 and GetHealthPercentage(GetLocalPlayer()) <= 75) or 
 			(GetHealthPercentage(GetLocalPlayer()) <= 40) ) then
 			if (HasSpell("Gift of the Naaru")) and (not IsSpellOnCD("Gift of the Naaru")) then
 				if (not IsSpellOnCD("Gift of the Naaru")) then

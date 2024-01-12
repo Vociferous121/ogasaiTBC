@@ -147,7 +147,7 @@ function script_grindEX:doChecks()
 			if (script_talent:learnTalents()) then
 				script_grind.message = "Checking/learning talent: " .. script_talent:getNextTalentName();
 				script_path:savePos(true); 
-				return true;
+				return;
 			end
 		end
 	end
