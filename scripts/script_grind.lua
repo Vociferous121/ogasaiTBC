@@ -24,7 +24,7 @@ script_grind = {
 	targetTimer = GetTimeEX(),
 	pullDistance = 30,
 	waitTimer = 0,
-	tickRate = 1500,
+	tickRate = 500,
 	adjustTickRate = false,
 	restHp = 60,
 	restMana = 60,
@@ -210,19 +210,6 @@ function script_grind:run()
 		DrawMovePath();
 	end
 
-	-- adjust tick rate
-	if (not self.adjustTickRate) then
-	
-		-- moving tick rate
-		if (not IsInCombat() or IsMoving()) then
-			self.tickRate = 50;
-		end
-		-- combat tick rate
-		if (not IsMoving() or IsInCombat()) then
-			self.tickRate = 750;
-		end
-	end
-
 	-- Load nav mesh
 	if (self.useNavMesh) then
 		if (script_path:loadNavMesh()) then
@@ -234,6 +221,20 @@ function script_grind:run()
 
 	if (self.waitTimer + self.tickRate > GetTimeEX()) then
 		return;
+	end
+
+	-- adjust tick rate
+	if (not self.adjustTickRate) then
+	
+		-- moving tick rate
+		if (not IsInCombat() or IsMoving()) then
+			self.tickRate = 50;
+		end
+		-- combat tick rate
+		if (not IsMoving() or IsInCombat()) then
+			local tickRandom = math.random(312, 621);
+			self.tickRate = tickRandom;
+		end
 	end
 
 	-- Update min/max level if we level up
