@@ -18,14 +18,16 @@ script_path = {
 	autoLoadHotspot = true,
 	pathMenu = include("scripts\\script_pathMenu.lua"),
 	isStuck = false;
+	reachedHotspotDistance = 0,
 }
 
 function script_path:setup()
 	self.isSetup = true;
 
-	local distRandom = math.random(400, 1200);
+	local distRandom = math.random(500, 1200);
 	self.grindingDist = distRandom;
-
+	self.reachedHotspotDistance = distRandom/2;
+	
 	-- Save startup position, used as the hotspot to farm around
 	self.hx, self.hy, self.hz = GetPosition(GetLocalPlayer());
 	self.hName = GetMinimapZoneText() .. " (see path options)";
@@ -144,7 +146,7 @@ end
 function script_path:autoPath()
 	-- No path nodes yet
 	if (self.numSavedPathNodes == 0 or not self.reachedHotspot) then
-		if (script_path:distanceToHotspot() <= 50) then
+		if (script_path:distanceToHotspot() <= self.reachedHotspotDistance) then
 			self.reachedHotspot = true;	
 		end
 		

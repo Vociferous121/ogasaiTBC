@@ -7,6 +7,13 @@ function script_pathMenu:menu()
 
 	if (CollapsingHeader("Pathing Menu")) then
 		local wasClicked = false;
+		if (not script_path.reachedHotspot) then
+			if (script_path.reachedHotspotDistance > script_path.grindingDist) then
+				script_path.reachedHotspotDistance = script_path.grindingDist;
+			end
+		Text("Distance To Hotspot Reached");
+		script_path.reachedHotspotDistance = SliderInt("RHSD", 0, script_path.grindingDist, script_path.reachedHotspotDistance);
+		end
 		Text("Distance To Grind From Hotspot");
 		script_path.grindingDist = SliderInt("Dist (yds)", 50, 2000, script_path.grindingDist);
 		Separator();

@@ -78,6 +78,8 @@ function script_paladin:run(targetObj)
 	
 		-- Cant Attack dead targets
 		if (IsDead(targetObj)) then
+			targetObj = 0;
+			self.target = 0;
 			return;
 		end
 

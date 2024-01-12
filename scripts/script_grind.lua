@@ -232,7 +232,7 @@ function script_grind:run()
 		end
 		-- combat tick rate
 		if (not IsMoving() or IsInCombat()) then
-			local tickRandom = math.random(312, 621);
+			local tickRandom = math.random(312, 721);
 			self.tickRate = tickRandom;
 		end
 	end
@@ -454,7 +454,7 @@ function script_grind:run()
 
 	-- Loot
 	if (script_target:isThereLoot() and not AreBagsFull() and not self.bagsFull) then
-		if (script_grind:enemiesAttackingUs() == 0) then
+		if (not script_grindEX2:isAnyTargetTargetingMe()) then
 			self.message = "Looting... (enable auto loot)";
 			script_target:doLoot();
 			if (IsLooting()) then 
@@ -689,6 +689,7 @@ function script_grind:run()
 					local x, y, z = GetPosition(self.target);
 					if (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
 						if (MoveToTarget(x+moveBuffer, y+moveBuffer, z)) then
+							self.waitTimer = GetTimeEX() + 100;
 						else
 							if (GetDistance(self.target) <= 2) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
 								if (IsMoving()) and (IsInLineOfSight(self.target)) then
@@ -707,7 +708,9 @@ function script_grind:run()
 						moveBuffer = 0;
 					end
 					local x, y, z = GetPosition(self.target);
-					MoveToTarget(x+moveBuffer, y+moveBuffer, z);
+					if (MoveToTarget(x+moveBuffer, y+moveBuffer, z)) then
+						self.waitTimer = GetTimeEX() + 100;
+					end
 				end
 				return;
 			end
