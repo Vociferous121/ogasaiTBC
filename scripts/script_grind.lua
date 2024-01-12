@@ -427,7 +427,7 @@ function script_grind:run()
 	end
 
 	-- Loot
-	if (script_target:isThereLoot() and not AreBagsFull() and not self.bagsFull) and (script_grindEX2.enemiesAttackingUs() == 0) then
+	if (script_target:isThereLoot() and not AreBagsFull() and not self.bagsFull) and (script_grindEX2:enemiesAttackingUs() == 0) then
 		self.message = "Looting... (enable auto loot)";
 		script_target:doLoot();
 		if (IsLooting()) then 
