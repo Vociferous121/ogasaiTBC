@@ -62,6 +62,7 @@ script_grind = {
 	setLogoutTime = 30,
 	currentTime = 0,
 	timerSet = false,
+	jumpRandomFloat = 96,
 }
 
 
@@ -82,6 +83,7 @@ function script_grind:setup()
 	self.skipMobTimer = GetTimeEX();
 	self.unStuckTime = GetTimeEX();
 	self.tryMountTime = GetTimeEX();
+	self.waitTimer = GetTimeEX();
 
 	-- Classes that doesn't use mana
 	local class, classFileName = UnitClass("player");
@@ -115,7 +117,6 @@ function script_grind:setup()
 	script_vendor:setup();
 	script_talent:setup();
 	script_pathFlyingEX:setup();
-	self.isSetup = true;
 
 	script_rogue.useRotation = false;
 	script_mage.useRotation = false;
@@ -126,6 +127,11 @@ function script_grind:setup()
 	script_hunter.useRotation = false;
 	script_priest.useRotation = false;
 	script_warlock.useRotation = false;
+
+
+	self.isSetup = true;
+
+
 end
 
 function script_grind:draw() 
@@ -229,7 +235,6 @@ function script_grind:run()
 	if (self.waitTimer + self.tickRate > GetTimeEX()) then
 		return;
 	end
-
 
 	-- Update min/max level if we level up
 	if (script_target.currentLevel ~= GetLevel(GetLocalPlayer())) then
@@ -446,11 +451,13 @@ function script_grind:run()
 	end
 
 	-- Loot
-	if (script_target:isThereLoot() and not AreBagsFull() and not self.bagsFull) and (script_grind:enemiesAttackingUs() == 0) then
-		self.message = "Looting... (enable auto loot)";
-		script_target:doLoot();
-		if (IsLooting()) then 
-			self.waitTimer = GetTimeEX() + 750;
+	if (script_target:isThereLoot() and not AreBagsFull() and not self.bagsFull) then
+		if (script_grind:enemiesAttackingUs() == 0) then
+			self.message = "Looting... (enable auto loot)";
+			script_target:doLoot();
+			if (IsLooting()) then 
+				self.waitTimer = GetTimeEX() + 750;
+			end
 		end
 		return;
 	end

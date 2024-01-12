@@ -94,7 +94,9 @@ function script_grindEX:doChecks()
 	
 	-- Check: User pause
 	if (script_grind.pause) then
+		-- reset paranoia logout time when paused...
 		script_grind.currentTime2 = GetTimeEX() + script_grind.setLogoutTime;
+		-- reset unstuck when paused
 		script_path:savePos(true);
 		script_grind.message = "Paused by user...";
 		return true;

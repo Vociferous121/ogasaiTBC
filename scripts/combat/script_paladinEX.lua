@@ -52,7 +52,7 @@ function script_paladinEX:meleeAttack(targetGUID)
 		end
 	end
 
-	if (HasSpell('Hammer of Wrath') and not IsSpellOnCD('Hammer of Wrath') and targetHealth < 20) and (localMana >= 10) then
+	if (HasSpell('Hammer of Wrath')) and (not IsSpellOnCD('Hammer of Wrath')) and (targetHealth < 20) and (localMana >= 10) then
 		if (not Cast('Hammer of Wrath', targetGUID)) then
 			script_paladin:setTimers(1550);
 			return true;

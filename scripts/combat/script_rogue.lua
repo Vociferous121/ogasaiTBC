@@ -15,6 +15,7 @@ script_rogue = {
 	riposteActionBarSlot = 8,
 	alwaysStealth = true,
 	usePickPocket = true,
+	pickpocketUsed = false,
 
 }
 
@@ -249,20 +250,19 @@ function script_rogue:run(targetObj)
 
 			local creatureType = GetCreatureType(GetUnitsTarget(GetLocalPlayer()));
 
-			if (strfind("Humanoid", creatureType) or strfind("Undead", creatureType)) and (HasBuff(localObj, "Stealth")) and (HasSpell("Pick Pocket")) and (GetDistance(targetObj) <= 6) and (self.useStealth) and (not IsSpellOnCD("Pick Pocket")) then
-					if (not script_grind.adjustTickRate) then
-						script_grind.tickRate = 1500;
-					end
-				if (CastSpellByName("Pick Pocket")) then
-					StopMoving();
-					self.waitTimer = GetTimeEX() + 1650;
-					script_grind.waitTimer = GetTimeEX() + 4500;
-				return;
+			if (strfind("Humanoid", creatureType) or strfind("Undead", creatureType)) and (HasBuff(localObj, "Stealth")) and (HasSpell("Pick Pocket")) and (GetDistance(targetObj) <= 6) and (self.useStealth) and (not IsSpellOnCD("Pick Pocket")) and (not IsInCombat()) and (not self.pickpocketUsed) then
+				StopMoving();
+				if (not script_grind.adjustTickRate) then
+					script_grind.tickRate = 1500;
 				end
+				CastSpellByName("Pick Pocket");
+				self.pickpocketUsed = true;
+				script_rogue:setTimers(500);
+			return;
 			end
 				
 			-- Open with stealth opener
-			if (GetDistance(targetObj) <= 5 and self.useStealth and HasSpell(self.stealthOpener) and HasBuff(localObj, "Stealth")) and (not IsInCombat()) and (GetUnitsTarget(GetLocalPlayer()) ~= 0) and (not IsSpellOnCD(self.stealthOpener)) then
+			if (GetDistance(targetObj) <= 5 and self.useStealth and HasSpell(self.stealthOpener) and HasBuff(localObj, "Stealth")) and (not IsInCombat()) and (GetUnitsTarget(GetLocalPlayer()) ~= 0) and (not IsSpellOnCD(self.stealthOpener)) and ( (self.usePickPocket and self.pickpocketUsed) or (not self.usePickPocket) ) then
 				if (CastSpellByName(self.stealthOpener)) then
 					local x, y, z = GetPosition(GetUnitsTarget(GetLocalPlayer()));
 					self.waitTimer = GetTimeEX() + 1650;
@@ -277,7 +277,7 @@ function script_rogue:run(targetObj)
 			end
 
 			-- Use CP generator attack 
-			if (not self.useStealth or not HasBuff(localObj, "Stealth")) and (localEnergy >= self.cpGeneratorCost) and (HasSpell(self.cpGenerator)) and (GetDistance(self.target) <= 5) and (not IsSpellOnCD(self.cpGenerator)) then
+			if (not self.useStealth or not HasBuff(localObj, "Stealth")) and (localEnergy >= self.cpGeneratorCost) and (HasSpell(self.cpGenerator)) and (GetDistance(self.target) <= 5) and (not IsSpellOnCD(self.cpGenerator)) and ( (self.usePickPocket and self.pickpocketUsed) or (not self.usePickPocket) ) then
 				if (not CastSpellByName(self.cpGenerator)) then
 					script_rogue:setTimers(1050);
 				end
@@ -300,6 +300,9 @@ function script_rogue:run(targetObj)
 				end
 			end
 
+		if (IsInCombat()) then
+			self.pickpocketUsed = false;
+		end
 
 		-- now in combat 
 		-- START OF COMBAT PHASE	

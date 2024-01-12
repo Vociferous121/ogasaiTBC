@@ -92,6 +92,7 @@ function script_grindMenu:menu()
 		Separator();
 		wasClicked, script_grind.useMount = Checkbox("Use Mount", script_grind.useMount);
 		SameLine(); wasClicked, script_grind.jump = Checkbox("Jump while moving (unmounted)", script_grind.jump);
+		
 		Separator();
 		wasClicked, script_grind.autoTalent = Checkbox("Spend talent points", script_grind.autoTalent);
 		Text("Change talents in script_talent.lua");
