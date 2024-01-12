@@ -464,23 +464,23 @@ function script_warlock:run(targetObj)
 
 			-- Cast: Drain Life, don't use Drain Life if we need a soul shard
 			if (self.useDrainLife) then
-			if (HasSpell("Drain Life") and script_warlock:haveSoulshard() and GetCreatureType(targetObj) ~= "Mechanic") then
-				if (GetDistance(targetObj) < 20) then
-					if (IsMoving()) then
+				if (HasSpell("Drain Life") and script_warlock:haveSoulshard() and GetCreatureType(targetObj) ~= "Mechanic") then
+					if (GetDistance(targetObj) < 20) then
+						if (IsMoving()) then
 						StopMoving();
-						return;
-					end
-					if (Cast('Drain Life', targetGUID)) then
-						self.waitTimer = GetTimeEX() + 1550;
-						return;
-					end
-				else
-					if (not self.useRotation) then
-						MoveToTarget(targetObj); 
-						return;
+							return;
+						end
+						if (Cast('Drain Life', targetGUID)) then
+							self.waitTimer = GetTimeEX() + 1550;
+							return;
+						end
+					else
+						if (not self.useRotation) then
+							MoveToTarget(targetObj); 
+							return;
+						end
 					end
 				end
-			end
 			end
 			-- Cast: Shadow Bolt
 			if (localMana >= 10) and (GetHealthPercentage(targetObj) >= 5) then

@@ -170,6 +170,7 @@ function script_grind:run()
 	script_warrior.waitTimer = GetTimeEX();
 	-- paladin timers
 	script_paladin.waitTimer = GetTimeEX();
+	script_paladin.sealTimer = GetTimeEX();
 	-- priest timers
 	script_priest.waitTimer = GetTimeEX();
 	-- shaman timers

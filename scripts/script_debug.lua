@@ -114,6 +114,13 @@ function script_debug:menu()
 		local mwt2 = script_mage.gemTimer;
 		Text("wait timer - "..mwt1);
 		Text("gem timer - "..mwt2);
+
+		Text("");
+		Text("Paladin Timers");
+		local pwt1 = script_paladin.waitTimer;
+		local pwt2 = script_paladin.sealTimer;
+		Text("wait timer - "..pwt1);
+		Text("seal timer - "..pwt2);
 	end
 		
 end
