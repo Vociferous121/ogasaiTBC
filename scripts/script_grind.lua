@@ -17,6 +17,7 @@ script_grind = {
 	unstuckLoaded = include("scripts\\script_unstuck.lua"),
 	paranoidLoaded = include("scripts\\script_paranoid.lua"),
 	grindEX2Loaded = include("scripts\\script_grindEX2.lua"),
+	counterMenuLoaded = include("scripts\\script_counterMenu.lua"),
 
 	message = 'Starting the grinder...',
 	alive = true,
@@ -63,6 +64,9 @@ script_grind = {
 	currentTime = 0,
 	timerSet = false,
 	moveToMeleeRange = false,
+	monsterKillCount = 0,
+	moneyObtainedCount = 0,
+	currentMoney = 0,
 }
 
 
@@ -128,6 +132,7 @@ function script_grind:setup()
 	script_priest.useRotation = false;
 	script_warlock.useRotation = false;
 
+	self.currentMoney = GetMoney();
 
 	self.isSetup = true;
 
@@ -219,6 +224,9 @@ function script_grind:run()
 		end
 	end
 
+
+	self.moneyObtainedCount = GetMoney() - self.currentMoney;
+
 	if (self.pause) then
 		return;
 	end
@@ -246,7 +254,6 @@ function script_grind:run()
 			self.tickRate = tickRandom;
 		end
 	end
-
 
 	-- Update min/max level if we level up
 	if (script_target.currentLevel ~= GetLevel(GetLocalPlayer())) then
@@ -356,6 +363,7 @@ function script_grind:run()
 			script_target:addLootTarget(self.target);
 			script_debug.debugGrind = "add target to loot";
 		end
+		self.monsterKillCount = self.monsterKillCount + 1;
 		self.target = nil; 
 		ClearTarget();
 		return;

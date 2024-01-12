@@ -7,12 +7,6 @@ function script_counterMenu:menu()
 	-- show text since last reload
 	Text("Counters Since Last Reload - ");
 
-		-- counter is grindEX script counter
-		local lastReloadDeathCounter = script_grindEX.deathCounter;
-
-		-- show text death counter
-		Text("Deaths : " ..lastReloadDeathCounter);
-
 		-- count is grind script counter
 		local monsterKillCount = script_grind.monsterKillCount;
 
@@ -55,11 +49,5 @@ function script_counterMenu:menu()
 			-- show gold and silver
 			Text("Money Obtained : " ..moneyObtainedCountGold.. " Gold " ..test.. " Silver");
 		end
-
-		-- counter is grind script counter
-		local paranoiaCounter = script_grind.paranoiaCounter
-		
-		-- show paranoia counter
-		Text("Paranoia Used : " ..paranoiaCounter);
 		
 end
