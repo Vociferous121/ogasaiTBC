@@ -3,7 +3,7 @@ script_path = {
 	savedPathNodes = {},
 	numSavedPathNodes = 0,
 	currentPathNode = 0,
-	navNodeDist = 8,
+	navNodeDist = 6,
 	navNodeDistMounted = 15,
 	pathNodeDist = 45,
 	grindingDist = 650,
@@ -143,13 +143,14 @@ function script_path:resetAutoPath()
 end
 
 function script_path:autoPath()
+
 	-- No path nodes yet
 	if (self.numSavedPathNodes == 0 or not self.reachedHotspot) then
 		if (script_path:distanceToHotspot() <= self.reachedHotspotDistance) then
 			self.reachedHotspot = true;	
 		end
 		
-		if (script_path:distanceToHotspot() > 50) then
+		if (script_path:distanceToHotspot() > self.reachedHotspotDistance) then
 				DrawMovePath();
 			if (not script_grind.raycastPathing) then
 				MoveToTarget(self.hx, self.hy, self.hz);
@@ -212,7 +213,7 @@ function script_path:autoPath()
 		return 'Moving to auto path node ' .. self.currentPathNode;
 	end
 
-	if (script_path:distanceToHotspot() > 25) then
+	if (script_path:distanceToHotspot() > self.reachedHotspotDistance) then
 
 		if (not script_grind.raycastPathing) then
 			MoveToTarget(self.hx, self.hy, self.hz);

@@ -219,6 +219,12 @@ function script_grind:run()
 		end
 	end
 
+	if (IsInCombat()) and (not IsMoving()) then
+		if (self.target ~= 0 and self.target ~= nil) then
+			FaceTarget(self.target);
+		end
+	end
+
 	if (self.waitTimer + self.tickRate > GetTimeEX()) then
 		return;
 	end

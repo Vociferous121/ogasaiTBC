@@ -2,7 +2,7 @@ script_pather = {
 	updatePathDist = 100,
 	movedDist = 0,
 	maxDist = 2000,
-	straightPathSize = 200,
+	straightPathSize = 2000,
 	charWidth = 0.3,
 	maxZSlopeUp = 0.60,
 	maxZSlopeDown = -0.80,
@@ -14,7 +14,7 @@ script_pather = {
 	message = "Raycast navigation by Logitech",
 	meshSize = 25,
 	nodeDist = 10,
-	nodeDistUnmounted = 12,
+	nodeDistUnmounted = 5,
 	nodeDistMounted = 15,
 	waypointPath = {},
 	waypointPathSize = 0,
@@ -45,6 +45,15 @@ function script_pather:moveToTarget(xx, yy, zz)
 		self.nodeDist = self.nodeDistMounted;
 	else
 		self.nodeDist = self.nodeDistUnmounted;
+	end
+
+	local localObj = GetLocalPlayer();
+	local isCat = HasBuff(localObj, "Cat Form");
+	local hasSprint = HasBuff(localObj, "Sprint");
+	local isWolf = HasBuff(localObj, "Ghost Wolf");
+	if (isCat or hasSprint or isWolf) then
+		self.nodeDistance = 15;
+		self.nodeDistUnmounted = 15;
 	end
 
 	local x, y, z = GetPosition(GetLocalPlayer());
@@ -144,10 +153,8 @@ function script_pather:moveToTarget(xx, yy, zz)
 	end
 
 	if (not IsDead(GetLocalPlayer())) then
-		if (self.pathSize < 5) then
-			self.updatePathDist = 10;
-		elseif (self.pathSize > 5 and self.pathSize < 10) then
-			self.updatePathDist = 20;
+		if (self.pathSize < 9) then
+			self.updatePathDist = 25;
 		end
 	end
 
@@ -158,7 +165,10 @@ function script_pather:moveToTarget(xx, yy, zz)
 		return;
 	end
 
+
+
 	local nodeDistance = script_pather.nodeDist;
+
 
 	-- Moving through path logic
 	if (self.goToIndex > 1 and self.goToIndex < self.pathSize) then

@@ -34,6 +34,10 @@ function script_paladin:setup()
 	script_paladinEX:setup();
 	script_grind.moveToMeleeRange = true;
 
+	if (HasSpell("Blessing of Wisdom")) then
+		self.blessing = "Blessing of Wisdom";
+	end
+
 	self.isSetup = true;
 end
 
@@ -282,10 +286,9 @@ function script_paladin:rest()
 	-- Set aura
 	if (self.aura ~= 0 and not IsMounted()) then
 		if (not HasBuff(localObj, self.aura) and HasSpell(self.aura)) then
-			if (CastSpellByName(self.aura)) then
-				script_paladin:setTimers(1550);
-				return true;
-			end
+			CastSpellByName(self.aura);
+			script_paladin:setTimers(1550);
+			return true;
 		end
 	end
 
