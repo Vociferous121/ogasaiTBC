@@ -219,6 +219,10 @@ function script_grind:run()
 		end
 	end
 
+	if (self.pause) then
+		return;
+	end
+
 	if (IsInCombat()) and (not IsMoving()) then
 		if (self.target ~= 0 and self.target ~= nil) then
 			FaceTarget(self.target);

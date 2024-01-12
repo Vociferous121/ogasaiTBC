@@ -247,8 +247,8 @@ function script_paladin:run(targetObj)
 						return true;
 					end
 				end
-				
-				if (Buff('Holy Light', localObj)) then 
+				if (not IsSpellOnCD("Holy Light")) then
+					Buff('Holy Light', localObj);
 					script_paladin:setTimers(4050);
 					self.message = "Healing: Holy Light...";
 					return true;
