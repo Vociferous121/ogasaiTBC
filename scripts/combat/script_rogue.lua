@@ -263,13 +263,14 @@ function script_rogue:run(targetObj)
 			end
 				
 			-- Open with stealth opener
-			if (GetDistance(targetObj) <= 5 and self.useStealth and HasSpell(self.stealthOpener) and HasBuff(localObj, "Stealth")) and (not IsInCombat()) and (GetUnitsTarget(GetLocalPlayer()) ~= 0) and (not IsSpellOnCD(self.stealthOpener)) and ( (self.usePickPocket and self.pickpocketUsed) or (not self.usePickPocket) or (GetHealthPercentage(self.target) < 100) ) then
+			if (GetDistance(targetObj) <= 5) and (self.useStealth and HasSpell(self.stealthOpener) and HasBuff(localObj, "Stealth")) and (not IsInCombat()) and (GetUnitsTarget(GetLocalPlayer()) ~= 0) and (not IsSpellOnCD(self.stealthOpener)) and ( (self.usePickPocket and self.pickpocketUsed) or (not self.usePickPocket) or (GetHealthPercentage(self.target) < 100) ) then
 				if (CastSpellByName(self.stealthOpener)) then
 					local x, y, z = GetPosition(GetUnitsTarget(GetLocalPlayer()));
 					self.waitTimer = GetTimeEX() + 1650;
 					script_grind.waitTimer = GetTimeEX() + 2500;
 					if (not self.useRotation) then
-						if (Move(x+2, y+2, z)) then	
+						local moveBuffer = random(-1, 3);
+						if (Move(x+moveBuffer, y+moveBuffer, z)) then
 							self.waitTimer = GetTimeEX() + 1650;
 							script_grind.waitTimer = GetTimeEX() + 2500;
 						end
@@ -278,9 +279,11 @@ function script_rogue:run(targetObj)
 			end
 
 			-- Use CP generator attack 
-			if (not self.useStealth or not HasBuff(localObj, "Stealth")) and (localEnergy >= self.cpGeneratorCost) and (HasSpell(self.cpGenerator)) and (GetDistance(self.target) <= 5) and (not IsSpellOnCD(self.cpGenerator)) and ( (self.usePickPocket and self.pickpocketUsed) or (not self.usePickPocket) or (GetHealthPercentage(self.target) < 100) ) then
-				if (not CastSpellByName(self.cpGenerator)) then
-					script_rogue:setTimers(1050);
+			if (GetDistance(targetObj) <= 5) then
+				if (not self.useStealth or not HasBuff(localObj, "Stealth")) and (localEnergy >= self.cpGeneratorCost) and (HasSpell(self.cpGenerator)) and (not IsSpellOnCD(self.cpGenerator)) and ( (self.usePickPocket and self.pickpocketUsed) or (not self.usePickPocket) or (GetHealthPercentage(self.target) < 100) )then
+					if (not CastSpellByName(self.cpGenerator)) then
+						script_rogue:setTimers(1050);
+					end
 				end
 			end
 

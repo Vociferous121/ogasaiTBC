@@ -117,8 +117,11 @@ function script_rotation:run()
 	-- set reaction time after casting spells and wait timers
 	self.waitTimer = GetTimeEX() + self.tickRate;
 
-	self.tickRate = random(300, 750);
-
+	if (not IsInCombat()) then
+		self.tickRate = 150;
+	else
+		self.tickRate = random(300, 750);
+	end
 	-- Check: Summon our Demon if we are not in combat (Voidwalker is Summoned in favor of the Imp)
 	if (HasSpell("Summon Imp")) then
 		if (script_warlock:summonPet()) then
