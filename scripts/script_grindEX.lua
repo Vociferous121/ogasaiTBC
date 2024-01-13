@@ -12,6 +12,13 @@ script_grindEX = {
 }
 
 function script_grindEX:setup()
+
+	local maps = "Azuremyst Isle", "Bloodmyst Isle", "Eversong Woods", "Ghostlands", "Hellfire Peninsula", "Zangarmarsh", "Nagrand", "Terrokar Forest", "Shadowmoon Valley", "Netherstorm";
+	local myZone = GetZoneText();
+	if (maps == myZone) then
+		script_grind.raycastPathing = true;
+	end
+
 	DEFAULT_CHAT_FRAME:AddMessage('script_grindEX: loaded...');
 	self.isSetup = true;
 end

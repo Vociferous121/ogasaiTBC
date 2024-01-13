@@ -12,7 +12,7 @@ function script_pathMenu:menu()
 				script_path.reachedHotspotDistance = script_path.grindingDist;
 			end
 		Text("Distance To Hotspot Reached");
-		script_path.reachedHotspotDistance = SliderInt("RHSD", 0, script_path.grindingDist, script_path.reachedHotspotDistance);
+		script_path.reachedHotspotDistance = SliderInt("RHSD", 10, script_path.grindingDist, script_path.reachedHotspotDistance);
 		end
 		Text("Distance To Grind From Hotspot");
 		script_path.grindingDist = SliderInt("Dist (yds)", 50, 2000, script_path.grindingDist);

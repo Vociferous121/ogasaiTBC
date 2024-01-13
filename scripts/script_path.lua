@@ -3,7 +3,7 @@ script_path = {
 	savedPathNodes = {},
 	numSavedPathNodes = 0,
 	currentPathNode = 0,
-	navNodeDist = 6,
+	navNodeDist = 8,
 	navNodeDistMounted = 15,
 	pathNodeDist = 45,
 	grindingDist = 650,
@@ -17,8 +17,8 @@ script_path = {
 	reachedHotspot = false,
 	autoLoadHotspot = true,
 	pathMenu = include("scripts\\script_pathMenu.lua"),
-	isStuck = false;
-	reachedHotspotDistance = 100,
+	isStuck = false,
+	reachedHotspotDistance = 50,
 }
 
 function script_path:setup()

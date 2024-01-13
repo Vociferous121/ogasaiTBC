@@ -132,7 +132,7 @@ function script_vendorMenu:NPCMenu()
 			if Button("Cancel Buy Food") then script_vendor.message = "Idle..."; script_vendor.status = 0; end
 		end
 				
-		Text("Input food name number of stacks:");
+		Text("Input food name number of stacks: (x5 stack size)");
 		script_vendorEX.foodName = InputText("Food", script_vendorEX.foodName); 
 		SameLine(); script_vendorEX.foodNr = InputText("FX", script_vendorEX.foodNr);
 		
@@ -158,7 +158,7 @@ function script_vendorMenu:NPCMenu()
 			if Button("Cancel Buy Drinks") then script_vendor.message = "Idle..."; script_vendor.status = 0; end
 		end
 
-		Text("Input drink name and number of stacks:");
+		Text("Input drink name and number of stacks: (x5 stack size)");
 		
 		script_vendorEX.drinkName = InputText("Drink", script_vendorEX.drinkName); 
 		

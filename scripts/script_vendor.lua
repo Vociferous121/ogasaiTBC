@@ -129,7 +129,7 @@ function script_vendor:sell()
 
 			if (not script_grind.raycastPathing) then
 				MoveToTarget(vX, vY, vZ);
-			else
+			elseif (script_grind.raycastPathing) then
 				script_pather:moveToTarget(vX, vY, vZ);
 			end
 			

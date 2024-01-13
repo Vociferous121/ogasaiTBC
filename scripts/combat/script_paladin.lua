@@ -1,5 +1,5 @@
 script_paladin = {
-	version = '0.1',
+	version = '1.0',
 	message = 'Paladin Combat',
 	palaExtra = include("scripts\\combat\\script_paladinEX.lua"),
 	drinkMana = 50,
@@ -14,6 +14,10 @@ script_paladin = {
 	blessing = 0,
 	useRotation = false,
 	sealTimer = 0,
+	useRighteousness = true,
+	useJudgement = true,
+	useCrusader = true,
+	useCommand = true,
 }
 
 function script_paladin:draw()
@@ -114,7 +118,7 @@ function script_paladin:run(targetObj)
 			end
 
 			-- cast seal of Rightneoussness if we dont have seal of the crusader
-			if (not HasSpell('Seal of the Crusader') and localMana > 10) then
+			if (self.useRighteousness) and (not HasSpell('Seal of the Crusader') and localMana > 10) then
 				if (GetDistance(targetObj) < 15 and not script_paladinEX:isBuff("Seal of Righteousness")) then
 					if (not IsSpellOnCD("Seal of Righteousness")) and (self.sealTimer < GetTimeEX()) then
 						if (not CastSpellByName('Seal of Righteousness')) then
@@ -125,7 +129,7 @@ function script_paladin:run(targetObj)
 			end
 
 			-- cast seal of crusader so we can use judgement
-			if (not script_target:hasDebuff("Judgement of the Crusder") and GetDistance(targetObj) < 15 and not script_paladinEX:isBuff("Seal of the Crusader")) and (localMana >= 20) then
+			if (self.useJudgement) and (not script_target:hasDebuff("Judgement of the Crusder") and GetDistance(targetObj) < 15 and not script_paladinEX:isBuff("Seal of the Crusader")) and (localMana >= 20) then
 				script_paladin:setTimers(1550);
 				if (not IsSpellOnCD("Seal of the Crusader")) then
 					if (not CastSpellByName('Seal of the Crusader')) then
@@ -135,7 +139,7 @@ function script_paladin:run(targetObj)
 			end 
 
 			-- use judgement when we have seal of crusader
-			if (GetDistance(targetObj) < 10  and script_paladinEX:isBuff('Seal of the Crusader') and not IsSpellOnCD('Judgement') and HasSpell('Judgement')) and (localMana >= 15) then
+			if (self.useJudgement) and (GetDistance(targetObj) < 10  and script_paladinEX:isBuff('Seal of the Crusader') and not IsSpellOnCD('Judgement') and HasSpell('Judgement')) and (localMana >= 15) then
 				if (CastSpellByName('Judgement')) then
 					script_paladin:setTimers(2050);
 					return true;
@@ -143,7 +147,7 @@ function script_paladin:run(targetObj)
 			end
 
 			-- use judgement when we have seal of righteousness
-			if (GetDistance(targetObj) < 10  and script_paladinEX:isBuff('Seal of the Righteousness') and not IsSpellOnCD('Judgement') and HasSpell('Judgement')) and (localMana >= 45) and (GetHealthPercentage(targetObj) >= 10) then
+			if (self.useJudgement) and (GetDistance(targetObj) < 10  and script_paladinEX:isBuff('Seal of the Righteousness') and not IsSpellOnCD('Judgement') and HasSpell('Judgement')) and (localMana >= 45) and (GetHealthPercentage(targetObj) >= 10) then
 				if (CastSpellByName('Judgement')) then
 					script_paladin:setTimers(2050);
 					return true;
@@ -249,7 +253,7 @@ function script_paladin:run(targetObj)
 				end
 				if (not IsSpellOnCD("Holy Light")) then
 					Buff('Holy Light', localObj);
-					script_paladin:setTimers(4050);
+					script_paladin:setTimers(4350);
 					self.message = "Healing: Holy Light...";
 					return true;
 				end
@@ -383,7 +387,7 @@ function script_paladin:rest()
 end
 
 function script_paladin:menu()
-	if (CollapsingHeader('[Paladin - Retribution')) then
+	if (CollapsingHeader("Paladin - Retribution")) then
 		local wasClicked = false;
 		Text('Aura and Blessing options:');
 		self.aura = InputText("Aura", self.aura);
@@ -395,5 +399,20 @@ function script_paladin:menu()
 		self.lohHealth = SliderFloat("LoH", 1, 99, self.lohHealth);
 		Text('BoP below HP percent');
 		self.bopHealth = SliderFloat("BoP", 1, 99, self.bopHealth);
+
+		Separator();
+
+		wasClicked, self.useRighteousness = Checkbox("Use Righteousness", self.useRighteousness);
+		if (HasSpell("Judgement")) then
+			SameLine();
+			wasClicked, self.useJudgement = Checkbox("Use Judgement", self.useJudgement);
+		end
+		if (HasSpell("Seal of the Crusader")) then
+			wasClicked, self.useCrusader = Checkbox("Use Crusader", self.useCrusader);
+		end
+		if (HasSpell("Seal of Command")) then
+			SameLine();
+			wasClicked, self.useCommand = Checkbox("Use Command", self.useCommand);
+		end
 	end
 end

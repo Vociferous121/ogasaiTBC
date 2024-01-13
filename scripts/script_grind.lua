@@ -69,15 +69,12 @@ script_grind = {
 	currentMoney = 0,
 }
 
-
 function script_grind:setup()
 
 	--ZoneNames1 = { GetMapZones(1) } ;
 	--ZoneNames2 = { GetMapZones(2) } ;
 	--ZoneNames3 = { GetMapZones(3) } ;
 	--for i = 1, ZoneNames3 do
-	--if (GetCurrentMapAreaID() == 1941) then
-	--	self.raycastPathing = true;
 	--end
 
 	SetPVE(true);
@@ -224,6 +221,9 @@ function script_grind:run()
 		end
 	end
 
+	if (not self.raycastPathing) then
+		script_grindEX.drawRaycastPath = false;
+	end
 
 	self.moneyObtainedCount = GetMoney() - self.currentMoney;
 

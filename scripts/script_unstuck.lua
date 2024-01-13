@@ -53,6 +53,7 @@ function script_unstuck:drawChecks()
 	local tX, tY, onScreen = WorldToScreen(_lx, _ly, _lz);
 	DrawText("Path Check", tX+50, tY-130, 255, 2, 233);
 
+	if (_zpl ~= nil) then
 	for i = 8, 10 do
 
 		tX, tY, onScreen = WorldToScreen(_lx, _ly, _lz+(i*0.2));
@@ -85,6 +86,7 @@ function script_unstuck:drawChecks()
 
 	tX, tY, onScreen = WorldToScreen(_lx, _ly, _lz+0.8);
 	DrawText("Jump Check", tX+50, tY, 255, 255, 0);
+	if (_z ~= nil) then
 	for i = 4, 6 do
 		
 		tX, tY, onScreen = WorldToScreen(_lx, _ly, _lz+(i*0.2));
@@ -93,6 +95,8 @@ function script_unstuck:drawChecks()
 		if (onScreen and onScreens) then
 			DrawLine(tX, tY, X, Y, 255, 255, 0, 2);
 		end
+	end
+	end
 	end
 end
 

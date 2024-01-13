@@ -40,6 +40,10 @@ function script_debug:menu()
 		SameLine();
 		local gc = gcinfo();
 		Text(gc);
+
+
+		local curMap = GetZoneText();
+		Text("Current GetZoneText()"..curMap);
 	end
 		Separator();
 
