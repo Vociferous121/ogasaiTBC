@@ -112,7 +112,7 @@ function script_grindEX:doChecks()
 	end
 
 	if (IsMoving()) and (not script_path.reachedHotspot) then
-			DrawMovePath();
+		DrawMovePath();
 	end
 
 	-- Check: jump to the surface if we are under water
@@ -198,7 +198,7 @@ function script_grindEX:doChecks()
 		script_grind.message = script_vendor.message;
 
 		-- Run vendor routine and add wait time
-		script_grind.waitTimer = GetTimeEX() + script_vendor:run();
+		script_grind.waitTimer = GetTimeEX() - 1000 + script_vendor:run();
 
 		return true;
 	end
@@ -234,7 +234,7 @@ function script_grindEX:doChecks()
 		script_grind.message = script_vendor.message;
 
 		-- Run vendor routine and add wait time
-		script_grind.waitTimer = GetTimeEX() + script_vendor:run();
+		script_grind.waitTimer = GetTimeEX() - 1000 + script_vendor:run();
 		
 		return true;
 	end

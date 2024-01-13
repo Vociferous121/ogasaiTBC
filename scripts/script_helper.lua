@@ -10,7 +10,8 @@ script_helper = {
 	numHealthPotion = 0,
 	numManaPotion = 0,
 	ressMoveTimer = GetTimeEX(),
-	jumpTimer = GetTimeEX()
+	jumpTimer = GetTimeEX(),
+	waitTimer = GetTimeEX(),
 }
 
 function script_helper:inLineOfSight(target) 
@@ -53,6 +54,10 @@ end
 function script_helper:ress(x, y, z)
 
 	script_grind.tickRate = 50;
+
+	if (self.waitTimer > GetTimeEX()) then
+		return;
+	end
 
 	if (not IsDead(GetLocalPlayer())) then
 		RepopMe();
@@ -129,36 +134,34 @@ function script_helper:ress(x, y, z)
 			-- move to point
 			Move (rX, rY, rZ);			
 
-		return true;
-	end
-			RetrieveCorpse();
-		
+		return;
+		end
+			RetrieveCorpse();	
 	end
 
 	if (IsUsingNavmesh() or script_grind.raycastPathing) then
 		if (not script_grind.raycastPathing) then
-			MoveToTarget(x, y, z);
-			script_grind.waitTimer = GetTimeEX() + 350;
+			if (MoveToTarget(x, y, z)) then
+				self.waitTimer = GetTimeEX() + 450;
+			end
 
 		else
-			script_pather:moveToTarget(x, y, z);
-			script_grind.waitTimer = GetTimeEX() + 350;
-
-
+			if (script_pather:moveToTarget(x, y, z)) then
+				self.waitTimer = GetTimeEX() + 300;
+			end
 		end
 	else
 		if (IsPathLoaded(1)) then
-			script_grind.waitTimer = GetTimeEX() + 350;
+			self.waitTimer = GetTimeEX() + 450;
 			Grave();
 		else
 			return "No grave path loaded...";
 		end
 	end
 
-	script_grind.waitTimer = GetTimeEX() + 350;
+	script_grind.message = "Running to corpse...";
 
-
-	return "Running to corpse...";
+	return;
 end
 
 function script_helper:addHealthPotion(name)

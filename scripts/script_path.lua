@@ -19,10 +19,13 @@ script_path = {
 	pathMenu = include("scripts\\script_pathMenu.lua"),
 	isStuck = false,
 	reachedHotspotDistance = 50,
+	waitTimer = 0,
 }
 
 function script_path:setup()
 	self.isSetup = true;
+
+	self.waitTimer = GetTimeEX();
 
 	local distRandom = math.random(500, 1200);
 	self.grindingDist = distRandom;
@@ -143,6 +146,10 @@ end
 
 function script_path:autoPath()
 
+	if (self.waitTimer > GetTimeEX()) then
+		return;
+	end
+
 	if (IsIndoors()) then
 		self.navNodeDist = 6;
 	end
@@ -160,9 +167,14 @@ function script_path:autoPath()
 			else
 				script_pather:moveToTarget(self.hx, self.hy, self.hz);
 			end
-			return "Moving to hotspot...";
-		end
 
+			-- add wait timer to each click to move action
+
+			self.waitTimer = GetTimeEX() + 550;
+			script_grind.message = "Moving to hotspot...";
+
+			return;
+		end
 		
 		return "Hotspot reached, no targets around?";
 	end
@@ -222,7 +234,7 @@ function script_path:autoPath()
 			script_pather:moveToTarget(self.hx, self.hy, self.hz);
 		end
 
-		script_grind.waitTimer = GetTimeEX() + 350;
+		self.waitTimer = GetTimeEX() + 550;
 
 		return 'Moving to hotspot...';
 	end

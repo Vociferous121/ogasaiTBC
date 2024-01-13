@@ -129,7 +129,7 @@ function script_grind:run()
 	script_druid.waitTimer = GetTimeEX();
 
 	-- draw move path
-	if (IsMoving()) and (self.drawPath) then
+	if (IsMoving()) and (self.drawPath) and (not self.raycastPathing) then
 		DrawMovePath();
 	end
 
@@ -186,6 +186,11 @@ function script_grind:run()
 		return;
 		end
 	end
+	-- try to stop if we are stunned...
+		if (IsStunned(GetLocalPlayer())) then
+			self.waitTimer = GetTimeEX + 550;
+			return;
+		end
 
 	-- Update min/max level if we level up
 	if (script_target.currentLevel ~= GetLevel(GetLocalPlayer())) then

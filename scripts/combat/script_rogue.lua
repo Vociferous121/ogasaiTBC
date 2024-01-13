@@ -516,7 +516,7 @@ function script_rogue:rest()
 			return true;
 		end
 		
-		if (not IsInCombat()) then
+		if (not IsInCombat()) and (not IsLooting()) then
 			if (script_helper:eat()) then
 				script_debug.debugCombat = "use script_helper:eat";
 				script_rogue:setTimers(1550);
