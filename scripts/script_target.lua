@@ -106,24 +106,25 @@ function script_target:doLoot()
 	end
 		
 	script_path:resetAutoPath();
-
-	if (UnitInteract(lootTarget)) then
-		script_path:savePos(true); 
-
-		if (IsSkinnable(lootTarget) and self.skin and HasItem('Skinning Knife')) then
-			
+	if (GetDistance(lootTarget) < self.lootDistance) then
+		if (UnitInteract(lootTarget))  then
+			script_path:savePos(true); 
+	
+			if (IsSkinnable(lootTarget) and self.skin and HasItem('Skinning Knife')) then
+				
+				if (script_grind.waitTimer ~= 0) then
+					script_grind.waitTimer = GetTimeEX() + 1250;
+				end
+				
+				return;
+			end
+	
 			if (script_grind.waitTimer ~= 0) then
 				script_grind.waitTimer = GetTimeEX() + 1250;
 			end
 			
 			return;
 		end
-
-		if (script_grind.waitTimer ~= 0) then
-			script_grind.waitTimer = GetTimeEX() + 1250;
-		end
-		
-		return;
 	end
 end
 
