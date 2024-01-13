@@ -9,6 +9,7 @@ script_grindEX = {
 	unstuckRight = true,
 	drawRaycastPath = true,
 	strafeLeft = false,
+	jumpFloat = 97,
 }
 
 function script_grindEX:setup()
@@ -109,9 +110,11 @@ function script_grindEX:doChecks()
 		return true;
 	end
 
-	local randomJump = math.random(0, 100);
-	if randomJump > 99 then
-		Jump();
+	if (script_grind.jump) and (IsMoving()) and (not IsInCombat()) and (not script_checkDebuffs:hasDisabledMovement()) then
+		local randomJump = math.random(0, 100);
+		if randomJump > self.jumpFloat then
+			Jump();
+		end
 	end
 
 	-- save pos while/if moving

@@ -262,11 +262,12 @@ function script_paladin:run(targetObj)
 					end
 				end
 				if (not IsSpellOnCD("Holy Light")) then
-					Buff('Holy Light', localObj);
-					script_paladin:setTimers(4350);
-					self.message = "Healing: Holy Light...";
-					return true;
-				end
+					if (not Buff('Holy Light', localObj)) then
+						script_paladin:setTimers(4350);
+						self.message = "Healing: Holy Light...";
+						return true;
+					end
+				end	
 			end
 
 			-- Check: If we are in meele range, do meele attacks

@@ -90,9 +90,18 @@ function script_grindMenu:menu()
 				Separator();
 			
 		end
-		Separator();
-		wasClicked, script_grind.useMount = Checkbox("Use Mount", script_grind.useMount);
-		SameLine(); wasClicked, script_grind.jump = Checkbox("Jump while moving (unmounted)", script_grind.jump);
+		if (IsMounted()) or (script_grind.useMount) then
+			script_grind.jump = false;
+		end
+		if (GetLevel(GetLocalPlayer()) >= 40) then
+			wasClicked, script_grind.useMount = Checkbox("Use Mount", script_grind.useMount);
+			SameLine();
+		end
+		wasClicked, script_grind.jump = Checkbox("Random Jump", script_grind.jump);
+		if (script_grind.jump) then
+			Text("Jump Rate | 100 = no jump");
+			script_grindEX.jumpFloat = SliderInt("JumpRate", 94, 100, script_grindEX.jumpFloat);
+		end
 		
 		Separator();
 		wasClicked, script_grind.autoTalent = Checkbox("Spend talent points", script_grind.autoTalent);
