@@ -40,7 +40,7 @@ function hotspotDB:setup()
 	-- teldrassil
 	hotspotDB:addHotspot("Shadowglen 1 - 3", "Alliance", 1, 3, 10305.2, 915.61, 1333.71);
 	hotspotDB:addHotspot("Shadowglen 3 - 5", "Alliance", 3, 5, 10519.33, 967.11, 1317.89);
-	hotspotDB:addHotspot("Shadowglen 5 - 7", "Alliance", 5, 7, 10721.09, 838.87, 1325.58);
+	hotspotDB:addHotspot("Shadowglen 4 - 6", "Alliance", 5, 7, 10721.09, 838.87, 1325.58);
 	hotspotDB:addHotspot("Teldrassil 6 - 9", "Alliance", 7, 9, 9821.07, 804.47, 1303.89);
 	hotspotDB:addHotspot("Teldrassil 9 - 11", "Alliance", 9, 11, 10375.58, 1473.05, 1328.85);
 	-- dun morogh

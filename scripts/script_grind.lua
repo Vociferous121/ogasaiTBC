@@ -69,100 +69,21 @@ script_grind = {
 	currentMoney = 0,
 }
 
-function script_grind:setup()
+function script_grind:setup() SetPVE(true); SetAutoLoot(); DrawNavMeshPath(true); self.skipMobTimer = GetTimeEX(); self.unStuckTime = GetTimeEX(); self.tryMountTime = GetTimeEX(); self.waitTimer = GetTimeEX();
+-- Classes that doesn't use mana
+local class, classFileName = UnitClass("player"); if (strfind("Warrior", class) or strfind("Rogue", class)) then self.useMana = false; self.restMana = 0; end
+-- don't vendor if a mage
+if (strfind("Mage", class)) then self.vendorRefill = false; end
+-- don't refill low level
+if (GetLevel(GetLocalPlayer()) <= 5) then self.vendorRefill = false; end
+-- don't use mount if we don't have one
+if (GetLevel(GetLocalPlayer()) <= 39) then self.useMount = false; end hotspotDB:setup(); script_grindEX:setup(); script_helper:setup(); script_path:setup(); script_target:setup(); script_vendor:setup(); script_talent:setup(); script_pathFlyingEX:setup(); script_rogue.useRotation = false; script_mage.useRotation = false; script_druid.useRotation = false; script_paladin.useRotation = false; script_warrior.useRotation = false; script_shaman.useRotation = false; script_hunter.useRotation = false; script_priest.useRotation = false; script_warlock.useRotation = false; self.currentMoney = GetMoney(); self.isSetup = true; end
 
-	--ZoneNames1 = { GetMapZones(1) } ;
-	--ZoneNames2 = { GetMapZones(2) } ;
-	--ZoneNames3 = { GetMapZones(3) } ;
-	--for i = 1, ZoneNames3 do
-	--end
+function script_grind:draw() script_grindEX:draw(); end
 
-	SetPVE(true);
-	SetAutoLoot();
-	DrawNavMeshPath(true);
+function script_grind:enemiesAttackingUs() local unitsAttackingUs = 0;  local localPlayer = GetLocalPlayer(); local i, t = GetFirstObject();  while i ~= 0 do if t == 3 then if (CanAttack(i) and not IsDead(i)) then if (localPlayer ~= nil and localPlayer ~= 0 and not IsDead(localPlayer)) then if (GetUnitsTarget(i) ~= nil and GetUnitsTarget(i) ~= 0) then unitsAttackingUs = unitsAttackingUs + 1; end end end end i, t = GetNextObject(i); end return unitsAttackingUs; end
 
-	self.skipMobTimer = GetTimeEX();
-	self.unStuckTime = GetTimeEX();
-	self.tryMountTime = GetTimeEX();
-	self.waitTimer = GetTimeEX();
-
-	-- Classes that doesn't use mana
-	local class, classFileName = UnitClass("player");
-	if (strfind("Warrior", class) or strfind("Rogue", class)) then
-		self.useMana = false;
-		self.restMana = 0;
-	end
-
-	-- don't vendor if a mage
-	if (strfind("Mage", class)) then
-		self.vendorRefill = false;
-	end
-
-	-- don't refill low level
-	if (GetLevel(GetLocalPlayer()) <= 5) then
-		self.vendorRefill = false;
-	end
-
-	-- don't use mount if we don't have one
-	if (GetLevel(GetLocalPlayer()) <= 39) then
-		self.useMount = false;
-	end
-
-	hotspotDB:setup();
-
-	script_grindEX:setup();
-	script_helper:setup(); 
-	script_path:setup();
-	script_target:setup();
-	script_vendor:setup();
-	script_talent:setup();
-	script_pathFlyingEX:setup();
-
-	script_rogue.useRotation = false;
-	script_mage.useRotation = false;
-	script_druid.useRotation = false;
-	script_paladin.useRotation = false;
-	script_warrior.useRotation = false;
-	script_shaman.useRotation = false;
-	script_hunter.useRotation = false;
-	script_priest.useRotation = false;
-	script_warlock.useRotation = false;
-
-	self.currentMoney = GetMoney();
-
-	self.isSetup = true;
-
-
-end
-
-function script_grind:draw() 
-	-- Draw everything
-	script_grindEX:draw();
-end
-
-function script_grind:enemiesAttackingUs() -- returns number of enemies attacking us
-	local unitsAttackingUs = 0; 
-        local localPlayer = GetLocalPlayer();
-	local i, t = GetFirstObject(); 
-	while i ~= 0 do 
-    		if t == 3 then
-			if (CanAttack(i) and not IsDead(i)) then
-				if (localPlayer ~= nil and localPlayer ~= 0 and not IsDead(localPlayer)) then
-					if (GetUnitsTarget(i) ~= nil and GetUnitsTarget(i) ~= 0) then
-	                			unitsAttackingUs = unitsAttackingUs + 1; 
-	                		end 
-				end
-	            	end 
-	       	end
-	i, t = GetNextObject(i); 
-    	end
-    return unitsAttackingUs;
-end
-
--- set timer for grind script to run
-function script_grind:setWaitTimer(ms)
-	self.waitTimer = (GetTimeEX() + (ms));
-end
+function script_grind:setWaitTimer(ms) self.waitTimer = (GetTimeEX() + (ms)); end
 
 function script_grind:run()
 	-- Run the setup function once
@@ -216,6 +137,7 @@ function script_grind:run()
 		if (script_path:loadNavMesh()) then
 			self.message = "Loading the oGasai maps...";
 			script_debug.debugGrind = "loading nav";
+			script_path.savedPos['time'] = GetTimeEX();
 			return;
 		end
 	end
@@ -254,22 +176,21 @@ function script_grind:run()
 		end
 	end
 
+	if (IsInCombat()) then
+		if (script_checkDebuffs:hasDisabledMovement()) then
+			if (IsMoving()) then
+				StopMoving()
+				return;
+			end
+		return;
+		end
+	end
+
 	-- Update min/max level if we level up
 	if (script_target.currentLevel ~= GetLevel(GetLocalPlayer())) then
 		script_target.minLevel = script_target.minLevel + 1;
 		script_target.maxLevel = script_target.maxLevel + 2;
 		script_target.currentLevel = script_target.currentLevel + 1;
-	end
-
-	-- Check: jump to the surface if we are under water
-	local progress = GetMirrorTimerProgress("BREATH");
-	if (progress ~= nil and progress ~= 0) then
-		if ((progress/1000) < 35) then
-			self.message = "Let's not drown...";
-			script_debug.debugGrind = "using jump out of water";
-			Jump();
-			return;
-		end	
 	end
 
 	-- was here... testing...
@@ -391,33 +312,6 @@ function script_grind:run()
 	local hp = GetHealthPercentage(GetLocalPlayer());
 	local mana = GetManaPercentage(GetLocalPlayer());
 
-	-- Stand up after resting
-	--if (self.useMana) then
-	--	script_debug.debugGrind = "stand up after resting";
-	--	if (hp >= 92 and mana >= 92 and not IsStanding()) then
-	--		--StopMoving();
-	--		self.shouldRest = false;
-	--	return;
-		
-	--	else
-	--		if (IsDrinking() or IsEating()) then
-	--			script_debug.debugGrind = "we should drink";
-	--			self.shouldRest = true;
-	--		end
-	--	end
-	--else
-		--if (hp >= 92 and not IsStanding()) then
-		--	--StopMoving();
-		--	self.shouldRest = false;
-		--return;
-		--else
-		--	if (IsEating()) then
-		--	script_debug.debugGrind = "we should eat";
-		--		self.shouldRest = true;
-		--	end
-		--end
-	--end
-
 	-- Rest out of combat
 	if (not IsInCombat() or (IsInCombat()) and script_info:nrTargetingMe() == 0) then
 		script_debug.debugGrind = "resting";
@@ -522,7 +416,7 @@ function script_grind:run()
 	
 	-- stop then we reach target if we are ranged class
 	if (not self.moveToMeleeRange) then
-		if (script_path.reachedHotspot) and (not IsInCombat()) and (GetDistance(self.target) <= 27) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
+		if (script_path.reachedHotspot) and (GetDistance(self.target) <= 27) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
 			if (IsMoving()) and (IsInLineOfSight(self.target)) then
 				StopMoving();
 				return;
@@ -532,7 +426,7 @@ function script_grind:run()
 	
 	-- stop when we have reached hotspot to attack target if we are a hunter class
 	if (HasSpell("Raptor Strike")) then
-		if (script_path.reachedHotspot) and (not IsInCombat())
+		if (script_path.reachedHotspot)
 			and (GetDistance(self.target) <= 30) and (IsInLineOfSight(self.target)) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
 			if (IsMoving()) and (IsInLineOfSight(self.target)) then
 				StopMoving();
@@ -597,6 +491,13 @@ function script_grind:run()
 	
 	-- If we have a valid target attack it
 	if (self.target ~= 0 and self.target ~= nil) then
+
+		if (script_checkDebuffs:hasDisabledMovement()) then
+			if (IsMoving()) then
+				StopMoving();
+				return true;
+			end
+		end
 
 		script_debug.debugGrind = "attack valid target";
 		if (GetDistance(self.target) < self.pullDistance and IsInLineOfSight(self.target)) and (not IsMoving() or GetDistance(self.target) <= 4) then
@@ -677,7 +578,6 @@ function script_grind:run()
 			end
 
 			if (not IsInCombat()) and (HasSpell("Stealth")) and (script_rogue.alwaysStealth) and (script_rogue.useStealth) and (not HasBuff(localObj, "Stealth")) and (IsSpellOnCD("Stealth")) then
-				self.waitTimer = GetTimeEX() + 250;
 				self.message = "Waiting for stealth cooldown...";
 				if (IsMoving()) then
 					StopMoving();
@@ -709,7 +609,7 @@ function script_grind:run()
 					local x, y, z = GetPosition(self.target);
 					if (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
 						if (MoveToTarget(x+moveBuffer, y+moveBuffer, z)) then
-							self.waitTimer = GetTimeEX() + 100;
+							self.waitTimer = GetTimeEX() + 150;
 						else
 							if (GetDistance(self.target) <= 2) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
 								if (IsMoving()) and (IsInLineOfSight(self.target)) then
@@ -729,7 +629,7 @@ function script_grind:run()
 					end
 					local x, y, z = GetPosition(self.target);
 					if (MoveToTarget(x+moveBuffer, y+moveBuffer, z)) then
-						self.waitTimer = GetTimeEX() + 100;
+						self.waitTimer = GetTimeEX() + 150;
 					end
 				end
 				return;
@@ -741,7 +641,7 @@ function script_grind:run()
 				local cx, cy, cz = GetPosition(self.target);
 				if (self.moveToMeleeRange) and (tarDist > 2) then
 					script_pather:moveToTarget(cx, cy, cz);
-					if (GetDistance(self.target) <= 2)and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
+					if (GetDistance(self.target) <= 2) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
 						if (IsMoving()) and (IsInLineOfSight(self.target)) then
 							StopMoving();
 							return;
@@ -794,42 +694,10 @@ function script_grind:run()
 	end
 
 	-- Mount before pathing
-	if (not IsMounted() and self.target ~= nil and self.target ~= 0 and IsOutdoors() and self.tryMountTime < GetTimeEX()) then
-		if (IsMoving()) then StopMoving();
-			return;
-		end
-		script_helper:useMount();
-		self.tryMountTime = GetTimeEX() + 10000;
-		return;
-	end
-
+	if (not IsMounted() and self.target ~= nil and self.target ~= 0 and IsOutdoors() and self.tryMountTime < GetTimeEX()) then if (IsMoving()) then StopMoving(); return; end script_helper:useMount(); self.tryMountTime = GetTimeEX() + 10000; return; end
 	-- When no valid targets around, run auto pathing
-	if (not IsInCombat() and (IsUsingNavmesh() or self.raycastPathing)) then
-		script_debug.debugGrind = "no valid enemy, auto pathing";
-		self.message = script_path:autoPath();
-	end
-
-	if (not IsUsingNavmesh() and not self.raycastPathing) then
-		script_debug.debugGrind = "not using nav or raycast pathing - walk path";
-		self.message = "Navigating the walk path..."; Navigate();
-	end
-end
-
-function script_grind:turnfOffLoot(reason)
-	self.skipReason = reason;
-	self.skipLoot = true;
-	self.bagsFull = true;
-end
-
-function script_grind:turnfOnLoot()
-	self.skipLoot = false;
-	self.bagsFull = false;
-end
-
-function script_grind:restOn()
-	self.shouldRest = true;
-end
-
-function script_grind:restOff()
-	self.shouldRest = false;
-end
+	if (not IsInCombat() and (IsUsingNavmesh() or self.raycastPathing)) then script_debug.debugGrind = "no valid enemy, auto pathing"; self.message = script_path:autoPath(); end if (not IsUsingNavmesh() and not self.raycastPathing) then script_debug.debugGrind = "not using nav or raycast pathing - walk path"; self.message = "Navigating the walk path..."; Navigate(); end end
+function script_grind:turnfOffLoot(reason) self.skipReason = reason; self.skipLoot = true; self.bagsFull = true; end
+function script_grind:turnfOnLoot() self.skipLoot = false; self.bagsFull = false; end
+function script_grind:restOn() self.shouldRest = true; end
+function script_grind:restOff() self.shouldRest = false; end

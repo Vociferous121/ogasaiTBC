@@ -251,7 +251,7 @@ function script_rogue:run(targetObj)
 
 			local creatureType = GetCreatureType(GetUnitsTarget(GetLocalPlayer()));
 
-			if (GetHealthPercentage(self.target) >= 100) and (strfind("Humanoid", creatureType) or strfind("Undead", creatureType)) and (HasBuff(localObj, "Stealth")) and (HasSpell("Pick Pocket")) and (GetDistance(targetObj) <= 6) and (self.useStealth) and (not IsSpellOnCD("Pick Pocket")) and (not IsInCombat()) and (not self.pickpocketUsed) then
+			if (GetHealthPercentage(targetObj) >= 100) and (strfind("Humanoid", creatureType) or strfind("Undead", creatureType)) and (HasBuff(localObj, "Stealth")) and (HasSpell("Pick Pocket")) and (GetDistance(targetObj) <= 4) and (self.useStealth) and (not IsSpellOnCD("Pick Pocket")) and (not IsInCombat()) and (not self.pickpocketUsed) then
 				StopMoving();
 				if (not script_grind.adjustTickRate) then
 					script_grind.tickRate = 1500;
@@ -263,7 +263,7 @@ function script_rogue:run(targetObj)
 			end
 				
 			-- Open with stealth opener
-			if (GetDistance(targetObj) <= 5) and (self.useStealth and HasSpell(self.stealthOpener) and HasBuff(localObj, "Stealth")) and (not IsInCombat()) and (GetUnitsTarget(GetLocalPlayer()) ~= 0) and (not IsSpellOnCD(self.stealthOpener)) and ( (self.usePickPocket and self.pickpocketUsed) or (not self.usePickPocket) or (GetHealthPercentage(self.target) < 100) ) then
+			if (GetDistance(targetObj) <= 4) and (self.useStealth and HasSpell(self.stealthOpener) and HasBuff(localObj, "Stealth")) and (not IsInCombat()) and (GetUnitsTarget(GetLocalPlayer()) ~= 0) and (not IsSpellOnCD(self.stealthOpener)) and ( (self.usePickPocket and self.pickpocketUsed) or (not self.usePickPocket) or (GetHealthPercentage(self.target) < 100) ) then
 				if (CastSpellByName(self.stealthOpener)) then
 					local x, y, z = GetPosition(GetUnitsTarget(GetLocalPlayer()));
 					self.waitTimer = GetTimeEX() + 1650;
@@ -279,7 +279,7 @@ function script_rogue:run(targetObj)
 			end
 
 			-- Use CP generator attack 
-			if (GetDistance(targetObj) <= 5) then
+			if (GetDistance(targetObj) < 4) then
 				if (not self.useStealth or not HasBuff(localObj, "Stealth")) and (localEnergy >= self.cpGeneratorCost) and (HasSpell(self.cpGenerator)) and (not IsSpellOnCD(self.cpGenerator)) and ( (self.usePickPocket and self.pickpocketUsed) or (not self.usePickPocket) or (GetHealthPercentage(self.target) < 100) )then
 					if (not CastSpellByName(self.cpGenerator)) then
 						script_rogue:setTimers(1050);
@@ -314,8 +314,9 @@ function script_rogue:run(targetObj)
 		else	
 
 			local cp = GetComboPoints(localObj);
+			local tarDist = GetDistance(targetObj);
 
-if (IsInCombat()) then
+		if (IsInCombat()) then
 			self.pickpocketUsed = false;
 		end
 
@@ -351,7 +352,7 @@ if (IsInCombat()) then
 			end
 
 			-- Check: Kick Spells
-			if (HasSpell('Kick')) and (not IsSpellOnCD("Kick")) then
+			if (HasSpell('Kick')) and (not IsSpellOnCD("Kick")) and (localEnergy >= 25) and (tarDist < 5) then
 			local name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo("target");
 				if (name ~= nil) then
 					script_debug.debugCombat = "use kick";
@@ -362,7 +363,7 @@ if (IsInCombat()) then
 				end
 			end
 
-			if (HasSpell('Kidney Shot')) then
+			if (HasSpell('Kidney Shot')) and (tarDist < 5) then
 			local name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo("target");
 				if (name ~= nil) then
 					if (cp >= 1) and (not IsSpellOnCD('Kidney Shot')) and (localEnergy >= 25) then	
@@ -375,7 +376,7 @@ if (IsInCombat()) then
 			end
 
 			-- Check: gouge Spells
-			if (HasSpell('Gouge')) and (not IsSpellOnCD("Gouge")) then
+			if (HasSpell('Gouge')) and (not IsSpellOnCD("Gouge")) and (localEnergy >= 45) and (tarDist < 5) then
 			local name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo("target");
 				if (name ~= nil) then
 					script_debug.debugCombat = "use gouge";
@@ -556,15 +557,17 @@ function script_rogue:menu()
 
 		local wasClicked = false;
 
-		wasClicked, self.useStealth = Checkbox("Use Stealth", self.useStealth);
+		if (HasSpell("Stealth")) then
+			wasClicked, self.useStealth = Checkbox("Use Stealth", self.useStealth);
 
 	
-		if (self.useStealth) then
-			SameLine();
-			wasClicked, self.alwaysStealth = Checkbox("Always Stealth", self.alwaysStealth);
-		end
+			if (self.useStealth) then
+				SameLine();
+				wasClicked, self.alwaysStealth = Checkbox("Always Stealth", self.alwaysStealth);
+			end
 
-		SameLine();
+			SameLine();
+		end
 
 		wasClicked, self.useThrow = Checkbox("Use Throw", self.useThrow);
 		

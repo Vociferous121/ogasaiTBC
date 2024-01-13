@@ -113,12 +113,12 @@ function script_rotation:run()
 	if (self.waitTimer > GetTimeEX()) then
 		return;
 	end
+	
+	-- set tick rate
+	 self.waitTimer = GetTimeEX() + self.tickRate;
 
-	-- set reaction time after casting spells and wait timers
-	self.waitTimer = GetTimeEX() + self.tickRate;
-
-	if (not IsInCombat()) then
-		self.tickRate = 150;
+	if (not IsInCombat() or GetUnitsTarget(GetLocalPlayer()) == 0) then
+		self.tickRate = 75;
 	else
 		self.tickRate = random(300, 750);
 	end

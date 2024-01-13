@@ -105,13 +105,31 @@ function script_grindEX:doChecks()
 		-- reset unstuck when paused
 		script_path:savePos(true);
 		script_grind.message = "Paused by user...";
+		if (IsMoving()) then
+			StopMoving();
+		end
 		return true;
+	end
+
+	if (IsMoving()) and (not script_path.reachedHotspot) then
+			DrawMovePath();
+	end
+
+	-- Check: jump to the surface if we are under water
+	local progress = GetMirrorTimerProgress("BREATH");
+	if (progress ~= nil and progress ~= 0) then
+		if ((progress/1000) < 35) then
+			self.message = "Let's not drown...";
+			script_debug.debugGrind = "using jump out of water";
+			Jump();
+			return;
+		end	
 	end
 
 	if (GetTimeEX() + script_grind.tickRate > self.waitTimer) then
 		if (script_grind.jump) and (IsMoving()) and (not IsInCombat()) and (not script_checkDebuffs:hasDisabledMovement()) then
 			local randomJump = random(0, 100);
-			local randomWait = random(1500, 6000);
+			local randomWait = random(1500, 5500);
 			if randomJump > self.jumpFloat then
 				Jump();
 				self.waitTimer = GetTimeEX() + randomWait;

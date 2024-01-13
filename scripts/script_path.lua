@@ -3,7 +3,7 @@ script_path = {
 	savedPathNodes = {},
 	numSavedPathNodes = 0,
 	currentPathNode = 0,
-	navNodeDist = 8,
+	navNodeDist = 10,
 	navNodeDistMounted = 15,
 	pathNodeDist = 45,
 	grindingDist = 650,
@@ -143,24 +143,39 @@ end
 
 function script_path:autoPath()
 
+	if (IsIndoors()) then
+		self.navNodeDist = 6;
+	end
+
+	if (not script_grind.drawPath) then
+		if (not self.reachedHotspot) then
+			script_grind.drawPath = true;
+			self.thisVar = true;
+		end
+	end
+
 	-- No path nodes yet
 	if (self.numSavedPathNodes == 0 or not self.reachedHotspot) then
 		if (script_path:distanceToHotspot() <= self.reachedHotspotDistance) then
-			self.reachedHotspot = true;	
+			self.reachedHotspot = true;
+			if (self.thisVar) then
+				script_grind.drawPath = false;
+			end
 		end
 		
 		if (script_path:distanceToHotspot() > self.reachedHotspotDistance) then
-				DrawMovePath();
 			if (not script_grind.raycastPathing) then
 				MoveToTarget(self.hx, self.hy, self.hz);
+					script_grind.waitTimer = GetTimeEX() + 150;
+				
 			else
-				script_pather:moveToTarget(self.hx, self.hy, self.hz);
-				script_grindEX.drawRaycastPath = true;
+				if (script_pather:moveToTarget(self.hx, self.hy, self.hz)) then
+					script_grind.waitTimer = GetTimeEX() + 150;
+				end
 			end
 			return "Moving to hotspot...";
 		end
 
-		script_grind.waitTimer = GetTimeEX() + 500;
 		
 		return "Hotspot reached, no targets around?";
 	end

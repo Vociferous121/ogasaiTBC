@@ -110,6 +110,7 @@ function script_checkDebuffs:hasDisabledMovement()
 		or (HasDebuff(player, "Frost Nova"))
 		or (HasDebuff(player, "Entangling Roots"))
 		or (HasDebuff(player, "Slowing Poison"))
+		or (HasBuff(player, "Gust of Wind"))
 
 
 	then

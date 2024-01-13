@@ -37,7 +37,9 @@ function script_grindMenu:menu()
 	else
 		if (Button("Pause Bot")) then
 		script_grind.pause = true; end end
-	SameLine(); if (Button("Reload Scripts")) then menu:reload(); end
+	SameLine(); if (Button("Reload Scripts")) then
+		menu:reload();
+		end
 	SameLine(); if (Button("Exit Bot")) then StopBot(); end
 	SameLine();
 	wasClicked, self.debug = Checkbox("Debug", self.debug);
@@ -74,11 +76,10 @@ function script_grindMenu:menu()
 		if (script_paranoid.useParanoia) then
 			wasClicked, script_paranoid.logoutOnParanoid = Checkbox("Logout When Paranoid", script_paranoid.logoutOnParanoid);
 			
+			SameLine();
+			wasClicked, script_paranoid.stopMovement = Checkbox("Stop Movement", script_paranoid.stopMovement);
+			Separator();
 		end
-
-		SameLine();
-		wasClicked, script_paranoid.stopMovement = Checkbox("Stop Movement", script_paranoid.stopMovement);
-		Separator();
 		if (script_paranoid.useParanoia) and (script_paranoid.logoutOnParanoid) then
 				Text("Logout Time In Seconds");
 				script_grind.setLogoutTime = SliderInt("(seconds)", 0 , 300, script_grind.setLogoutTime);
