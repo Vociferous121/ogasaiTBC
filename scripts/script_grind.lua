@@ -67,6 +67,7 @@ script_grind = {
 	monsterKillCount = 0,
 	moneyObtainedCount = 0,
 	currentMoney = 0,
+	dead = false,
 }
 
 function script_grind:setup() SetPVE(true); SetAutoLoot(); DrawNavMeshPath(true); self.skipMobTimer = GetTimeEX(); self.unStuckTime = GetTimeEX(); self.tryMountTime = GetTimeEX(); self.waitTimer = GetTimeEX();
@@ -289,9 +290,15 @@ function script_grind:run()
 		return;
 	end
 
+	if (not self.dead) and (IsDead(GetLocalPlayer())) and (not HasDebuff(GetLocalPlayer(), "Ghost")) then
+		self.waitTimer = GetTimeEX() + 5000;
+		self.dead = true;
+		return;
+	end
+
 	-- Dead
 	if (IsDead(GetLocalPlayer())) then
-			self.waitTimer = GetTimeEX() + 1500;
+		
 		if (self.alive) then
 			self.alive = false;
 			RepopMe();
@@ -305,6 +312,7 @@ function script_grind:run()
 	else
 	-- Alive
 		self.alive = true;
+		self.dead = false;
 		script_path:savePos(false); -- SAVE FOR UNSTUCK
 	end
 

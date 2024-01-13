@@ -147,31 +147,18 @@ function script_path:autoPath()
 		self.navNodeDist = 6;
 	end
 
-	if (not script_grind.drawPath) then
-		if (not self.reachedHotspot) then
-			script_grind.drawPath = true;
-			self.thisVar = true;
-		end
-	end
-
 	-- No path nodes yet
 	if (self.numSavedPathNodes == 0 or not self.reachedHotspot) then
 		if (script_path:distanceToHotspot() <= self.reachedHotspotDistance) then
 			self.reachedHotspot = true;
-			if (self.thisVar) then
-				script_grind.drawPath = false;
-			end
 		end
 		
 		if (script_path:distanceToHotspot() > self.reachedHotspotDistance) then
 			if (not script_grind.raycastPathing) then
 				MoveToTarget(self.hx, self.hy, self.hz);
-					script_grind.waitTimer = GetTimeEX() + 150;
 				
 			else
-				if (script_pather:moveToTarget(self.hx, self.hy, self.hz)) then
-					script_grind.waitTimer = GetTimeEX() + 150;
-				end
+				script_pather:moveToTarget(self.hx, self.hy, self.hz);
 			end
 			return "Moving to hotspot...";
 		end

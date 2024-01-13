@@ -54,8 +54,6 @@ function script_helper:ress(x, y, z)
 
 	script_grind.tickRate = 50;
 
-	self.waitTimer = GetTimeEX() + 350;
-
 	if (not IsDead(GetLocalPlayer())) then
 		RepopMe();
 	end
