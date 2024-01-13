@@ -109,6 +109,11 @@ function script_grindEX:doChecks()
 		return true;
 	end
 
+	local randomJump = math.random(0, 100);
+	if randomJump > 99 then
+		Jump();
+	end
+
 	-- save pos while/if moving
 	script_path:savePos(false); 
 

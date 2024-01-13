@@ -81,6 +81,16 @@ function script_paladin:run(targetObj)
 		end
 	end
 
+	if (localMana >= 25) and (script_checkDebuffs:hasDisease() or script_checkDebuffs:hasPoison()) then
+		CastSpellByName("Purify");
+		script_paladin:setTimers(1550);
+		return true;
+	end
+
+	if (script_checkDebuffs:hasDisabledMovement()) or (script_checkDebuffs:hasSilence()) then
+		return;
+	end
+
 	--Valid Enemy
 	if (targetObj ~= 0 and targetObj ~= nil) then
 	
