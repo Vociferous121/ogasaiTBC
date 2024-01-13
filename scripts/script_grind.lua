@@ -602,14 +602,10 @@ function script_grind:run()
 					if (not self.adjustTickRate) then
 						script_grind.tickRate = 50;
 					end
-					local moveBuffer = math.random(-1, 1);
-					if (HasBuff(localObj, "Stealth")) or (HasBuff(localObj, "Prowl")) then
-						moveBuffer = 0;
-					end
 					local x, y, z = GetPosition(self.target);
 					if (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
-						if (MoveToTarget(x+moveBuffer, y+moveBuffer, z)) then
-							self.waitTimer = GetTimeEX() + 150;
+						if (MoveToTarget(x, y, z)) then
+							self.waitTimer = GetTimeEX() + 350;
 						else
 							if (GetDistance(self.target) <= 2) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
 								if (IsMoving()) and (IsInLineOfSight(self.target)) then
@@ -623,13 +619,9 @@ function script_grind:run()
 					if (not self.adjustTickRate) then
 						script_grind.tickRate = 50;
 					end
-					local moveBuffer = math.random(-1, 1);
-					if (HasBuff(localObj, "Stealth")) or (HasBuff(localObj, "Prowl")) then
-						moveBuffer = 0;
-					end
 					local x, y, z = GetPosition(self.target);
-					if (MoveToTarget(x+moveBuffer, y+moveBuffer, z)) then
-						self.waitTimer = GetTimeEX() + 150;
+					if (MoveToTarget(x, y, z)) then
+						self.waitTimer = GetTimeEX() + 350;
 					end
 				end
 				return;
