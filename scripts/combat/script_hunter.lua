@@ -52,7 +52,6 @@ function script_hunter:setup()
 
 	script_hunterEX:setup();
 
-	DEFAULT_CHAT_FRAME:AddMessage('script_hunter: loaded...');
 
 	-- Save the name of ammo we use, only checks the last slot on the bag
 	local bagSlot = GetContainerNumSlots(self.quiverBagNr-1);
@@ -60,13 +59,13 @@ function script_hunter:setup()
 		local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType,
    		itemStackCount, itemEquipLoc, itemTexture = GetItemInfo(GetContainerItemLink(self.quiverBagNr-1, bagSlot));
 		self.ammoName = itemName;
-		DEFAULT_CHAT_FRAME:AddMessage('script_hunter: Ammo name is set to: "' .. self.ammoName .. '" ...');
+		--DEFAULT_CHAT_FRAME:AddMessage('script_hunter: Ammo name is set to: "' .. self.ammoName .. '" ...');
 		if (not strfind(itemName, "Arrow")) then
-			DEFAULT_CHAT_FRAME:AddMessage('script_hunter: Ammo will be bought at "Bullet" vendors...');
+		--	DEFAULT_CHAT_FRAME:AddMessage('script_hunter: Ammo will be bought at "Bullet" vendors...');
 			self.ammoIsArrow = false;
 			script_vendorEX.bulletName = itemName;
 		else
-			DEFAULT_CHAT_FRAME:AddMessage('script_hunter: Ammo will be bought at "Arrow" vendors...');
+			--DEFAULT_CHAT_FRAME:AddMessage('script_hunter: Ammo will be bought at "Arrow" vendors...');
 			script_vendorEX.arrowName = itemName;
 		end
 	end
@@ -76,9 +75,9 @@ function script_hunter:setup()
 		local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType,
    		itemStackCount, itemEquipLoc, itemTexture = GetItemInfo(GetContainerItemLink(self.bagWithPetFood-1, self.slotWithPetFood));
 		self.foodName = itemName;
-		DEFAULT_CHAT_FRAME:AddMessage('script_hunter: Pet food name is set to: "' .. self.foodName .. '" ...');
+		--DEFAULT_CHAT_FRAME:AddMessage('script_hunter: Pet food name is set to: "' .. self.foodName .. '" ...');
 	else
-		DEFAULT_CHAT_FRAME:AddMessage('script_hunter: Please set the pet food name in hunter options...');
+		--DEFAULT_CHAT_FRAME:AddMessage('script_hunter: Please set the pet food name in hunter options...');
 	end
 
 	self.waitTimer = GetTimeEX();

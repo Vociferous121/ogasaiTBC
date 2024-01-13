@@ -75,7 +75,6 @@ function script_warlock:setup()
 	script_grind.moveToMeleeRange = false;
 
 
-	DEFAULT_CHAT_FRAME:AddMessage('script_warlock: loaded...');
 
 	self.isSetup = true;
 end
@@ -698,7 +697,7 @@ function script_warlock:rest()
 			end
 			if (GetDistance(GetPet()) < 20 and localMana > 10) then
 				if (hasPet and petHP < 70 and petHP > 0) then
-					DEFAULT_CHAT_FRAME:AddMessage('script_Warlock: Pet health below 70 percent, resting...');
+					--DEFAULT_CHAT_FRAME:AddMessage('script_Warlock: Pet health below 70 percent, resting...');
 					if (HasSpell('Health Funnel')) then CastSpellByName('Health Funnel'); end
 					self.waitTimer = GetTimeEX() + 1550; 
 					script_grind:restOn();

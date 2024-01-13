@@ -20,17 +20,27 @@ function script_paranoid:doParanoia()
 		-- if players in range
 		if (script_paranoid:playersWithinRange(self.paranoidRange)) then
 
+			-- set logout timer when paranoid
 			if (not self.logoutTimerSet) then
 				script_grind.currentTime2 = GetTimeEX();
 				self.logoutTimerSet = true;
 			end
 			
+			-- stealth when paranoid
 			if (HasSpell("Stealth")) and (not IsInCombat()) and (not IsSpellOnCD("Stealth")) and (not HasBuff(localObj, "Stealth")) then
 				CastSpellByName("Stealth");
 				return;
 			end
+			
+			-- prowl when paranoid
 			if (HasSpell("Prowl")) and (HasBuff(localObj, "Cat Form")) and (not IsInCombat()) and (not IsSpelOnCD("Prowl")) and (not HasBuff(localObj, "Prowl")) then
 				CastSpellByName("Prowl");
+				return;
+			end
+
+			-- shadowmeld when paranoid
+			if (HasSpell("Shadowmeld")) and (not IsSpellOnCD("Shadowmeld")) and (not HasSpell("Stealth") or IsSpellOnCD("Stealth")) and (not HasBuff(localObj, "Cat Form") and not HasBuff(localObj, "Bear Form") and not HasBuff(localObj, "Dire Bear Form")) then
+				CastSpellByName("Shadowmeld");
 				return;
 			end
 
@@ -43,7 +53,11 @@ end
 --function script_paranoid.doEmotes()
 	
 --	if (self.paranoidOn) and (self.useParanoia) and (self.logoutTimerSet) then
+
+
 		-- check for players in range... cannot use name... target by GUID?
+
+
 			-- random seed
 				-- check range and not player is targeting me and NOT DONE EMOTE YET
 					-- do emote based on range
@@ -91,7 +105,7 @@ function script_paranoid:playersWithinRange(range)
 							local playerFaction = this;
 						end
 						if (not self.usedString) then
-							local string ="Paranoid - Player in range! | Time : " ..playerTimeHours..":"..playerTimeMinutes.. " | Distance (yds) "..playerDistance.. " | GUID - " ..playerGUID .. " | added to log file."
+							local string ="Player in range | Time : " ..playerTimeHours..":"..playerTimeMinutes.. " | Distance (yds) "..playerDistance.. " | GUID - " ..playerGUID;
 							DEFAULT_CHAT_FRAME:AddMessage(string);
 							ToFile(string);
 							self.usedString = true;

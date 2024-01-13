@@ -42,6 +42,5 @@ function script_mageEX:setup()
 	script_mageEX:addManaGem('Mana Jade');
 	script_mageEX:addManaGem('Mana Ruby');
 
-	DEFAULT_CHAT_FRAME:AddMessage('script_mageEX: loaded...');
 	script_mageEX.isSetup = true;
 end

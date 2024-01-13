@@ -48,7 +48,6 @@ function script_fish:setup()
 	self.fishPos['x'], self.fishPos['y'], self.fishPos['z'] = GetPosition(GetLocalPlayer());
 	script_vendor:setup();
 	script_path:setup();
-	DEFAULT_CHAT_FRAME:AddMessage('script_fish: loaded...');
 	self.timer = GetTimeEX();
 	self.isSetup = true;
 end
@@ -129,7 +128,6 @@ function script_fish:run()
 				return;
 			end
 		else
-			DEFAULT_CHAT_FRAME:AddMessage('script_fish: Stopping bot, bags are full...');
 			StopBot();
 			return;
 		end

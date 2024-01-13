@@ -29,7 +29,6 @@ function script_pathFlyingEX:setup()
 		script_pathFlyingEX:addMount('Snowy Gryphon');
 		script_pathFlyingEX:addMount('Golden Gryphon');
 		
-		DEFAULT_CHAT_FRAME:AddMessage('script_pathFlyingEX: loaded.');
 		self.isSetup = true;
 	end
 end

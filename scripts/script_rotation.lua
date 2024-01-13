@@ -27,6 +27,7 @@ script_rotation = {
 
 	
 }
+
 function script_rotation:draw()
 
 end
@@ -54,9 +55,10 @@ function script_rotation:setup()
 
 	-- Classes that doesn't use mana
 	local class, classFileName = UnitClass("player");
-	if (strfind("Warrior", class) or strfind("Rogue", class)) then self.useMana = false; self.restMana = 0; end
-
-	DEFAULT_CHAT_FRAME:AddMessage('script_rotation: loaded...');
+	if (strfind("Warrior", class) or strfind("Rogue", class)) then
+		self.useMana = false;
+		self.restMana = 0;
+	end
 
 	if (HasSpell("Summon Imp")) and (not HasSpell("Summon Voidwalker")) then
 		script_warlock.useImp = true;
@@ -79,7 +81,6 @@ function script_rotation:run()
 	local localMana = GetManaPercentage(localObj);
 	local localHealth = GetHealthPercentage(localObj);
 
-
 	-- Draw current target
 	if (script_grindEX.drawTarget) then
 		script_info:drawUnitsDataOnScreen();
@@ -87,7 +88,6 @@ function script_rotation:run()
 	
 	if (script_grindEX.drawGather) then
 		script_gather:drawGatherNodes();
-
 	end
 
 	if (script_aggro.drawAggro) then
@@ -110,12 +110,14 @@ function script_rotation:run()
 	end
 
 	-- Check: wait for timer
-	if(self.waitTimer > GetTimeEX()) then
+	if (self.waitTimer > GetTimeEX()) then
 		return;
 	end
 
 	-- set reaction time after casting spells and wait timers
 	self.waitTimer = GetTimeEX() + self.tickRate;
+
+	self.tickRate = random(300, 750);
 
 	-- Check: Summon our Demon if we are not in combat (Voidwalker is Summoned in favor of the Imp)
 	if (HasSpell("Summon Imp")) then
@@ -207,7 +209,7 @@ function script_rotation:menu()
 	end
 
 	-- rest options
-	if (CollapsingHeader("[Rest options")) then
+	if (CollapsingHeader("Rest options")) then
 		
 		-- does class use mana?
 		wasClicked, script_rotation.useMana = Checkbox("Class Uses Mana", script_rotation.useMana);

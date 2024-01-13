@@ -23,7 +23,6 @@ function script_vendor:setup()
 	self.timer = GetTimeEX();
 	script_vendor.dontBuyTime = GetTimeEX();
 	self.reachedVendorTimer = GetTimeEX();
-	DEFAULT_CHAT_FRAME:AddMessage('script_vendor: loaded...');
 	script_vendorEX:setup();
 
 	self.tickRate = script_grind.tickRate;
@@ -403,7 +402,7 @@ function script_vendor:buy(itemName, itemNum, itemIsFood, itemIsDrink, itemIsArr
 				return true;
 			else
 				self.message = "Vendor does not have: " .. itemName;
-				DEFAULT_CHAT_FRAME:AddMessage("script_vendor: Error vendor does not have: " .. itemName);
+				DEFAULT_CHAT_FRAME:AddMessage("Error vendor does not have: " .. itemName);
 				script_vendorEX:unloadVendor(itemIsFood, itemIsDrink, itemIsArrow, itemIsBullet);
 				script_grind.waitTimer = GetTimeEX() + 2500;
 				self.dontBuyTime = GetTimeEX() + 10000;

@@ -128,7 +128,7 @@ function script_pathLong:tempPathDest(pathNode, path, size)
 	script_pather.firstDestNodes = script_pather.tempSize;
 	script_pather.secondDestNodes = script_pather.tempSize;
 
-	DEFAULT_CHAT_FRAME:AddMessage('changing to temp destination for ' .. script_pather.firstDestNodes .. ' nodes.');
+	--DEFAULT_CHAT_FRAME:AddMessage('changing to temp destination for ' .. script_pather.firstDestNodes .. ' nodes.');
 end
 
 function script_pathLong:clearPath(x1, y1, z1, nA, x2, y2, z2)
@@ -182,7 +182,7 @@ function script_pathLong:trimLongPath(path, pathSize, goToNode)
 			local clearPath = script_pathLong:clearPath(path[i]['x'], path[i]['y'], path[i]['z'], path[i]['a'], path[y]['x'], path[y]['y'], path[y]['z']);
 			if (i ~= y and y ~= goToNode) then
 				if (zDiff < 3 and clearPath) then
-					DEFAULT_CHAT_FRAME:AddMessage('script_pather: Found a clear path from node: ' .. i .. ' to node: ' .. y);
+				--	DEFAULT_CHAT_FRAME:AddMessage('script_pather: Found a clear path from node: ' .. i .. ' to node: ' .. y);
 					tempPath = {};						
 
 					for f = 1, i-1 do
@@ -207,7 +207,7 @@ function script_pathLong:trimLongPath(path, pathSize, goToNode)
 		return tempPath, size, trim;
 	end
 
-	DEFAULT_CHAT_FRAME:AddMessage('trim long ran');	
+	--DEFAULT_CHAT_FRAME:AddMessage('trim long ran');	
 
 	return path, pathSize, trim;
 end

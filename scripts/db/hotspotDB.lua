@@ -282,7 +282,6 @@ function hotspotDB:setup()
 	hotspotDB:addHotspot("Isle of Quel'Danas 70 - 72", "All", 70, 72, 12924.89, -6643.08, 12.23);
 	hotspotDB:addHotspot("Isle of Quel'Danas 70 - 72", "All", 70, 72, 12481.08, -6545, 8.95);
 
-	DEFAULT_CHAT_FRAME:AddMessage('hotspotDB: loaded...');
 	self.isSetup = true;
 end
 

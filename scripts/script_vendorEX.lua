@@ -29,7 +29,6 @@ script_vendorEX = {
 }
 
 function script_vendorEX:setup()
-	DEFAULT_CHAT_FRAME:AddMessage('script_vendorEX: loaded...');
 	-- Load DB
 	vendorDB:setup();
 	self.repairVendor, self.sellVendor, self.foodVendor, self.drinkVendor, self.arrowVendor, self.bulletVendor = 0, 0, 0, 0, 0, 0;
@@ -56,19 +55,15 @@ end
 
 function script_vendorEX:unloadVendor(itemIsFood, itemIsDrink, itemIsArrow, itemIsBullet)
 	if (itemIsFood and self.foodVendor ~= 0) then
-		DEFAULT_CHAT_FRAME:AddMessage("script_vendor: Unloading food vendor " .. self.foodVendor['name']);
 		self.foodVendor = 0;
 	end
 	if (itemIsDrink and self.drinkVendor ~= 0) then
-		DEFAULT_CHAT_FRAME:AddMessage("script_vendor: Unloading drink vendor " .. self.drinkVendor['name']);
 		self.drinkVendor = 0;
 	end
 	if (itemIsArrow and self.arrowVendor ~= 0) then
-		DEFAULT_CHAT_FRAME:AddMessage("script_vendor: Unloading arrow vendor " .. self.arrowVendor['name']);
 		self.arrowVendor = 0;
 	end
 	if (itemIsBullet and self.bulletVendor ~= 0) then
-		DEFAULT_CHAT_FRAME:AddMessage("script_vendor: Unloading bullet vendor " .. self.bulletVendor['name']);
 		self.bulletVendor = 0;
 	end
 end
@@ -84,14 +79,14 @@ function script_vendorEX:checkVendor(minNr, useMana)
 	end
 
 	if (dNr <= minNr and self.drinkVendor ~= 0 and drinkLink ~= nil and useMana) then
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Amount of drinks less than ' .. minNr .. ', going to vendor...');
+		--DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Amount of drinks less than ' .. minNr .. ', going to vendor...');
 		script_vendor:buy(self.drinkName, self.drinkNr, false, true, false, false);
 		return true;
 		
 	end
 
 	if (fNr <= minNr and self.foodVendor ~= 0 and foodLink ~= nil) then
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Amount of food less than ' .. minNr .. ', going to vendor...');
+		--DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Amount of food less than ' .. minNr .. ', going to vendor...');
 		script_vendor:buy(self.foodName, self.foodNr, true, false, false, false);
 		return true;
 	end
@@ -108,7 +103,7 @@ function script_vendorEX:findFood()
 				
 				for u=0,script_helper.numFood-1 do
 					if (strfind(itemName, script_helper.food[u])) then
-						DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Food name is set to: "' .. script_helper.food[u] .. '" ...');
+					--	DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Food name is set to: "' .. script_helper.food[u] .. '" ...');
 						return script_helper.food[u];
 					end	
 				end	
@@ -128,7 +123,7 @@ function script_vendorEX:findDrink()
 				
 				for u=0,script_helper.numWater-1 do
 					if (strfind(itemName, script_helper.water[u])) then
-						DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Drink name is set to: "' .. script_helper.water[u] .. '" ...');
+					--	DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Drink name is set to: "' .. script_helper.water[u] .. '" ...');
 						return script_helper.water[u];
 					end	
 				end	
@@ -290,12 +285,12 @@ function script_vendorEX:setRepairVendor()
 		self.repairVendor['name'] = name;
 		self.repairVendor['pos'] = {};
 		self.repairVendor['pos']['x'], self.repairVendor['pos']['y'], self.repairVendor['pos']['z'] = GetPosition(GetTarget());
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Repair vendor set...');
+		--DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Repair vendor set...');
 		if (self.sellVendor == 0) then
 			script_vendorEX:setSellVendor();
 		end
 	else
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: No vendor targeted...');
+		--DEFAULT_CHAT_FRAME:AddMessage('script_vendor: No vendor targeted...');
 	end
 end
 
@@ -307,9 +302,9 @@ function script_vendorEX:setSellVendor()
 		self.sellVendor['name'] = name;
 		self.sellVendor['pos'] = {};
 		self.sellVendor['pos']['x'], self.sellVendor['pos']['y'], self.sellVendor['pos']['z'] = GetPosition(GetTarget());
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Sell vendor set...');
+		--DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Sell vendor set...');
 	else
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: No vendor targeted...');
+		--DEFAULT_CHAT_FRAME:AddMessage('script_vendor: No vendor targeted...');
 	end
 end
 
@@ -321,12 +316,12 @@ function script_vendorEX:setFoodVendor()
 		self.foodVendor['name'] = name;
 		self.foodVendor['pos'] = {};
 		self.foodVendor['pos']['x'], self.foodVendor['pos']['y'], self.foodVendor['pos']['z'] = GetPosition(GetTarget());
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Food vendor set...');
+		--DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Food vendor set...');
 		if (self.sellVendor == 0) then
 			script_vendorEX:setSellVendor();
 		end
 	else
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: No vendor targeted...');
+		--DEFAULT_CHAT_FRAME:AddMessage('script_vendor: No vendor targeted...');
 	end
 end
 
@@ -338,12 +333,12 @@ function script_vendorEX:setDrinkVendor()
 		self.drinkVendor['name'] = name;
 		self.drinkVendor['pos'] = {};
 		self.drinkVendor['pos']['x'], self.drinkVendor['pos']['y'], self.drinkVendor['pos']['z'] = GetPosition(GetTarget());
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Drink vendor set...');
+		--DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Drink vendor set...');
 		if (self.sellVendor == 0) then
 			script_vendorEX:setSellVendor();
 		end
 	else
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: No vendor targeted...');
+		--DEFAULT_CHAT_FRAME:AddMessage('script_vendor: No vendor targeted...');
 	end
 end
 
@@ -355,12 +350,12 @@ function script_vendorEX:setArrowVendor()
 		self.arrowVendor['name'] = name;
 		self.arrowVendor['pos'] = {};
 		self.arrowVendor['pos']['x'], self.arrowVendor['pos']['y'], self.arrowVendor['pos']['z'] = GetPosition(GetTarget());
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Arrow vendor set...');
+		--DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Arrow vendor set...');
 		if (self.sellVendor == 0) then
 			script_vendorEX:setSellVendor();
 		end
 	else
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: No vendor targeted...');
+		--DEFAULT_CHAT_FRAME:AddMessage('script_vendor: No vendor targeted...');
 	end
 end
 
@@ -372,11 +367,11 @@ function script_vendorEX:setBulletVendor()
 		self.bulletVendor['name'] = name;
 		self.bulletVendor['pos'] = {};
 		self.bulletVendor['pos']['x'], self.bulletVendor['pos']['y'], self.bulletVendor['pos']['z'] = GetPosition(GetTarget());
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Bullet vendor set...');
+		--DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Bullet vendor set...');
 		if (self.sellVendor == 0) then
 			script_vendorEX:setSellVendor();
 		end
 	else
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: No vendor targeted...');
+		--DEFAULT_CHAT_FRAME:AddMessage('script_vendor: No vendor targeted...');
 	end
 end

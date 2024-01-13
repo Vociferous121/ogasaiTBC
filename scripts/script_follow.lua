@@ -57,7 +57,6 @@ function script_follow:setup()
 
 	if (GetLevel(GetLocalPlayer()) <= 39) then self.useMount = false; end
 
-	DEFAULT_CHAT_FRAME:AddMessage('script_follow: loaded...');
 	script_helper:setup(); 
 	script_path:setup();
 	script_target:setup();

@@ -24,7 +24,7 @@ function script_vendorMenu:menu()
 			
 			SameLine();
 			if Button("Unload all Vendors") then 
-				DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Unloading all vendors...');
+				--DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Unloading all vendors...');
 				script_vendorEX.repairVendor = 0;
 				script_vendorEX.sellVendor = 0;
 				script_vendorEX.foodVendor = 0;
@@ -248,12 +248,12 @@ function script_vendorMenu:printAddVendor(canRepair, hasFood, hasWater, hasArrow
 		y = math.floor(y*100) / 100;
 		z = math.floor(z*100) / 100;
 		local pos = ', ' .. x .. ', ' .. y .. ', ' .. z .. ");";
-		DEFAULT_CHAT_FRAME:AddMessage('Add vendor to database by adding the line below in the setup() function in VendorDB.lua');
-		DEFAULT_CHAT_FRAME:AddMessage('You can copy the line from logs//.txt');
+		--DEFAULT_CHAT_FRAME:AddMessage('Add vendor to database by adding the line below in the setup() function in VendorDB.lua');
+		--DEFAULT_CHAT_FRAME:AddMessage('You can copy the line from logs//.txt');
 		local addString = 'vendorDB:addVendor("' .. UnitName("target") .. '", ' .. factionID .. ', ' .. GetCurrentMapContinent() .. ', ' .. GetCurrentMapZone() .. ', '
 			.. tostring(canRepair) .. ', ' .. tostring(hasFood) .. ', ' .. tostring(hasWater) .. ', ' .. tostring(hasArrow) .. ', ' ..tostring(hasBullet) .. pos;
 
-		DEFAULT_CHAT_FRAME:AddMessage(addString);
+		--DEFAULT_CHAT_FRAME:AddMessage(addString);
 		ToFile(addString);
 	end
 end

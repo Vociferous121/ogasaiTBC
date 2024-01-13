@@ -45,7 +45,6 @@ function script_mage:setup()
 
 	script_grind.moveToMeleeRange = false;
 
-	DEFAULT_CHAT_FRAME:AddMessage('script_mage: loaded...');
 	self.isSetup = true;
 
 	script_mageEX:setup();

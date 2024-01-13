@@ -23,7 +23,6 @@ function script_shaman:setup()
 
 	self.waitTimer = GetTimeEX();
 	script_shaman:setSpells();
-	DEFAULT_CHAT_FRAME:AddMessage('script_shaman: loaded...');
 	self.isSetup = true;
 end
 

@@ -256,7 +256,6 @@ function vendorDB:setup()
 	vendorDB:addVendor("Rohok", 1, 3, 2, true, false, false, false, false, 167.27, 2795.66, 113.36);
 	vendorDB:addVendor("Floyd Pinkus", 1, 3, 2, false, true, true, false, false, 190.87, 2610.92, 87.28);
 
-	DEFAULT_CHAT_FRAME:AddMessage('vendorDB: loaded...');
 end
 
 function vendorDB:GetVendorByID(id)
@@ -304,35 +303,35 @@ function vendorDB:loadDBVendors()
 
 	if (repID ~= -1) then
 		script_vendorEX.repairVendor = vendorDB:GetVendorByID(repID);
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Repair vendor ' .. script_vendorEX.repairVendor['name'] .. ' loaded from DB...');
+		--DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Repair vendor ' .. script_vendorEX.repairVendor['name'] .. ' loaded from DB...');
 	end
 
 	if (sellID ~= -1) then
 		script_vendorEX.sellVendor = vendorDB:GetVendorByID(sellID);
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Sell vendor ' .. script_vendorEX.sellVendor['name'] .. ' loaded from DB...');
+		--DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Sell vendor ' .. script_vendorEX.sellVendor['name'] .. ' loaded from DB...');
 	end
 
 	if (foodID ~= -1) then
 		script_vendorEX.foodVendor = vendorDB:GetVendorByID(foodID);
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Food vendor ' .. script_vendorEX.foodVendor['name'] .. ' loaded from DB...');
+		--DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Food vendor ' .. script_vendorEX.foodVendor['name'] .. ' loaded from DB...');
 	end
 
 	if (drinkID ~= -1) then
 		script_vendorEX.drinkVendor = vendorDB:GetVendorByID(drinkID);
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Drink vendor ' .. script_vendorEX.drinkVendor['name'] .. ' loaded from DB...');
+		--DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Drink vendor ' .. script_vendorEX.drinkVendor['name'] .. ' loaded from DB...');
 	end
 
 	if (arrowID ~= -1) then
 		script_vendorEX.arrowVendor = vendorDB:GetVendorByID(arrowID);
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Arrow vendor ' .. script_vendorEX.arrowVendor['name'] .. ' loaded from DB...');
+		--DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Arrow vendor ' .. script_vendorEX.arrowVendor['name'] .. ' loaded from DB...');
 	end
 
 	if (bulletID ~= -1) then
 		script_vendorEX.bulletVendor = vendorDB:GetVendorByID(bulletID);
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Bullet vendor ' .. script_vendorEX.bulletVendor['name'] .. ' loaded from DB...');
+		--DEFAULT_CHAT_FRAME:AddMessage('script_vendor: Bullet vendor ' .. script_vendorEX.bulletVendor['name'] .. ' loaded from DB...');
 	end
 
 	if (repID == -1 and sellID == -1 and foodID == -1 and drinkID == -1 and arrowID == -1 and bulletID == -1) then
-		DEFAULT_CHAT_FRAME:AddMessage('script_vendor: No Vendor found close to our location in vendorDB...');
+		--DEFAULT_CHAT_FRAME:AddMessage('script_vendor: No Vendor found close to our location in vendorDB...');
 	end 
 end

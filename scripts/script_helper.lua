@@ -22,7 +22,7 @@ function script_helper:inLineOfSight(target)
 	end 
 
 	if (Raycast(x, y, z+1.5, xt, yt, zt+1.5)) then
-		DEFAULT_CHAT_FRAME:AddMessage('in line of sight');
+		--DEFAULT_CHAT_FRAME:AddMessage('in line of sight');
 		return true;
 	end		
 	
@@ -392,7 +392,6 @@ function script_helper:setup()
 	script_helper:addMount('Reins of the Striped Frostsaber');
 	script_helper:addMount('Reins of the Striped Nightsaber');
 
-	DEFAULT_CHAT_FRAME:AddMessage('script_helper: loaded...');
 end
 
 function script_helper:eat()

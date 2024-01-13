@@ -32,7 +32,6 @@ function script_hunterEX:setup()
 	self.petTimer = GetTimeEX();
 	self.wingTimer = GetTimeEX();
 
-	DEFAULT_CHAT_FRAME:AddMessage('script_hunterEX: loaded...');
 end
 
 function script_hunterEX:doInCombatRoutine(targetGUID, localMana) 
@@ -404,7 +403,7 @@ function script_hunterEX:petChecks()
 			if (happiness < 3 or loyaltyRate < 0) then
 				self.message = "Pet is not happy, feeding the pet...";
 				if (not IsStanding()) then StopMoving(); return true; end
-				DEFAULT_CHAT_FRAME:AddMessage('script_hunter: Feeding the pet, and resting for 20 seconds...');
+			--	DEFAULT_CHAT_FRAME:AddMessage('script_hunter: Feeding the pet, and resting for 20 seconds...');
 				CastSpellByName("Feed Pet"); 
 				UseContainerItem(script_hunter.bagWithPetFood-1, script_hunter.slotWithPetFood, "Pet");
 				-- Set a 20 seconds timer for this check (Feed Pet duration)
@@ -436,7 +435,7 @@ function script_hunterEX:petChecks()
 	else
 		if (petHP < 85 and self.hasPet) then
 			if (self.hasPet and self.petTimer < GetTimeEX()) then
-				DEFAULT_CHAT_FRAME:AddMessage('script_hunter: Pet has < 85 percent HP, lets wait...');
+			--	DEFAULT_CHAT_FRAME:AddMessage('script_hunter: Pet has < 85 percent HP, lets wait...');
 				self.petTimer = GetTimeEX() + 10000;
 			end
 			return true;

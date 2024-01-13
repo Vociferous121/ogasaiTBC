@@ -137,7 +137,7 @@ function script_pather:moveToTarget(xx, yy, zz)
 
 				return true;
 			else
-				DEFAULT_CHAT_FRAME:AddMessage('script_pather: Path generation failed...');
+				DEFAULT_CHAT_FRAME:AddMessage('Generation failed...');
 				if (IsMoving()) then
 					StopMoving();
 				end

@@ -15,7 +15,6 @@ function script_warrior:setup()
 
 	script_grind.moveToMeleeRange = true;
 
-	DEFAULT_CHAT_FRAME:AddMessage('script_warrior: loaded...');
 	self.isSetup = true;
 end
 

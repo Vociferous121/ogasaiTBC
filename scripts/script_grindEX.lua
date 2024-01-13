@@ -10,17 +10,15 @@ script_grindEX = {
 	drawRaycastPath = true,
 	strafeLeft = false,
 	jumpFloat = 97,
+	waitTimer = 0,
 }
 
 function script_grindEX:setup()
 
-	local maps = "Azuremyst Isle", "Bloodmyst Isle", "Eversong Woods", "Ghostlands", "Hellfire Peninsula", "Zangarmarsh", "Nagrand", "Terrokar Forest", "Shadowmoon Valley", "Netherstorm";
-	local myZone = GetZoneText();
-	if (maps == myZone) then
-		script_grind.raycastPathing = true;
-	end
+	script_grindEX:setZone();
 
-	DEFAULT_CHAT_FRAME:AddMessage('script_grindEX: loaded...');
+	self.waitTimer = GetTimeEX();
+
 	self.isSetup = true;
 end
 
@@ -110,10 +108,14 @@ function script_grindEX:doChecks()
 		return true;
 	end
 
-	if (script_grind.jump) and (IsMoving()) and (not IsInCombat()) and (not script_checkDebuffs:hasDisabledMovement()) then
-		local randomJump = math.random(0, 100);
-		if randomJump > self.jumpFloat then
-			Jump();
+	if (GetTimeEX() + script_grind.tickRate > self.waitTimer) then
+		if (script_grind.jump) and (IsMoving()) and (not IsInCombat()) and (not script_checkDebuffs:hasDisabledMovement()) then
+			local randomJump = random(0, 100);
+			local randomWait = random(2500, 6500);
+			if randomJump > self.jumpFloat then
+				Jump();
+				self.waitTimer = GetTimeEX() + randomWait;
+			end
 		end
 	end
 
@@ -261,4 +263,24 @@ function script_grindEX:doChecks()
 		end
 	end
 	return false;
+end
+
+function script_grindEX:setZone()
+
+	local myZone = GetZoneText();
+
+	if 	myZone == "Ghostlands"
+		or myZone == "Azuremyst Isle"
+		or myZone == "Bloodmyst Isle"
+		or myZone == "Eversong Woods"
+		or myZone == "Hellfire Peninsula"
+		or myZone == "Zangarmarsh"
+		or myZone == "Nagrand"
+		or myZone == "Terrokar Forest"
+		or myZone == "Shadowmoon Valley"
+		or myZone == "Netherstorm" then
+
+		script_grind.raycastPathing = true;
+	end
+return false;
 end

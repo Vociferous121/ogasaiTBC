@@ -30,7 +30,6 @@ function script_priest:setup()
 
 	self.isSetup = true;
 
-	DEFAULT_CHAT_FRAME:AddMessage('script_priest: loaded...');
 end
 
 function script_priest:setTimers(miliseconds)

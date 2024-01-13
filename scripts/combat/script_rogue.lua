@@ -21,8 +21,6 @@ script_rogue = {
 
 function script_rogue:setup()
 
-	DEFAULT_CHAT_FRAME:AddMessage('script_rogue: loaded...');
-
 --set backstab as opener
 	if (GetLevel(GetLocalPlayer()) < 10) then
 		self.stealthOpener = "Backstab";

@@ -28,7 +28,6 @@ function script_druid:setup()
 	end
 
 	self.timer = GetTimeEX();
-	DEFAULT_CHAT_FRAME:AddMessage('script_druid: loaded...');
 	self.isSetup = true;
 end
 

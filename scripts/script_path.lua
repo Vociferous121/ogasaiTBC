@@ -36,7 +36,6 @@ function script_path:setup()
 	self.savedPos['x'], self.savedPos['y'], __= GetPosition(GetLocalPlayer());
 	self.savedPos['time'] = GetTimeEX();
 
-	DEFAULT_CHAT_FRAME:AddMessage('script_path: loaded...');
 end
 
 function script_path:loadNavMesh()
@@ -60,8 +59,8 @@ function script_path:loadNavMesh()
 end
 
 function script_path:printHotspot()
-	DEFAULT_CHAT_FRAME:AddMessage('script_path: Add this hotspot to your database by adding the following line in the setup-function in hotspotDB.lua:');
-	DEFAULT_CHAT_FRAME:AddMessage('You can copy the line from logs//.txt');
+	--DEFAULT_CHAT_FRAME:AddMessage('script_path: Add this hotspot to your database by adding the following line in the setup-function in hotspotDB.lua:');
+	--DEFAULT_CHAT_FRAME:AddMessage('You can copy the line from logs//.txt');
 	
 	local race, level = UnitRace("player"), GetLevel(GetLocalPlayer());
 	local hx, hy, hz = math.floor(self.hx*100)/100, math.floor(self.hy*100)/100, math.floor(self.hz*100)/100;
@@ -69,7 +68,7 @@ function script_path:printHotspot()
 	local addString = 'hotspotDB:addHotspot("' .. GetMinimapZoneText() .. ' ' .. level .. ' - ' .. level+2 .. '", "' .. race
 					.. '", ' .. level .. ', ' .. level+2 .. ', ' .. hx .. ', ' .. hy .. ', ' .. hz .. ');'	
 
-	DEFAULT_CHAT_FRAME:AddMessage(addString);
+	--DEFAULT_CHAT_FRAME:AddMessage(addString);
 	ToFile(addString);
 
 end

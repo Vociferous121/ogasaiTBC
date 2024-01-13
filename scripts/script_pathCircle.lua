@@ -22,7 +22,7 @@ function script_pathCircle:generatePath(x, y, z, dx, dy, dz)
 		--isFailPath, failPath, failPathSize = script_pathStraight:generateStraightPath(x, y, z, GetAngle(GetLocalPlayer()), dx, dy, dz, true, script_pather.nodeDist);
 		--local connected, connectedPath, connectedSize = script_pathStraight:connectStraightPath(failPath, failPathSize, dx, dy, dz, true, script_pather.nodeDist);
 		--if (connected) then
-		--	DEFAULT_CHAT_FRAME:AddMessage('script_pather: Generated a connected straight path...');
+		--	DEFAULT_CHAT_FRAME:AddMessage('Generated a line...');
 		--	return connected, connectedPath, connectedSize;
 		--else
 			--if (failPathSize > 25) then
@@ -41,10 +41,10 @@ function script_pathCircle:generatePath(x, y, z, dx, dy, dz)
 		isPath, self.path, self.pathSize = script_pathCircle:findCirclePath(x, y, z, dx, dy, dz, failPath, failPathSize, true, script_pather.nodeDist);
 
 		if (isPath) then
-			DEFAULT_CHAT_FRAME:AddMessage('script_pather: Generated a circle path...');
+			DEFAULT_CHAT_FRAME:AddMessage('script_pather: Generated a circle...');
 		end
 	else
-		DEFAULT_CHAT_FRAME:AddMessage('script_pather: Destination too far away...');
+		DEFAULT_CHAT_FRAME:AddMessage('Destination too far...');
 	end
 
 	return isPath, self.path, self.pathSize-1;
@@ -76,14 +76,14 @@ function script_pathCircle:generateMeshPath(x, y, z, dx, dy, dz)
 	if (dist < script_pather.maxDist) then
 		isPath, self.path, self.pathSize = script_pathCircle:findCircleMeshPath(x, y, z, dx, dy, dz, false, self.meshSize);
 	else
-		DEFAULT_CHAT_FRAME:AddMessage('script_pather: Destination too far away...');
+		DEFAULT_CHAT_FRAME:AddMessage('Destination too far...');
 	end
 
 	return isPath, self.path, self.pathSize;
 end
 
 function script_pathCircle:findCirclePath(x1, y1, z1, x2, y2, z2, failedStraightPath, failSize, charCollision, nodeDist)
-	DEFAULT_CHAT_FRAME:AddMessage('script_pather: Generating a circle path...');	
+	DEFAULT_CHAT_FRAME:AddMessage('Generating a circle...');	
 
 	local centerX, centerY = x1, y1;
 	local radius = self.minRadius;
@@ -145,7 +145,7 @@ function script_pathCircle:findCirclePath(x1, y1, z1, x2, y2, z2, failedStraight
 end
 
 function script_pathCircle:findCircleMeshPath(x1, y1, z1, x2, y2, z2, charCollision, nodeDist)
-	DEFAULT_CHAT_FRAME:AddMessage('script_pather: Generating a circle path...');	
+	DEFAULT_CHAT_FRAME:AddMessage('Generating a circle...');	
 
 	local centerX, centerY = x1, y1;
 	local radius = 15;
@@ -206,7 +206,7 @@ end
 
 function script_pathCircle:findConnectedPath(x1, y1, z1, x2, y2, z2, charCollision, nodeDist) 
 
-	DEFAULT_CHAT_FRAME:AddMessage('script_pather: Generating a connected path...');
+	DEFAULT_CHAT_FRAME:AddMessage('Generating a connection...');
 
 	-- First detour : half the distance
 	local detourX, detourY = (x1+x2)/2, (y1+y2)/2; 

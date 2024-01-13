@@ -110,7 +110,6 @@ function script_grind:setup()
 
 	hotspotDB:setup();
 
-	DEFAULT_CHAT_FRAME:AddMessage('script_grind: loaded...');
 	script_grindEX:setup();
 	script_helper:setup(); 
 	script_path:setup();

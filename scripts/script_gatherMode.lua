@@ -11,7 +11,6 @@ function script_gatherMode:setup()
 	self.timer = GetTimeEX();
 	script_path:setup();
 
-	DEFAULT_CHAT_FRAME:AddMessage('script_gatherMode: loaded...');
 	self.isSetup = true;
 end
 

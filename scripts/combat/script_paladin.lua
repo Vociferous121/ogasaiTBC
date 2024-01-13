@@ -18,6 +18,7 @@ script_paladin = {
 	useJudgement = true,
 	useCrusader = true,
 	useCommand = true,
+	holyLightMana = 15,
 }
 
 function script_paladin:draw()
@@ -42,12 +43,20 @@ function script_paladin:setup()
 		self.blessing = "Blessing of Wisdom";
 	end
 
+	if (GetLevel(GetLocalPlayer()) >= 10) then
+		script_grind.restMana = 30;
+		script_grind.restHp = 50;
+	end
+	if (HasSpell("Seal of Command")) then
+		self.useRighteousness = false;
+	end
+
 	self.isSetup = true;
 end
 
 function script_paladin:run(targetObj)
 
-	if(not self.isSetup) then
+	if (not self.isSetup) then
 		script_paladin:setup();
 		return;
 	end
@@ -87,7 +96,7 @@ function script_paladin:run(targetObj)
 		return true;
 	end
 
-	if (script_checkDebuffs:hasDisabledMovement()) or (script_checkDebuffs:hasSilence()) then
+	if (script_checkDebuffs:hasDisabledMovement()) or (script_checkDebuffs:hasSilence()) or (IsStunned(GetLocalPlayer())) then
 		return;
 	end
 
@@ -251,8 +260,7 @@ function script_paladin:run(targetObj)
 			end
 
 			-- Check: Heal ourselves if below heal health or we are immune to physical damage
-			if (localHealth < self.healHealth or 
-				((script_paladinEX:isBuff('Blessing of Protection') or script_paladinEX:isBuff('Divine Protection')) and localHealth < 90) ) and (localMana >= 10) then 
+			if (localHealth < self.healHealth and localMana >= self.holyLightMana) or ( (script_paladinEX:isBuff('Blessing of Protection') or script_paladinEX:isBuff('Divine Protection')) and (localHealth < 90) ) then 
 
 				-- Check: Stun with HoJ before healing if available
 				if (GetDistance(targetObj) < 5 and HasSpell('Hammer of Justice') and not IsSpellOnCD('Hammer of Justice')) then
@@ -261,13 +269,14 @@ function script_paladin:run(targetObj)
 						return true;
 					end
 				end
-				if (not IsSpellOnCD("Holy Light")) then
-					if (not Buff('Holy Light', localObj)) then
+				if (not IsSpellOnCD("Holy Light")) and (not IsCasting()) and (not IsChanneling()) then
+					Buff('Holy Light', localObj);
+					self.message = "Healing: Holy Light...";
+					if (IsCasting()) then
 						script_paladin:setTimers(4350);
-						self.message = "Healing: Holy Light...";
-						return true;
 					end
-				end	
+				return true;
+				end
 			end
 
 			-- Check: If we are in meele range, do meele attacks
@@ -327,7 +336,7 @@ function script_paladin:rest()
 	end
 
 	-- Heal up: Holy Light
-	if (localMana > 20 and localHealth < 70 and HasSpell('Holy Light')) then
+	if (localMana > self.holyLightMana and localHealth < 70 and HasSpell('Holy Light')) then
 		if (not Buff('Holy Light', localObj)) then
 			script_paladin:setTimers(1550);
 			self.message = "Healing: Holy Light...";
@@ -398,32 +407,53 @@ function script_paladin:rest()
 end
 
 function script_paladin:menu()
-	if (CollapsingHeader("Paladin - Retribution")) then
+
+	if (CollapsingHeader("Paladin Combat Menu")) then
+
 		local wasClicked = false;
-		Text('Aura and Blessing options:');
-		self.aura = InputText("Aura", self.aura);
-		self.blessing = InputText("Blessing", self.blessing);
-		Separator();
-		Text('HP percent to heal in combat:');
-		self.healHealth = SliderFloat("HIC", 1, 99, self.healHealth);
-		Text('Lay on Hands below HP percent');
-		self.lohHealth = SliderFloat("LoH", 1, 99, self.lohHealth);
-		Text('BoP below HP percent');
-		self.bopHealth = SliderFloat("BoP", 1, 99, self.bopHealth);
 
-		Separator();
-
+		-- seal of righteousness
 		wasClicked, self.useRighteousness = Checkbox("Use Righteousness", self.useRighteousness);
+
+		-- judgement
 		if (HasSpell("Judgement")) then
 			SameLine();
 			wasClicked, self.useJudgement = Checkbox("Use Judgement", self.useJudgement);
 		end
+
+		-- seal of crusader
 		if (HasSpell("Seal of the Crusader")) then
 			wasClicked, self.useCrusader = Checkbox("Use Crusader", self.useCrusader);
 		end
+
+		-- seal of command
 		if (HasSpell("Seal of Command")) then
 			SameLine();
 			wasClicked, self.useCommand = Checkbox("Use Command", self.useCommand);
 		end
+
+		-- auras and blessings
+		if (CollapsingHeader("|+| Aura + Blessing Options")) then
+			Text("Aura");
+			self.aura = InputText("Aura", self.aura);
+			Separator();
+			Text("Blessing");
+			self.blessing = InputText("Blessing", self.blessing);
+		end
+
+		Text("Use Holy Light Below Self Health Percent");
+		self.healHealth = SliderInt("HIC", 1, 99, self.healHealth);
+
+		Text("Use Holy Light Above Self Mana Percent");
+		self.holyLightMana = SliderInt("HLM", 1, 100, self.holyLightMana);
+
+		Separator();
+
+		Text("Use Lay On Hands Below Self Health Percent");
+		self.lohHealth = SliderInt("LoH", 1, 99, self.lohHealth);
+
+		Text("Use Shields Below Self Health Percent");
+		self.bopHealth = SliderInt("BoP", 1, 99, self.bopHealth);
+
 	end
 end

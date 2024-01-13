@@ -30,7 +30,6 @@ function script_target:setup()
 	self.maxLevel = GetLevel(GetLocalPlayer())+2;
 	self.lootTimer = GetTimeEX();
 	self.isSetup = true;
-	DEFAULT_CHAT_FRAME:AddMessage('script_target: loaded...');
 end
 
 function script_target:autoCastingWand()
