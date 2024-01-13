@@ -25,24 +25,6 @@ function script_paranoid:doParanoia()
 				script_grind.currentTime2 = GetTimeEX();
 				self.logoutTimerSet = true;
 			end
-			
-			-- stealth when paranoid
-			if (HasSpell("Stealth")) and (not IsInCombat()) and (not IsSpellOnCD("Stealth")) and (not HasBuff(localObj, "Stealth")) then
-				CastSpellByName("Stealth");
-				return;
-			end
-			
-			-- prowl when paranoid
-			if (HasSpell("Prowl")) and (HasBuff(localObj, "Cat Form")) and (not IsInCombat()) and (not IsSpelOnCD("Prowl")) and (not HasBuff(localObj, "Prowl")) then
-				CastSpellByName("Prowl");
-				return;
-			end
-
-			-- shadowmeld when paranoid
-			if (HasSpell("Shadowmeld")) and (not IsSpellOnCD("Shadowmeld")) and (not HasSpell("Stealth") or IsSpellOnCD("Stealth")) and (not HasBuff(localObj, "Cat Form") and not HasBuff(localObj, "Bear Form") and not HasBuff(localObj, "Dire Bear Form")) then
-				CastSpellByName("Shadowmeld");
-				return;
-			end
 
 		return true;
 		end
