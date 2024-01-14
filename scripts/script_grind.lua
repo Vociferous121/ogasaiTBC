@@ -99,34 +99,8 @@ function script_grind:run()
 		script_aggro:drawAggroCircles(65);
 	end
 
-	-- paranoia timer
-	self.currentTime = GetTimeEX();
-
-	-- rogue wait timers
-	script_rogue.waitTimer = GetTimeEX();
-	--mage wait timers
-	script_mage.waitTimer = GetTimeEX();
-	script_mage.gemTimer = GetTimeEX();
-	--warlock timers
-	script_warlock.waitTimer = GetTimeEX();
-	script_warlocksiphonTime = GetTimeEX();
-	script_warlockagonyTime = GetTimeEX();
-	script_warlockcorruptTime = GetTimeEX();
-	script_warlockimmoTime = GetTimeEX();
-	script_warlockstoneTime = GetTimeEX();
-	-- warrior timers
-	script_warrior.waitTimer = GetTimeEX();
-	-- paladin timers
-	script_paladin.waitTimer = GetTimeEX();
-	script_paladin.sealTimer = GetTimeEX();
-	-- priest timers
-	script_priest.waitTimer = GetTimeEX();
-	-- shaman timers
-	script_shaman.waitTimer = GetTimeEX();
-	-- hunter timers
-	script_hunter.waitTimer = GetTimeEX();
-	-- druid timers
-	script_druid.waitTimer = GetTimeEX();
+	-- timers....
+self.currentTime = GetTimeEX(); script_rogue.waitTimer = GetTimeEX(); script_mage.waitTimer = GetTimeEX(); script_mage.gemTimer = GetTimeEX(); script_warlock.waitTimer = GetTimeEX(); script_warlocksiphonTime = GetTimeEX(); script_warlockagonyTime = GetTimeEX(); script_warlockcorruptTime = GetTimeEX(); script_warlockimmoTime = GetTimeEX(); script_warlockstoneTime = GetTimeEX(); script_warrior.waitTimer = GetTimeEX(); script_paladin.waitTimer = GetTimeEX(); script_paladin.sealTimer = GetTimeEX(); script_priest.waitTimer = GetTimeEX(); script_shaman.waitTimer = GetTimeEX(); script_hunter.waitTimer = GetTimeEX(); script_druid.waitTimer = GetTimeEX();
 
 	-- draw move path
 	if (IsMoving()) and (self.drawPath) and (not self.raycastPathing) then
@@ -143,24 +117,22 @@ function script_grind:run()
 		end
 	end
 
+	-- show raycasting path
 	if (not self.raycastPathing) then
 		script_grindEX.drawRaycastPath = false;
 	end
-
+	
+	-- set moeny obtained while grinder is running
 	self.moneyObtainedCount = GetMoney() - self.currentMoney;
 
+	-- if pause bot
 	if (self.pause) then
 		script_path.savedPos['time'] = GetTimeEX();
 
 		return;
 	end
 
-	if (IsInCombat()) and (not IsMoving()) then
-		if (self.target ~= 0 and self.target ~= nil) and (not script_checkDebuffs:hasDisabledMovement()) then
-			FaceTarget(self.target);
-		end
-	end
-
+	-- set wait timers
 	if (self.waitTimer + self.tickRate > GetTimeEX()) then
 		return;
 	end
@@ -179,16 +151,27 @@ function script_grind:run()
 		end
 	end
 
-	if (IsInCombat()) then
-		if (script_checkDebuffs:hasDisabledMovement()) then
-		return;
+	-- face target in combat
+	if (IsInCombat()) and (not IsMoving()) then
+		if (self.target ~= 0 and self.target ~= nil) and (not script_checkDebuffs:hasDisabledMovement()) then
+			FaceTarget(self.target);
 		end
 	end
-	-- try to stop if we are stunned...
+
+	-- stop bot on stop movement debuffs
+	if (IsInCombat()) then
+		if (script_checkDebuffs:hasDisabledMovement()) then
+			script_path.savedPos['time'] = GetTimeEX();
+			script_grind.waitTimer = GetTimeEX() + 550;
+		return;
+		end
+
+		-- try to stop if we are stunned...
 		if (IsStunned(GetLocalPlayer())) then
 			self.waitTimer = GetTimeEX() + 550;
 			return;
 		end
+	end
 
 	-- Update min/max level if we level up
 	if (script_target.currentLevel ~= GetLevel(GetLocalPlayer())) then
@@ -198,18 +181,15 @@ function script_grind:run()
 	end
 
 	-- was here... testing...
-
 	if (self.useUnstuckScript) then --and (not self.pause) then
 			script_unstuck:drawChecks();
 	end
-
 	if (self.useUnstuckScript) then
 		if (not script_unstuck:pathClearAuto(2)) then
 			script_unstuck:unstuck();
 			return true;
 		end
 	end
-
 	-- end was here...
 	--was here goes below...
 
@@ -222,7 +202,7 @@ function script_grind:run()
 
 		-- was here....
 		
-
+		-- jump
 		script_pather:jumpObstacles();
 	end
 
@@ -240,6 +220,7 @@ function script_grind:run()
 	-- reset saved pos sent to log
 	script_grindEX.sentToLog = false;
 
+	-- reset paranoia used
 	if (script_paranoid.paranoiaUsed) then
 		script_paranoid.paranoiaUsed = false;
 	end
@@ -248,16 +229,19 @@ function script_grind:run()
 	if (script_paranoid.useParanoia) and (not self.pause) and (script_paranoid.paranoidOn) and (not IsInCombat()) then
 		if (script_paranoid:doParanoia()) then
 
+			-- stop moving on paranoia
 			if (script_paranoid.stopMovement) then
 				if (IsMoving()) then
 					StopMoving();
 				end
 			end
 
+			-- we have used paranoia...
 			script_paranoid.paranoiaUsed = true;
 
 			self.message = "Paranoid turned on - player in range!";
 		
+			-- logout if logout timer reached
 			if (script_paranoid.logoutOnParanoid) and (not IsInCombat()) and (script_paranoid.paranoiaUsed) then
 				-- logout timer reached then logout
 				if (self.currentTime / 1000 > ((self.currentTime2 / 1000) + self.setLogoutTime)) then
@@ -266,19 +250,21 @@ function script_grind:run()
 					self.currentTime2 = GetTimeEX() *2;
 				end
 			end
-
+				-- reset unstuck timer
 				script_path.savedPos['time'] = GetTimeEX();
 
 		return;
 		end
 	end
 
+	-- reset paranoia
 	if (not script_paranoid:doParanoia()) then
 		script_paranoid.logoutTimerSet = false;
 		self.currentTime2 = self.currentTime + self.setLogoutTime;
 		script_paranoid.paranoiaUsed = false;
 	end
 
+	-- target is dead
 	if (IsDead(self.target)) then 
 		-- Keep saving path nodes at dead target's locations
 		if (script_path.reachedHotspot) then
@@ -296,13 +282,14 @@ function script_grind:run()
 		return;
 	end
 
+	-- we are dead, but not ghost yet - wait timer
 	if (not self.dead) and (IsDead(GetLocalPlayer())) and (not HasDebuff(GetLocalPlayer(), "Ghost")) then
 		self.waitTimer = GetTimeEX() + 5000;
 		self.dead = true;
 		return;
 	end
 
-	-- Dead
+	-- we are dead
 	if (IsDead(GetLocalPlayer())) then
 		
 		if (self.alive) then
@@ -318,7 +305,8 @@ function script_grind:run()
 	
 		return;
 	else
-	-- Alive
+
+	-- we are alive
 		self.alive = true;
 		self.dead = false;
 		script_path:savePos(false); -- SAVE FOR UNSTUCK
@@ -361,6 +349,7 @@ function script_grind:run()
 		script_debug.debugGrind = "reset navigate";
 	end
 
+	-- not bags are full then use or delete items
 	if (not IsInCombat()) and (not AreBagsFull()) then
 		if (HasItem("Small Barnacled Clam")) then
 			if (UseItem("Small Barnacled Clam")) then
@@ -450,6 +439,18 @@ function script_grind:run()
 				return;
 			end
 		end
+	end
+
+	if (not IsInCombat()) and (HasSpell("Stealth")) and (script_rogue.alwaysStealth) and (script_rogue.useStealth) and (not HasBuff(localObj, "Stealth")) and (IsSpellOnCD("Stealth")) and (not script_target:isThereLoot()) then
+			
+		self.message = "Waiting for stealth cooldown...";
+		if (IsMoving()) then
+			ClearTarget();
+			StopMoving();
+		return;
+		end
+		script_path.savedPos['time'] = GetTimeEX();
+	return;
 	end	
 		
 	-- Fetch a new target
@@ -516,12 +517,15 @@ function script_grind:run()
 
 		script_debug.debugGrind = "attack valid target";
 		if (GetDistance(self.target) < self.pullDistance and IsInLineOfSight(self.target)) and (not IsMoving() or GetDistance(self.target) <= 4) then
+			-- stop movement when we reach target
 			if (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
 				if (IsMoving()) and (IsInLineOfSight(self.target)) then
 					StopMoving();
 					return;
 				end
 			end
+
+			-- face target
 			if (not IsMoving()) and (not script_checkDebuffs:hasDisabledMovement()) then
 				FaceTarget(self.target);
 			end
@@ -593,25 +597,22 @@ function script_grind:run()
 				end
 			end
 
-			if (not IsInCombat()) and (HasSpell("Stealth")) and (script_rogue.alwaysStealth) and (script_rogue.useStealth) and (not HasBuff(localObj, "Stealth")) and (IsSpellOnCD("Stealth")) then
-				self.message = "Waiting for stealth cooldown...";
-				if (IsMoving()) then
-					StopMoving();
-					return;
-				end
-				script_path.savedPos['time'] = GetTimeEX();
-			return;
-			end
-
 			-- force rogue stealth
-			if (not IsInCombat()) and (not script_checkDebuffs:hasPoison()) and (GetDistance(self.target) <= script_rogue.stealthRange) and (GetHealthPercentage(GetLocalPlayer()) > script_rogue.eatHealth) and (script_rogue.useStealth) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not HasBuff(localObj, "Stealth")) then
+			if (not IsInCombat()) and (not script_checkDebuffs:hasPoison()) and (GetDistance(self.target) <= script_rogue.stealthRange) and (GetHealthPercentage(GetLocalPlayer()) > script_rogue.eatHealth) and (script_rogue.useStealth) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not HasBuff(localObj, "Stealth")) and (not script_target:isThereLoot()) then
 				if (CastSpellByName("Stealth")) then
 					self.waitTimer = GetTimeEX() + 150;
 					Jump();
 					return;
 				end
 			end
-
+		
+			-- sprint
+			if (HasBuff(localObj, "Stealth")) and (HasSpell("Sprint")) and (not IsSpellOnCD("Sprint")) and (GetDistance(self.target) >= 20) then
+				if (CastSpellByName("Sprint")) then
+					self.waitTimer = GetTimeEX() + 550;
+					return;
+				end
+			end
 
 			-- move to target...
 			if (not self.raycastPathing) then

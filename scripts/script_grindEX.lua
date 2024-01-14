@@ -126,7 +126,6 @@ function script_grindEX:doChecks()
 				script_debug.debugGrind = "using jump out of water";
 				Jump();
 				self.waitTimer = GetTimeEX() + 1500;
-				return;
 			end	
 		end
 
@@ -151,7 +150,7 @@ function script_grindEX:doChecks()
 			local x, y, z = GetPosition(GetLocalPlayer());
 			local time = math.floor(GetTimeEX()/1000);
 			local angle = math.floor(GetAngle(GetLocalPlayer()));
-			local string = "Time - " ..time.. " | Position - x " ..x.. " | y " ..y..  " | z "  ..z.. " | Facing Angle - " .. angle ..  "";
+			local string = "Time - " ..time.. " | Position - x " ..math.floor(x).. " | y " ..math.floor(y)..  " | z "  ..math.floor(z).. " | Facing Angle - " .. angle ..  "";
 			ToFile(string);
 			self.sentToLog = true;
 		end
