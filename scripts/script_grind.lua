@@ -182,7 +182,7 @@ function script_grind:run()
 	if (IsInCombat()) then
 		if (script_checkDebuffs:hasDisabledMovement()) then
 			if (IsMoving()) then
-				StopMoving()
+				StopMoving();
 				return;
 			end
 		return;
@@ -190,7 +190,7 @@ function script_grind:run()
 	end
 	-- try to stop if we are stunned...
 		if (IsStunned(GetLocalPlayer())) then
-			self.waitTimer = GetTimeEX + 550;
+			self.waitTimer = GetTimeEX() + 550;
 			return;
 		end
 
@@ -315,6 +315,8 @@ function script_grind:run()
 		end
 			self.message = script_helper:ress(GetCorpsePosition()); 
 			script_path:savePos(false); -- SAVE FOR UNSTUCK
+			script_grind.message = "Running to corpse...";
+	
 		return;
 	else
 	-- Alive
@@ -451,17 +453,16 @@ function script_grind:run()
 	end	
 		
 	-- Fetch a new target
-	if (self.skipMobTimer < GetTimeEX() or (IsInCombat() and script_info:nrTargetingMe() > 0)) then	
+	if (self.skipMobTimer < GetTimeEX()) or (IsInCombat() and script_info:nrTargetingMe() > 0) then	
 			script_debug.debugGrind = "fetching a new target";
 		if (script_path.reachedHotspot or (not IsUsingNavmesh() and not self.raycastPathing) or IsInCombat()) then
 			local targetGUID = script_target:getTarget();
 			self.target = GetGUIDTarget(targetGUID);
 			if (GetTarget() ~= self.target) then
-				-- this causes mage to walk to melee range...
-				if (self.moveToMeleeRange) and (not IsMoving()) then
+				if (self.moveToMeleeRange and not IsMoving()) or (IsInCombat()) then
 					UnitInteract(self.target);
 				end
-				if (not IsMoving()) then
+				if (not IsMoving() or IsInCombat()) then
 					AutoAttack(self.target);
 				end
 			end	
@@ -590,6 +591,7 @@ function script_grind:run()
 				if (GetDistance(self.target) <= 25) and (GetDistance(self.target) >= 7) and (IsInLineOfSight(self.target)) then
 					if (IsMoving()) then
 						StopMoving();
+						return;
 					end
 				end
 			end
@@ -622,7 +624,7 @@ function script_grind:run()
 					local x, y, z = GetPosition(self.target);
 					if (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
 						if (MoveToTarget(x, y, z)) then
-							self.waitTimer = GetTimeEX() + 350;
+							self.waitTimer = GetTimeEX() + 250;
 						else
 							if (GetDistance(self.target) <= 2) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
 								if (IsMoving()) and (IsInLineOfSight(self.target)) then
@@ -638,7 +640,7 @@ function script_grind:run()
 					end
 					local x, y, z = GetPosition(self.target);
 					if (MoveToTarget(x, y, z)) then
-						self.waitTimer = GetTimeEX() + 350;
+						self.waitTimer = GetTimeEX() + 250;
 					end
 				end
 				return;
@@ -689,7 +691,7 @@ function script_grind:run()
 		script_pather:resetPath();
 		ResetNavigate();
 		RunCombatScript(self.target);
-		if (not IsMoving()) then
+		if (not IsMoving() or IsInCombat()) then
 			AutoAttack(self.target);
 		end
 

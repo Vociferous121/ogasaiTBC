@@ -231,7 +231,7 @@ function script_rogue:run(targetObj)
 				end
 			else
 				-- Check: Use Throw	
-				if (self.useThrow and script_rogue:hasThrow()) and (not IsSpellOnCD("Throw")) then
+				if (self.useThrow and script_rogue:hasThrow()) and (not IsSpellOnCD("Throw")) and (GetDistance(targetObj) <= 25) and (GetDistance(targetObj) >= 9) then
 					if (IsSpellOnCD('Throw')) then
 						script_debug.debugCombat = "using throw";
 						script_rogue:setTimers(4000);

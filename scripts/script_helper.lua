@@ -142,12 +142,16 @@ function script_helper:ress(x, y, z)
 	if (IsUsingNavmesh() or script_grind.raycastPathing) then
 		if (not script_grind.raycastPathing) then
 			if (MoveToTarget(x, y, z)) then
-				self.waitTimer = GetTimeEX() + 450;
+				if (IsMoving()) then
+					self.waitTimer = GetTimeEX() + 450;
+				end
 			end
 
 		else
 			if (script_pather:moveToTarget(x, y, z)) then
-				self.waitTimer = GetTimeEX() + 300;
+				if (IsMoving()) then
+					self.waitTimer = GetTimeEX() + 300;
+				end
 			end
 		end
 	else
@@ -159,9 +163,8 @@ function script_helper:ress(x, y, z)
 		end
 	end
 
-	script_grind.message = "Running to corpse...";
+	return "Running to corpse...";
 
-	return;
 end
 
 function script_helper:addHealthPotion(name)

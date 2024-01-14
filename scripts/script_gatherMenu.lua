@@ -18,6 +18,10 @@ function script_gatherMenu:menu()
 		SameLine();
 		wasClicked, script_target.skin = Checkbox("Skinning", script_target.skin);
 
+		if (not script_grind.gather) then
+			script_target.skin = false;
+		end
+
 		Text('Gather Search Distance');
 		script_gather.gatherDistance = SliderFloat("GSD", 1, 150, script_gather.gatherDistance);
 		
