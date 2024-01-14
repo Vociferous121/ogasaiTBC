@@ -150,6 +150,8 @@ function script_grind:run()
 	self.moneyObtainedCount = GetMoney() - self.currentMoney;
 
 	if (self.pause) then
+		script_path.savedPos['time'] = GetTimeEX();
+
 		return;
 	end
 

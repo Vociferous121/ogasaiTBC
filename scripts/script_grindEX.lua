@@ -97,7 +97,7 @@ function script_grindEX:doChecks()
 	else
 		self.currentMapZone = GetCurrentMapZone();
 	end
-	
+
 	-- Check: User pause
 	if (script_grind.pause) then
 		-- reset paranoia logout time when paused...
