@@ -44,7 +44,7 @@ function script_grindEX:draw()
 		script_info:drawUnitsDataOnScreen();
 	end
 	
-	if (script_grind.gather and self.drawGather) then
+	if (self.drawGather) then
 		script_gather:drawGatherNodes();
 	end
 
@@ -197,8 +197,9 @@ script_path.numSavedPathNodes = 0;
 		if (not IsInCombat() and script_grind.autoTalent) then
 			if (script_talent:learnTalents()) then
 				script_grind.message = "Checking/learning talent: " .. script_talent:getNextTalentName();
+				script_path.savedPos['time'] = GetTimeEX();
 				script_path:savePos(true); 
-				return;
+				return true;
 			end
 		end
 	end

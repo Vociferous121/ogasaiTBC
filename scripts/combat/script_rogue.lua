@@ -16,28 +16,43 @@ script_rogue = {
 	alwaysStealth = true,
 	usePickPocket = true,
 	pickpocketUsed = false,
+	usePoisons = false,
+	useSprint = true,
+	useExposeArmor = false,
+	useRupture = false,
+	exposeArmorStacks = 2,
+	ruptureStacks = 2,
+	useSlice = true,
+	useFeint = false,
+	envenomHealth = 15,
+	useEnvenom = false,
+	poisonName = "Instant Poison",
 
 }
 
 function script_rogue:setup()
 
---set backstab as opener
+	--set backstab as opener
 	if (GetLevel(GetLocalPlayer()) < 10) then
 		self.stealthOpener = "Backstab";
 	end
 
+	-- set garrote as opener
 	if (not HasSpell("Ambush")) and (HasSpell("Garrote")) and (GetLevel(GetLocalPlayer()) >= 10) then
 		self.stealthOpener = "Garrote";
 	end
 
+	-- set ambush as opener
 	if (HasSpell("Ambush")) and (not HasSpell("Riposte") or HasSpell("Ghostly Strike")) then
 		self.stealthOpener = "Ambush";
 	end
 
+	-- set garote as opener
 	if (HasSpell("Riposte")) and (not HasSpell("Cheap Shot")) then
 		self.stealthOpener = "Garrote";
 	end
 
+	-- set cheap shot as opener
 	if (HasSpell("Cheap Shot")) and (not HasSpell("Ghostly Strike")) then
 		self.stealthOpener = "Cheap Shot";
 	end
@@ -63,12 +78,25 @@ function script_rogue:setup()
 		usePickPocket = false;
 	end
 
+	if (HasSpell("Sprint")) then
+		self.useSprint = true;
+	end
+
 	local level = GetLevel(GetLocalPlayer());
 	if (level == 10) then
 		self.cpGeneratorCost = 43;
 	end
 	if (level >= 11) then
 		self.cpGeneratorCost = 40;
+	end
+	if (HasSpell("Poisons")) then
+		self.usePoisons = true;
+	end
+	if (GetNumPartyMembers() >= 1) then
+		self.useFeint = true;
+	end
+	if (HasSpell("Envenom")) then
+		self.useEnvenom = true;
 	end
 
 	--self.waitTimer = GetTimeEX();
@@ -175,7 +203,7 @@ function script_rogue:run(targetObj)
 	end
 
 	--Valid Enemy
-	if (targetObj ~= 0) then
+	if (targetObj ~= 0) and (not IsDead(GetLocalPlayer())) then
 
 		-- Cant Attack dead targets
 		if (IsDead(targetObj)) then
@@ -209,12 +237,12 @@ function script_rogue:run(targetObj)
 			end
 		end
 
-		if (not script_grind.adjustTickRate) and (GetDistance(self.target) > 4) or (IsMoving()) and (IsInCombat()) then
+		if (not script_grind.adjustTickRate) and (GetDistance(self.target) > script_grind.meleeDistance) or (IsMoving()) and (IsInCombat()) then
 			script_grind.tickRate = 50;
 		end
 
 		-- Apply poisons 
-		if (not IsInCombat()) then
+		if (not IsInCombat()) and (self.usePoisons) then
 			if (script_rogue:checkPoisons()) then
 				script_rogue:setTimers(1050);
 				script_debug.debugCombat = "applying poisons";
@@ -268,6 +296,10 @@ function script_rogue:run(targetObj)
 
 			local creatureType = GetCreatureType(GetUnitsTarget(GetLocalPlayer()));
 
+			if (not IsMoving()) and (not IsDead(targetObj)) and (GetHealthPercentage(targetObj) <= 99) then
+				FaceTarget(GetUnitsTarget(GetLocalPlayer()));
+			end
+
 				if (GetHealthPercentage(targetObj) >= 100) and (strfind("Humanoid", creatureType) or strfind("Undead", creatureType)) and (HasBuff(localObj, "Stealth")) and (HasSpell("Pick Pocket")) and (GetDistance(targetObj) < 5) and (self.useStealth) and (not IsSpellOnCD("Pick Pocket")) and (not IsInCombat()) and (not self.pickpocketUsed) then
 				StopMoving();
 				if (not script_grind.adjustTickRate) then
@@ -280,15 +312,18 @@ function script_rogue:run(targetObj)
 				
 			-- Open with stealth opener
 			if (GetDistance(targetObj) < 5) and (self.useStealth and HasSpell(self.stealthOpener) and HasBuff(localObj, "Stealth")) and (not IsInCombat()) and (GetUnitsTarget(GetLocalPlayer()) ~= 0) and (not IsSpellOnCD(self.stealthOpener)) and ( (self.usePickPocket and self.pickpocketUsed) or (not self.usePickPocket) or (GetHealthPercentage(self.target) < 100) or (not strfind("Humanoid", creatureType) or not strfind("Undead", creatureType)) ) then
-				if (CastSpellByName(self.stealthOpener)) then
+					if (not script_grind.adjustTickRate) then
+						script_grind.tickRate = 50;
+					end
+				if (not CastSpellByName(self.stealthOpener)) then
 					local x, y, z = GetPosition(GetUnitsTarget(GetLocalPlayer()));
-					self.waitTimer = GetTimeEX() + 1650;
-					script_grind.waitTimer = GetTimeEX() + 2500;
+					self.waitTimer = GetTimeEX() + 1250;
+					script_grind.waitTimer = GetTimeEX() + 1250;
 					if (not self.useRotation) then
 						local moveBuffer = random(-1, 3);
 						if (Move(x+moveBuffer, y+moveBuffer, z)) then
-							self.waitTimer = GetTimeEX() + 1650;
-							script_grind.waitTimer = GetTimeEX() + 2500;
+							self.waitTimer = GetTimeEX() + 1250;
+							script_grind.waitTimer = GetTimeEX() + 1250;
 						end
 					end
 				end
@@ -304,7 +339,7 @@ function script_rogue:run(targetObj)
 			end
 
 			if (not self.useRotation) then
-				if (GetDistance(targetObj) > 6) then
+				if (GetDistance(targetObj) > script_grind.meleeDistance) then
 					-- Set the grinder to wait for momvement
 					if (script_grind.waitTimer ~= 0) then
 						script_grind.waitTimer = GetTimeEX() + 1050;
@@ -338,7 +373,7 @@ function script_rogue:run(targetObj)
 
 			-- If too far away move to the target then stop
 			if (not self.useRotation) then
-				if (GetDistance(targetObj) > 6) then 
+				if (GetDistance(targetObj) > script_grind.meleeDistance) then 
 					if (script_grind.combatStatus ~= nil) then
 						script_grind.combatStatus = 1;
 					end
@@ -407,7 +442,7 @@ function script_rogue:run(targetObj)
 	-- start of combat in melee range
 
 			-- Check: If we are in meele range
-			if (GetDistance(targetObj) < 5) then 
+			if (GetDistance(targetObj) < script_grind.meleeDistance) then 
 
 				-- Auto attack
 				if (not self.useRotation) and (not IsMoving()) then
@@ -423,7 +458,7 @@ function script_rogue:run(targetObj)
 					end
 				end
 
-				if (GetNumPartyMembers() >= 1) and (HasSpell("Feint")) and (script_grindEX2:isTargetingMe(targetObj))
+				if (GetNumPartyMembers() >= 1) and (self.useFeint) and (HasSpell("Feint")) and (script_grindEX2:isTargetingMe(targetObj))
 					and (not IsSpellOnCD("Feint")) and (localEnergy >= 20) and (not IsSpellOnCD("Feint")) then
 					if (not CastSpellByName("Feint")) then
 						script_rogue:setTimers(1050);
@@ -431,7 +466,7 @@ function script_rogue:run(targetObj)
 					end
 				end
 
-				if (HasSpell("Ghostly Strike")) and (not IsSpellOnCD("Ghostly Strike")) and (localEnergy >= 40) then
+				if (HasSpell("Ghostly Strike")) and (not IsSpellOnCD("Ghostly Strike")) and (localEnergy >= 40) and (not HasBuff(localObj, "Ghostly Strike")) then
 					if (not CastSpellByName("Ghostly Strike")) then
 						script_rogue:setTimers(1050);
 						return true;
@@ -471,7 +506,7 @@ function script_rogue:run(targetObj)
 				end
 
 				-- Keep Slice and Dice up when 1-4 CP
-				if (cp < 5) and (cp > 0) and (HasSpell('Slice and Dice')) and (not IsSpellOnCD("Slice and Dice")) then 
+				if (self.useSlice) and (cp < 5) and (cp > 0) and (HasSpell('Slice and Dice')) and (not IsSpellOnCD("Slice and Dice")) then 
 					-- Keep Slice and Dice up
 					if (not HasBuff(localObj, 'Slice and Dice') and targetHealth > 30 and localEnergy >= 25) then
 						script_debug.debugCombat = "slice and dice";
@@ -483,7 +518,33 @@ function script_rogue:run(targetObj)
 					end 
 				end
 
--- Eviscerate
+				-- expose armor
+				if (self.useExposeArmor) and (cp == self.exposeArmorStacks) and (not HasDebuff(targetObj, "Expose Armor")) and (not HasDebuff(targetObj, "Sunder Armor")) then
+					if (localEnergy >= 25) then
+						if (not CastSpellByName("Expose Armor")) then
+							script_rogue:setTimers(1050);
+							return true;
+						end
+					else
+						script_debug.debugCombat = "Saving energy for expose armor";
+						return;
+					end
+				end
+	
+				-- rupture
+				if (self.useRupture) and (cp == self.ruptureStacks) and (not HasDebuff(targetObj, "Rupture")) then
+					if (localEnergy >= 25) then
+						if (not CastSpellByName("Rupture")) then
+							script_rogue:setTimers(1050);
+							return true;
+						end
+					else
+						script_debug.debugCombat = "Saving energy for rupture";
+						return;
+					end
+				end
+
+				-- Eviscerate
 				if (HasSpell('Eviscerate') and ((cp == 5) or targetHealth <= cp*10)) and (not IsSpellOnCD("Eviscerate")) then 
 					if (localEnergy >= 35) then
 						script_debug.debugCombat = "eviscerate";
@@ -497,6 +558,18 @@ function script_rogue:run(targetObj)
 						return;
 					end
 				end 
+
+				if (HasSpell("Envenom")) and (GetDebuffStacks(targetObj, self.poisonName) >= 3) and (GetHealthPercentage(targetObj) >= self.envenomHealth) and (not IsSpellOnCD("Envenom")) then
+					if (localEnergy >= 35) then
+						if (CastSpellByName("Envenom")) then
+							script_rogue:setTimers(1050);
+							return true;
+						end
+					else
+						script_debug.debugCombat = "saving energy for envenom";
+						return;
+					end
+				end
 
 				-- Sinister Strike
 				if (localEnergy >= self.cpGeneratorCost) and (not IsSpellOnCD(self.cpGenerator)) then
@@ -533,7 +606,7 @@ function script_rogue:rest()
 	end
 
 	--Eat 
-	if (not IsInCombat()) and (not IsEating() and localHealth < self.eatHealth) then
+	if (not IsInCombat()) and (not IsEating() and localHealth <= self.eatHealth) then
 		script_debug.debugCombat = "rest eat";
 		ClearTarget();
 		if (IsMoving()) then
@@ -542,14 +615,19 @@ function script_rogue:rest()
 			return true;
 		end
 		
-		if (not IsInCombat()) and (not IsLooting()) and (not IsEating()) and (not script_target:isThereLoot()) then
-			if (script_helper:eat()) then
+		if (not IsInCombat()) and (not IsEating()) then
+			if (IsMoving()) then
+				StopMoving();
+				return true;
+			end
+			if (not script_helper:eat()) then
 				script_debug.debugCombat = "use script_helper:eat";
 				script_rogue:setTimers(1550);
 				script_grind:restOn();
 			end
-		return true;
+		return;
 		end
+	return true;
 	end
 
 	if (IsEating()) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (self.useStealth) and (not script_target:isThereLoot()) then
@@ -582,30 +660,75 @@ function script_rogue:menu()
 	if (CollapsingHeader("Rogue Combat Menu")) then
 
 		local wasClicked = false;
+		Text("Melee Distance To Target    ");
+		SameLine();
+		wasClicked, self.useThrow = Checkbox("Use Throw", self.useThrow);
 
+		script_grind.meleeDistance = SliderFloat("Melee Distance", 0, 5, script_grind.meleeDistance);
+
+		-- show use stealth button
 		if (HasSpell("Stealth")) then
+			Separator();
 			wasClicked, self.useStealth = Checkbox("Use Stealth", self.useStealth);
 
-	
+			-- if use stealth show stealth options
 			if (self.useStealth) then
 				SameLine();
+
 				wasClicked, self.alwaysStealth = Checkbox("Always Stealth", self.alwaysStealth);
+
+				if (HasSpell("Pick Pocket")) then
+					SameLine();
+					wasClicked, self.usePickPocket = Checkbox("Pick Pocket", self.usePickPocket);
+				end
+
+				Text("Stealth Range To Target");
+				self.stealthRange = SliderInt("(yds)", 5, 100, self.stealthRange);
+				Separator();
+
 			end
+		end
 
+		-- sprint
+		if (HasSpell("Sprint")) then
+			if (not self.useStealth) then
+				SameLine();
+			end
+			wasClicked, self.useSprint = Checkbox("Sprint To Target", self.useSprint);
+		end
+
+		if (HasSpell("Poisons")) and (HasSpell("Envenom")) then
 			SameLine();
+			wasClicked, self.useEnvenom = Checkbox("Use Envenom", self.useEnvenom);
 		end
 
-		wasClicked, self.useThrow = Checkbox("Use Throw", self.useThrow);
+		-- feint
+		if (HasSpell("Feint")) and (GetNumPartyMembers() >= 1) then
+			SameLine();
+			wasClicked, self.useFeint = Checkbox("Use Feint", self.useFeint);
+		end
+
+		-----------------------------------
+
+		-- slice and dice
+		if (HasSpell("Slice and Dice")) then
+			Separator();
+			wasClicked, self.useSlice = Checkbox("Slice & Dice", self.useSlice);
+		end
 		
-		if (self.useStealth) then
-			Text("Stealth Range To Target");
-			self.stealthRange = SliderInt("(yds)", 5, 100, self.stealthRange);
+		-- expose armor
+		if (HasSpell("Expose Armor")) then
+			SameLine();
+			wasClicked, self.useExposeArmor = Checkbox("Expose Armor", self.useExposeArmor);
+		end
+		
+		-- rupture
+		if (HasSpell("Rupture")) then
+			SameLine();
+			wasClicked, self.useRupture = Checkbox("Rupture", self.useRupture);
 		end
 
-		if (self.useStealth) then
-			wasClicked, self.usePickPocket = Checkbox("Use Pick Pocket", self.usePickPocket);
-		end
-
+		-- combo point menu
 		if (CollapsingHeader("|+| Combo Point Generator")) then
 			Text("Combo Point ability");
 			script_rogue.cpGenerator = InputText("CPA", script_rogue.cpGenerator);
@@ -613,6 +736,7 @@ function script_rogue:menu()
 			script_rogue.cpGeneratorCost = SliderInt("Energy", 20, 50, script_rogue.cpGeneratorCost);
 		end
 			
+		-- stealth opener menu
 		if (HasSpell("Stealth")) then
 			if(CollapsingHeader("|+| Stealth Ability Opener")) then
 				Text("Stealth ability opener");
@@ -620,8 +744,10 @@ function script_rogue:menu()
 			end
 		end
 
-		if (GetLevel(GetLocalPlayer()) >= 20) then
+		-- poisons menu
+		if (GetLevel(GetLocalPlayer()) >= 20) and (HasSpell("Poisons")) then
 			if (CollapsingHeader("|+| Posion Options")) then
+				wasClicked, self.usePoisons = Checkbox("Use Poisons", self.usePoisons);
 				Text("Poison on Main Hand");
 				self.mainhandPoison = InputText("PMH", self.mainhandPoison);
 				Text("Poison on Off Hand");
@@ -629,11 +755,40 @@ function script_rogue:menu()
 			end
 		end
 
+		-- riposte menu
 		if (HasSpell("Riposte")) then
 			if (CollapsingHeader("|+| Riposte Skill Options")) then
 				Text("Action Bar Slots 1 - 12");
 				script_rogue.riposteActionBarSlot = InputText("RS", script_rogue.riposteActionBarSlot);	-- riposte
 			end
 		end
+		
+		-- envenom
+		if (HasSpell("Envenom")) and (self.usePoisons) and (self.useEnvenom) then
+			if (CollapsingHeader("|+| Envenom Options")) then
+				Text("Use Envenom Below Target Health Percent");
+				self.envenomHealth = SliderInt("ENVH", 0, 25, self.envenomHealth);
+				Text("Name Of Poison Applied To Target");
+				self.poisonName = InputText("Poison Name", self.poisonName);
+			end
+		end
+
+		-- expose armor menu
+		if (HasSpell("Expose Armor")) and (self.useExposeArmor) then
+			if (CollapsingHeader("|+| Expose Armor Options")) then
+				Text("Expose Armor Stacks On Target");
+				self.exposeArmorStacks = SliderInt("EAXS", 0, 5, self.exposeArmorStacks);
+			end
+		end
+
+		-- rupture menu
+		if (HasSpell("Rupture")) and (self.useRupture) then
+			if (CollapsingHeader("|+| Rupture Options")) then
+				Text("Combo Points To Use Rupture");
+				self.ruptureStacks = SliderInt("RUPS", 0, 5, self.ruptureStacks);
+			end
+		end
+
+
 	end
 end

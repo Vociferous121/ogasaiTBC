@@ -1,2 +1,4 @@
 raycast pathing fails z axis? cannot find path - makes path straight upwards...
 raycast pathing fails z axis when falling off path... generate new path when Z is > x or < x from node?
+
+GetObjectDisplayID() of a campfire == 0 and 192

@@ -15,7 +15,9 @@ script_gather = {
 	timer = 0,
 	nodeID = 0,
 	menu = include("scripts\\script_gatherMenu.lua"),
-	gatherAllPossible = true
+	gatherAllPossible = true,
+	chests = {},
+	numChests = 0,
 }
 
 function script_gather:addHerb(name, id, use, req)
@@ -34,6 +36,12 @@ function script_gather:addMineral(name, id, use, req)
 	self.minerals[self.numMinerals][2] = use;
 	self.minerals[self.numMinerals][3] = req;
 	self.numMinerals = self.numMinerals + 1;
+end
+function script_gather:addChest(name, id)
+	self.chests[self.numChests] = {}
+	self.chests[self.numChests][0] = name;
+	self.chests[self.numChests][1] = id;
+	self.numChests = self.numChests + 1;
 end
 
 function script_gather:setup()
@@ -99,6 +107,40 @@ function script_gather:setup()
 	script_gather:addMineral('Adamantite Deposit', 6798, false, 325);
 	script_gather:addMineral('Khorium Deposit', 6800, false, 375);
 	script_gather:addMineral('Nethercite Deposit', 6650, false, 375);
+		
+	script_gather:addChest("Duskwood Chest", 123214);
+	script_gather:addChest("Adamantite Bound Chest", 181802);
+	script_gather:addChest("Battered Chest", 2843);
+	script_gather:addChest("Battered Chest", 2844);
+	script_gather:addChest("Battered Chest", 2849);
+	script_gather:addChest("Battered Chest", 106318);
+	script_gather:addChest("Battered Chest", 106319);
+
+	script_gather:addChest("Primitive Chest", 184793);
+	script_gather:addChest("Large Iron Bound Chest", 74447);
+	script_gather:addChest("Large Iron Bound Chest", 75297);
+	script_gather:addChest("Large Iron Bound Chest", 75296);
+	script_gather:addChest("Large Iron Bound Chest", 75295);
+	script_gather:addChest("Bound Fel Iron Chest", 184934);
+	script_gather:addChest("Bound Fel Iron Chest", 184932);
+	script_gather:addChest("Bound Fel Iron Chest", 184931);
+	script_gather:addChest("Large Mithril Bound Chest", 153468);
+	script_gather:addChest("Large Mithril Bound Chest", 153469);
+	script_gather:addChest("Large Mithril Bound Chest", 131978);
+	script_gather:addChest("Bound Adamantite Chest", 184940);
+	script_gather:addChest("Bound Adamantite Chest", 184938);
+	script_gather:addChest("Bound Adamantite Chest", 184936);
+	script_gather:addChest("Fel Iron Chest", 181798);
+	script_gather:addChest("Heavy Fel Iron Chest", 181800);
+	script_gather:addChest("Large Battered Chest", 75293);
+	script_gather:addChest("Large Duskwood Chest", 131979);
+	script_gather:addChest("Large Solid Chest", 74448);
+	script_gather:addChest("Large Solid Chest", 75298);
+	script_gather:addChest("Large Solid Chest", 75299);
+	script_gather:addChest("Large Solid Chest", 75300);
+	script_gather:addChest("Large Solid Chest", 153462);
+	script_gather:addChest("Large Solid Chest", 153463);
+	script_gather:addChest("Large Solid Chest", 153464);
 
 	self.timer = GetTimeEX();
 
@@ -150,28 +192,46 @@ function script_gather:GetNode()
 end
 
 function script_gather:drawGatherNodes()
-
 local targetObj, targetType = GetFirstObject();
 	while targetObj ~= 0 do
-		if (targetType == 5 and IsGatherNode(targetObj)) then 
+		if (targetType == 5) then 
 			local id = GetObjectDisplayID(targetObj);
-			local name = 'Gather Node';
+			local name = '';
+			local name2 = "";
+			local name3 = "";
 			local _x, _y, _z = GetPosition(targetObj);
 			local _tX, _tY, onScreen = WorldToScreen(_x, _y, _z);
+			local dist = math.floor(GetDistance(targetObj));
 			if(onScreen) then
 				for i=0,self.numHerbs - 1 do
 					if (self.herbs[i][1] == id) then
 						name = self.herbs[i][0];
+						local this = ""..dist.." yd";
+						DrawText(this, _tX-10, _tY+15, 255, 255, 0);
 					end
 				end
 
 				for i=0,self.numMinerals - 1 do
 					if (self.minerals[i][1] == id) then
 						name = self.minerals[i][0];
+						local this = ""..dist.." yd";
+						DrawText(this, _tX-10, _tY+15, 255, 255, 0);
 					end
 				end
-					
+				for i=0,self.numChests - 1 do
+					if (self.chests[i][1] == id) then
+						name2 = self.chests[i][0];
+						local this = ""..dist.." yd";
+						DrawText(this, _tX-10, _tY+15, 255, 255, 0);
+					end
+				end
+
 				DrawText(name, _tX-10, _tY, 255, 255, 0);
+				DrawText(name2, _tX-10, _tY, 255, 255, 0);
+				--if (id ~= 192) and (id ~= 0) and (id ~= 386) then
+				--	DrawText(id, _tX-10, _tY-20, 255, 255, 0);
+				--end
+		
 			end
 		end
 		targetObj, targetType = GetNextObject(targetObj);
