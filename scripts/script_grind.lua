@@ -1,73 +1,8 @@
 script_grind = {
-	isSetup = false,
-	helperLoaded = include("scripts\\script_helper.lua"),
-	targetLoaded = include("scripts\\script_target.lua"),
-	pathLoaded = include("scripts\\script_path.lua"), 
-	vendorScript = include("scripts\\script_vendor.lua"),
-	grindExtra = include("scripts\\script_grindEX.lua"),
-	grindMenu = include("scripts\\script_grindMenu.lua"),
-	autoTalents = include("scripts\\script_talent.lua"),
-	safeRessLoaded = include("scripts\\script_safeRess.lua"),
-	info = include("scripts\\script_info.lua"),
-	gather = include("scripts\\script_gather.lua"),
-	rayPather = include("scripts\\script_pather.lua"),
-	debugincluded = include("scripts\\script_debug.lua"),
-	aggroincluded = include("scripts\\script_aggro.lua"),
-	checkDebuffsLoaded = include("scripts\\script_checkDebuffs.lua"),
-	unstuckLoaded = include("scripts\\script_unstuck.lua"),
-	paranoidLoaded = include("scripts\\script_paranoid.lua"),
-	grindEX2Loaded = include("scripts\\script_grindEX2.lua"),
-	counterMenuLoaded = include("scripts\\script_counterMenu.lua"),
-
-	message = 'Starting the grinder...',
-	alive = true,
-	target = 0,
-	targetTimer = GetTimeEX(),
-	pullDistance = 30,
-	waitTimer = 0,
-	tickRate = 50,
-	adjustTickRate = false,
-	restHp = 60,
-	restMana = 60,
-	potHp = 10,
-	potMana = 10,
-	pause = true,
-	stopWhenFull = false,
-	hsWhenFull = false,
-	shouldRest = false,
-	skipMobTimer = 0,
-	useMana = true,
-	skipLoot = false,
-	currentTime2 = 0,
-	skipReason = 'user selected...',
-	stopIfMHBroken = false,
-	useVendor = false,
-	sellWhenFull = true,
-	repairWhenYellow = true,
-	bagsFull = false,
-	vendorRefill = false,
-	refillMinNr = 5,
-	unStuckPos = {},
-	unStuckTime = 0,
-	jump = true,
-	useMount = true,
-	tryMountTime = 0,
-	autoTalent = true,
-	gather = true,
-	raycastPathing = false,
-	showRayMenu = false,
-	useNavMesh = true,
-	combatStatus = 0, -- 0 = in range, 1 = not in range
-	drawPath = false,
-	useUnstuckScript = false,
-	setLogoutTime = 30,
-	currentTime = 0,
-	timerSet = false,
-	moveToMeleeRange = false,
-	monsterKillCount = 0,
-	moneyObtainedCount = 0,
-	currentMoney = 0,
-	dead = false,
+	isSetup = false, helperLoaded = include("scripts\\script_helper.lua"), targetLoaded = include("scripts\\script_target.lua"), pathLoaded = include("scripts\\script_path.lua"),  vendorScript = include("scripts\\script_vendor.lua"), grindExtra = include("scripts\\script_grindEX.lua"), grindMenu = include("scripts\\script_grindMenu.lua"), autoTalents = include("scripts\\script_talent.lua"), safeRessLoaded = include("scripts\\script_safeRess.lua"), info = include("scripts\\script_info.lua"), gather = include("scripts\\script_gather.lua"), rayPather = include("scripts\\script_pather.lua"), debugincluded = include("scripts\\script_debug.lua"), aggroincluded = include("scripts\\script_aggro.lua"), checkDebuffsLoaded = include("scripts\\script_checkDebuffs.lua"), unstuckLoaded = include("scripts\\script_unstuck.lua"), paranoidLoaded = include("scripts\\script_paranoid.lua"), grindEX2Loaded = include("scripts\\script_grindEX2.lua"), counterMenuLoaded = include("scripts\\script_counterMenu.lua"),
+message = 'Starting the grinder...', alive = true, target = 0, targetTimer = GetTimeEX(), pullDistance = 30, waitTimer = 0, tickRate = 50, adjustTickRate = false, restHp = 60, restMana = 60, potHp = 10, potMana = 10, pause = true, stopWhenFull = false, hsWhenFull = false, shouldRest = false, skipMobTimer = 0, useMana = true, skipLoot = false, currentTime2 = 0, skipReason = 'user selected...', stopIfMHBroken = false, useVendor = false, sellWhenFull = true, repairWhenYellow = true, bagsFull = false, vendorRefill = false, refillMinNr = 5, unStuckPos = {}, unStuckTime = 0, jump = true, useMount = true, tryMountTime = 0, autoTalent = true, gather = true, raycastPathing = false, showRayMenu = false, useNavMesh = true,
+combatStatus = 0, -- 0 = in range, 1 = not in range
+drawPath = false, useUnstuckScript = false, setLogoutTime = 30, currentTime = 0, timerSet = false, moveToMeleeRange = false, monsterKillCount = 0, moneyObtainedCount = 0, currentMoney = 0, dead = false,
 }
 
 function script_grind:setup() SetPVE(true); SetAutoLoot(); DrawNavMeshPath(true); self.skipMobTimer = GetTimeEX(); self.unStuckTime = GetTimeEX(); self.tryMountTime = GetTimeEX(); self.waitTimer = GetTimeEX();
@@ -87,93 +22,34 @@ function script_grind:enemiesAttackingUs() local unitsAttackingUs = 0;  local lo
 function script_grind:setWaitTimer(ms) self.waitTimer = (GetTimeEX() + (ms)); end
 
 function script_grind:run()
-	-- Run the setup function once
-	if (not self.isSetup) then
-		script_grind:setup();
-		script_debug.debugGrind = "setup";
-		return;
-	end
+-- Run the setup function once
+if (not self.isSetup) then script_grind:setup(); script_debug.debugGrind = "setup"; return; end
+-- draw aggro circles
+if (script_aggro.drawAggro) then script_aggro:drawAggroCircles(65); end
 
-	-- draw aggro circles
-	if (script_aggro.drawAggro) then
-		script_aggro:drawAggroCircles(65);
-	end
-
-	-- timers....
+-- timers....
 self.currentTime = GetTimeEX(); script_rogue.waitTimer = GetTimeEX(); script_mage.waitTimer = GetTimeEX(); script_mage.gemTimer = GetTimeEX(); script_warlock.waitTimer = GetTimeEX(); script_warlocksiphonTime = GetTimeEX(); script_warlockagonyTime = GetTimeEX(); script_warlockcorruptTime = GetTimeEX(); script_warlockimmoTime = GetTimeEX(); script_warlockstoneTime = GetTimeEX(); script_warrior.waitTimer = GetTimeEX(); script_paladin.waitTimer = GetTimeEX(); script_paladin.sealTimer = GetTimeEX(); script_priest.waitTimer = GetTimeEX(); script_shaman.waitTimer = GetTimeEX(); script_hunter.waitTimer = GetTimeEX(); script_druid.waitTimer = GetTimeEX();
 
-	-- Load nav mesh
-	if (self.useNavMesh) then
-		if (script_path:loadNavMesh()) then
-			self.message = "Loading the oGasai maps...";
-			script_debug.debugGrind = "loading nav";
-			script_path.savedPos['time'] = GetTimeEX();
-			return;
-		end
-	end
-
-	-- show raycasting path
-	if (not self.raycastPathing) then
-		script_grindEX.drawRaycastPath = false;
-	end
-	
-	-- set moeny obtained while grinder is running
-	self.moneyObtainedCount = GetMoney() - self.currentMoney;
-
-	-- if pause bot
-	if (self.pause) then
-		script_path.savedPos['time'] = GetTimeEX();
-
-		return;
-	end
-
-	-- set wait timers
-	if (self.waitTimer + self.tickRate > GetTimeEX()) then
-		return;
-	end
-
-	-- adjust tick rate
-	if (not self.adjustTickRate) then
-	
-		-- moving tick rate
-		if (not IsInCombat() or IsMoving()) then
-			self.tickRate = 50;
-		end
-		-- combat tick rate
-		if (not IsMoving() or IsInCombat()) then
-			local tickRandom = math.random(342, 1521);
-			self.tickRate = tickRandom;
-		end
-	end
-
-	-- face target in combat
-	if (IsInCombat()) and (not IsMoving()) then
-		if (self.target ~= 0 and self.target ~= nil) and (not script_checkDebuffs:hasDisabledMovement()) then
-			FaceTarget(self.target);
-		end
-	end
-
-	-- stop bot on stop movement debuffs
-	if (IsInCombat()) then
-		if (script_checkDebuffs:hasDisabledMovement()) then
-			script_path.savedPos['time'] = GetTimeEX();
-			script_grind.waitTimer = GetTimeEX() + 550;
-		return;
-		end
-
-		-- try to stop if we are stunned...
-		if (IsStunned(GetLocalPlayer())) then
-			self.waitTimer = GetTimeEX() + 550;
-			return;
-		end
-	end
-
-	-- Update min/max level if we level up
-	if (script_target.currentLevel ~= GetLevel(GetLocalPlayer())) then
-		script_target.minLevel = script_target.minLevel + 1;
-		script_target.maxLevel = script_target.maxLevel + 2;
-		script_target.currentLevel = script_target.currentLevel + 1;
-	end
+-- Load nav mesh
+if (self.useNavMesh) then if (script_path:loadNavMesh()) then self.message = "Loading the oGasai maps..."; script_debug.debugGrind = "loading nav"; script_path.savedPos['time'] = GetTimeEX(); return; end end
+-- show raycasting path
+if (not self.raycastPathing) then script_grindEX.drawRaycastPath = false; end
+-- set moeny obtained while grinder is running
+self.moneyObtainedCount = GetMoney() - self.currentMoney;
+-- if pause bot
+if (self.pause) then script_path.savedPos['time'] = GetTimeEX(); return; end
+-- set wait timers
+if (self.waitTimer + self.tickRate > GetTimeEX()) then return; end
+-- adjust tick rate
+if (not self.adjustTickRate) then if (not IsInCombat() or IsMoving()) then self.tickRate = 50; end if (not IsMoving() or IsInCombat()) then local tickRandom = math.random(342, 1521); self.tickRate = tickRandom; end end
+-- face target in combat
+if (IsInCombat()) and (not IsMoving()) then if (self.target ~= 0 and self.target ~= nil) and (not script_checkDebuffs:hasDisabledMovement()) then FaceTarget(self.target); end end
+-- stop bot on stop movement debuffs
+if (IsInCombat()) then if (script_checkDebuffs:hasDisabledMovement()) then script_path.savedPos['time'] = GetTimeEX(); script_grind.waitTimer = GetTimeEX() + 550; return; end
+-- try to stop if we are stunned...
+if (IsStunned(GetLocalPlayer())) then self.waitTimer = GetTimeEX() + 550; return; end end
+-- Update min/max level if we level up
+if (script_target.currentLevel ~= GetLevel(GetLocalPlayer())) then script_target.minLevel = script_target.minLevel + 1; script_target.maxLevel = script_target.maxLevel + 2; script_target.currentLevel = script_target.currentLevel + 1; end
 
 	-- was here... testing...
 	if (self.useUnstuckScript) then --and (not self.pause) then
@@ -342,6 +218,11 @@ self.currentTime = GetTimeEX(); script_rogue.waitTimer = GetTimeEX(); script_mag
 		ResetNavigate();
 		script_pather:resetPath()
 		script_debug.debugGrind = "reset navigate";
+	end
+
+	-- stop rogue attack for stealth attacks....
+	if (HasBuff(localObj, "Stealth")) and (GetUnitsTarget(GetLocalPlayer()) ~= 0) then
+		StopAttack();
 	end
 
 	-- not bags are full then use or delete items
@@ -607,7 +488,6 @@ self.currentTime = GetTimeEX(); script_rogue.waitTimer = GetTimeEX(); script_mag
 
 			-- move to target...
 			if (not self.raycastPathing) then
-
 				if (self.moveToMeleeRange) and (GetDistance(self.target) > 2) then
 					if (not self.adjustTickRate) then
 						script_grind.tickRate = 50;
@@ -689,7 +569,7 @@ self.currentTime = GetTimeEX(); script_rogue.waitTimer = GetTimeEX(); script_mag
 		if (not IsMoving() or IsInCombat()) then
 			AutoAttack(self.target);
 		end
-
+	
 		-- Unstuck feature on valid "working" targets
 		if (GetTarget() ~= 0 and GetTarget() ~= nil) then
 			if (GetHealthPercentage(GetTarget()) < 98) then
@@ -705,10 +585,7 @@ self.currentTime = GetTimeEX(); script_rogue.waitTimer = GetTimeEX(); script_mag
 	if (not IsMounted() and self.target ~= nil and self.target ~= 0 and IsOutdoors() and self.tryMountTime < GetTimeEX()) then if (IsMoving()) then StopMoving(); return; end script_helper:useMount(); self.tryMountTime = GetTimeEX() + 10000; return; end
 
 	-- When no valid targets around, run auto pathing
-	if (not IsInCombat() and (IsUsingNavmesh() or self.raycastPathing)) then script_debug.debugGrind = "no valid enemy, auto pathing"; self.message = script_path:autoPath(); script_grind.tickRate = 50; if (IsMoving() and not IsMounted() and not HasBuff(localObj, "Sprint")) then script_grind.waitTimer = GetTimeEX() + 500; end
+	if (not IsInCombat() and (IsUsingNavmesh() or self.raycastPathing)) then script_debug.debugGrind = "no valid enemy, auto pathing"; self.message = script_path:autoPath(); script_grind.tickRate = 50; if (IsMoving() and not IsMounted() and not HasBuff(localObj, "Sprint")) then script_grind.waitTimer = GetTimeEX() + 500; end end
 
-end if (not IsUsingNavmesh() and not self.raycastPathing) then script_debug.debugGrind = "not using nav or raycast pathing - walk path"; self.message = "Navigating the walk path..."; Navigate(); end end
-function script_grind:turnfOffLoot(reason) self.skipReason = reason; self.skipLoot = true; self.bagsFull = true; end
-function script_grind:turnfOnLoot() self.skipLoot = false; self.bagsFull = false; end
-function script_grind:restOn() self.shouldRest = true; end
-function script_grind:restOff() self.shouldRest = false; end
+if (not IsUsingNavmesh() and not self.raycastPathing) then script_debug.debugGrind = "not using nav or raycast pathing - walk path"; self.message = "Navigating the walk path..."; Navigate(); end end
+function script_grind:turnfOffLoot(reason) self.skipReason = reason; self.skipLoot = true; self.bagsFull = true; end function script_grind:turnfOnLoot() self.skipLoot = false; self.bagsFull = false; end function script_grind:restOn() self.shouldRest = true; end function script_grind:restOff() self.shouldRest = false; end

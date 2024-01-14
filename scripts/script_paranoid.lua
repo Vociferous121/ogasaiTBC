@@ -20,17 +20,21 @@ function script_paranoid:doParanoia()
 		-- if players in range
 		if (script_paranoid:playersWithinRange(self.paranoidRange)) then
 
-			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not HasBuff(localObj, "Stealth")) and (not IsInCombat()) and (not IsCasting()) and (not IsChanneling()) and (IsStanding()) and (not IsMounted()) then
+			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not HasBuff(localObj, "Stealth")) and (not IsInCombat()) and (not IsCasting()) and (not IsChanneling()) and (IsStanding()) and (not IsMounted()) and (not HasBuff(localObj, "Shadowmeld")) then
 				if (CastSpellByName("Stealth")) then
 					script_grind.waitTimer = GetTimeEX() + 1050;
 				end
 			end
 
-			if (HasSpell("Shadowmeld")) and (not IsSpellOnCD("Shadowmeld")) and (not HasBuff(localObj, "Shadowmeld")) and (not IsInCombat()) and (not IsCasting()) and (not IsChanneling()) and (IsStanding()) and (not IsMounted()) then
+			if (HasSpell("Shadowmeld")) and (not IsSpellOnCD("Shadowmeld")) and (not HasBuff(localObj, "Shadowmeld")) and (not IsInCombat()) and (not IsCasting()) and (not IsChanneling()) and (IsStanding()) and (not IsMounted()) and (not HasBuff(localObj, "Stealth")) and (not HasBuff(localObj, "Bear Form") and not HasBuff(localObj, "Dire Bear Form") and not HasBuff(localObj, "Cat Form")) then
 				if (CastSpellByName("Shadowmeld")) then
 					script_grind.waitTimer = GetTimeEX() + 1050;
 				end
 			end
+
+
+
+
 
 			-- set logout timer when paranoid
 			if (not self.logoutTimerSet) then

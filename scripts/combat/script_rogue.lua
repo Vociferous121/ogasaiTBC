@@ -176,7 +176,7 @@ function script_rogue:run(targetObj)
 
 	--Valid Enemy
 	if (targetObj ~= 0) then
-		
+
 		-- Cant Attack dead targets
 		if (IsDead(targetObj)) then
 			return;
@@ -268,7 +268,7 @@ function script_rogue:run(targetObj)
 
 			local creatureType = GetCreatureType(GetUnitsTarget(GetLocalPlayer()));
 
-			if (GetHealthPercentage(targetObj) >= 100) and (strfind("Humanoid", creatureType) or strfind("Undead", creatureType)) and (HasBuff(localObj, "Stealth")) and (HasSpell("Pick Pocket")) and (GetDistance(targetObj) <= 4) and (self.useStealth) and (not IsSpellOnCD("Pick Pocket")) and (not IsInCombat()) and (not self.pickpocketUsed) then
+				if (GetHealthPercentage(targetObj) >= 100) and (strfind("Humanoid", creatureType) or strfind("Undead", creatureType)) and (HasBuff(localObj, "Stealth")) and (HasSpell("Pick Pocket")) and (GetDistance(targetObj) < 5) and (self.useStealth) and (not IsSpellOnCD("Pick Pocket")) and (not IsInCombat()) and (not self.pickpocketUsed) then
 				StopMoving();
 				if (not script_grind.adjustTickRate) then
 					script_grind.tickRate = 1500;
@@ -276,11 +276,10 @@ function script_rogue:run(targetObj)
 				CastSpellByName("Pick Pocket");
 				self.pickpocketUsed = true;
 				script_rogue:setTimers(500);
-			return;
 			end
 				
 			-- Open with stealth opener
-			if (GetDistance(targetObj) <= 4) and (self.useStealth and HasSpell(self.stealthOpener) and HasBuff(localObj, "Stealth")) and (not IsInCombat()) and (GetUnitsTarget(GetLocalPlayer()) ~= 0) and (not IsSpellOnCD(self.stealthOpener)) and ( (self.usePickPocket and self.pickpocketUsed) or (not self.usePickPocket) or (GetHealthPercentage(self.target) < 100) or (not strfind("Humanoid", creatureType) or not strfind("Undead", creatureType)) ) then
+			if (GetDistance(targetObj) < 5) and (self.useStealth and HasSpell(self.stealthOpener) and HasBuff(localObj, "Stealth")) and (not IsInCombat()) and (GetUnitsTarget(GetLocalPlayer()) ~= 0) and (not IsSpellOnCD(self.stealthOpener)) and ( (self.usePickPocket and self.pickpocketUsed) or (not self.usePickPocket) or (GetHealthPercentage(self.target) < 100) or (not strfind("Humanoid", creatureType) or not strfind("Undead", creatureType)) ) then
 				if (CastSpellByName(self.stealthOpener)) then
 					local x, y, z = GetPosition(GetUnitsTarget(GetLocalPlayer()));
 					self.waitTimer = GetTimeEX() + 1650;
