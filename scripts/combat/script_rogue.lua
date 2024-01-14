@@ -542,13 +542,11 @@ function script_rogue:rest()
 			return true;
 		end
 		
-		if (not IsInCombat()) and (not IsLooting()) then
-			if (not IsEating()) and (not IsMoving()) then
-				if (script_helper:eat()) then
-					script_debug.debugCombat = "use script_helper:eat";
-					script_rogue:setTimers(1550);
-					script_grind:restOn();	
-				end
+		if (not IsInCombat()) and (not IsLooting()) and (not IsEating()) and (not IsMoving()) and (not script_target:isThereLoot()) then
+			if (script_helper:eat()) then
+				script_debug.debugCombat = "use script_helper:eat";
+				script_rogue:setTimers(1550);
+				script_grind:restOn();
 			end
 		return true;
 		end

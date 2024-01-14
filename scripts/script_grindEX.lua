@@ -105,6 +105,10 @@ function script_grindEX:doChecks()
 		script_grind.currentTime2 = GetTimeEX() + script_grind.setLogoutTime;
 		-- reset unstuck when paused
 		script_path:savePos(true);
+		script_path.hx = 0;
+		script_path.hy = 0;
+		script_path.hz = 0;
+script_path.numSavedPathNodes = 0;
 		script_grind.message = "Paused by user...";
 		if (IsMoving()) then
 			StopMoving();
