@@ -456,10 +456,12 @@ function script_grind:run()
 			self.target = GetGUIDTarget(targetGUID);
 			if (GetTarget() ~= self.target) then
 				-- this causes mage to walk to melee range...
-				if (self.moveToMeleeRange) then
+				if (self.moveToMeleeRange) and (not IsMoving()) then
 					UnitInteract(self.target);
 				end
-				AutoAttack(self.target);
+				if (not IsMoving()) then
+					AutoAttack(self.target);
+				end
 			end	
 		end
 	else
@@ -685,7 +687,9 @@ function script_grind:run()
 		script_pather:resetPath();
 		ResetNavigate();
 		RunCombatScript(self.target);
-		AutoAttack(self.target);
+		if (not IsMoving()) then
+			AutoAttack(self.target);
+		end
 
 		-- Unstuck feature on valid "working" targets
 		if (GetTarget() ~= 0 and GetTarget() ~= nil) then

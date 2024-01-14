@@ -394,7 +394,7 @@ function script_rogue:run(targetObj)
 			if (GetDistance(targetObj) < 5) then 
 
 				-- Auto attack
-				if (not self.useRotation) then
+				if (not self.useRotation) and (not IsMoving()) then
 					script_debug.debugCombat = "unit interact";
 					UnitInteract(targetObj);
 				end
