@@ -170,14 +170,13 @@ function script_path:autoPath()
 
 			-- add wait timer to each click to move action
 
-			self.waitTimer = GetTimeEX() + 550;
-			script_grind.message = "Moving to hotspot...";
-
-			return;
+			return "Moving to hotspot...";
 		end
 		
 		return "Hotspot reached, no targets around?";
 	end
+
+self.waitTimer = GetTimeEX() + 550;
 
 	-- Reached the first node
 	if (self.currentPathNode < 0 and self.numSavedPathNodes > 1) then

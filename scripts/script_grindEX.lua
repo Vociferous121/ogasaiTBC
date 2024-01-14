@@ -128,8 +128,8 @@ function script_grindEX:doChecks()
 
 	if (GetTimeEX() + script_grind.tickRate > self.waitTimer) then
 		if (script_grind.jump) and (IsMoving()) and (not IsInCombat()) and (not script_checkDebuffs:hasDisabledMovement()) then
-			local randomJump = random(0, 100);
-			local randomWait = random(1500, 5500);
+			local randomJump = math.random(-100, 100);
+			local randomWait = random(550, 8215);
 			if randomJump > self.jumpFloat then
 				Jump();
 				self.waitTimer = GetTimeEX() + randomWait;

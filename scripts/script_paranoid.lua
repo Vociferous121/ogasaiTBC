@@ -20,6 +20,12 @@ function script_paranoid:doParanoia()
 		-- if players in range
 		if (script_paranoid:playersWithinRange(self.paranoidRange)) then
 
+			if (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not HasBuff(localObj, "Stealth")) and (not IsInCombat()) and (not IsCasting()) and (not IsChanneling()) and (IsStanding()) and (not IsMounted()) then
+				if (CastSpellByName("Stealth")) then
+					script_grind.waitTimer = GetTimeEX() + 1050;
+				end
+			end
+
 			-- set logout timer when paranoid
 			if (not self.logoutTimerSet) then
 				script_grind.currentTime2 = GetTimeEX();
