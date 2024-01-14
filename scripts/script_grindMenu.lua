@@ -169,20 +169,22 @@ function script_grindMenu:menu()
 		wasClicked, script_grindEX.drawAutoPath = Checkbox("Draw Hotspot & Nodes", script_grindEX.drawAutoPath);
 	end
 
-	Text("Adjust Reaction Timing");
 	wasClicked, script_grind.adjustTickRate = Checkbox("", script_grind.adjustTickRate);
 
 	if (not script_grind.adjustTickRate) then
-		SameLine(); Text("Auto-Adjust Reaction Timing Is On"); SameLine(); Text(" "..script_grind.tickRate);
+		SameLine(); Text("Auto-Adjust Reaction Timing Is On"); SameLine(); Text(": "..script_grind.tickRate);
 	end
 	if (script_grind.adjustTickRate) then
 		SameLine(); Text("Auto-Adjust Reaction Timing Is Off");
+		SameLine(); Text(": "..script_grind.tickRate);
 	end
 	if (script_grind.adjustTickRate) then
 		Text("Determines how quick the bot reacts to the game");
 		Text("Set to 0 the bot will only wait for casting timers");
 		script_grind.tickRate = SliderInt("Mili - Seconds", 0, 2500, script_grind.tickRate);
 	end
+
+
 	if (script_grindMenu.debug) then
 		if(NewWindow("Debug", 100, 100)) then
 			script_debug:menu();

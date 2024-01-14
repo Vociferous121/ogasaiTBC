@@ -116,18 +116,21 @@ function script_grindEX:doChecks()
 		DrawMovePath();
 	end
 
-	-- Check: jump to the surface if we are under water
-	local progress = GetMirrorTimerProgress("BREATH");
-	if (progress ~= nil and progress ~= 0) then
-		if ((progress/1000) < 35) then
-			self.message = "Let's not drown...";
-			script_debug.debugGrind = "using jump out of water";
-			Jump();
-			return;
-		end	
-	end
-
 	if (GetTimeEX() + script_grind.tickRate > self.waitTimer) then
+
+		-- Check: jump to the surface if we are under water
+		local progress = GetMirrorTimerProgress("BREATH");
+		if (progress ~= nil and progress ~= 0) then
+			if ((progress/1000) < 35) then
+				self.message = "Let's not drown...";
+				script_debug.debugGrind = "using jump out of water";
+				Jump();
+				self.waitTimer = GetTimeEX() + 1500;
+				return;
+			end	
+		end
+
+	
 		if (script_grind.jump) and (IsMoving()) and (not IsInCombat()) and (not script_checkDebuffs:hasDisabledMovement()) then
 			local randomJump = math.random(-100, 100);
 			local randomWait = random(550, 8215);

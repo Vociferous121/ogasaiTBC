@@ -25,7 +25,7 @@ script_grind = {
 	targetTimer = GetTimeEX(),
 	pullDistance = 30,
 	waitTimer = 0,
-	tickRate = 500,
+	tickRate = 50,
 	adjustTickRate = false,
 	restHp = 60,
 	restMana = 60,
@@ -156,7 +156,7 @@ function script_grind:run()
 	end
 
 	if (IsInCombat()) and (not IsMoving()) then
-		if (self.target ~= 0 and self.target ~= nil) then
+		if (self.target ~= 0 and self.target ~= nil) and (not script_checkDebuffs:hasDisabledMovement()) then
 			FaceTarget(self.target);
 		end
 	end
@@ -174,17 +174,13 @@ function script_grind:run()
 		end
 		-- combat tick rate
 		if (not IsMoving() or IsInCombat()) then
-			local tickRandom = math.random(242, 721);
+			local tickRandom = math.random(342, 1521);
 			self.tickRate = tickRandom;
 		end
 	end
 
 	if (IsInCombat()) then
 		if (script_checkDebuffs:hasDisabledMovement()) then
-			if (IsMoving()) then
-				StopMoving();
-				return;
-			end
 		return;
 		end
 	end
@@ -400,6 +396,7 @@ function script_grind:run()
 	if (IsInCombat()) and (not script_grindEX2:isAnyTargetTargetingMe()) and (GetHealthPercentage(GetUnitsTarget(localObj)) >= 100)
 		and (GetDistance(GetUnitsTarget(localObj)) > 10) then
 		self.message = "Stuck in combat... waiting...";
+		ClearTarget();
 		if (IsMoving()) then
 			StopMoving();
 			return;
@@ -514,10 +511,7 @@ function script_grind:run()
 	if (self.target ~= 0 and self.target ~= nil) then
 
 		if (script_checkDebuffs:hasDisabledMovement()) then
-			if (IsMoving()) then
-				StopMoving();
-				return true;
-			end
+			return;
 		end
 
 		script_debug.debugGrind = "attack valid target";
@@ -528,7 +522,7 @@ function script_grind:run()
 					return;
 				end
 			end
-			if (not IsMoving()) then
+			if (not IsMoving()) and (not script_checkDebuffs:hasDisabledMovement()) then
 				FaceTarget(self.target);
 			end
 		else
@@ -605,13 +599,15 @@ function script_grind:run()
 					StopMoving();
 					return;
 				end
-			script_path.savedPos['time'] = GetTimeEX();
+				script_path.savedPos['time'] = GetTimeEX();
 			return;
 			end
 
 			-- force rogue stealth
 			if (not IsInCombat()) and (not script_checkDebuffs:hasPoison()) and (GetDistance(self.target) <= script_rogue.stealthRange) and (GetHealthPercentage(GetLocalPlayer()) > script_rogue.eatHealth) and (script_rogue.useStealth) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not HasBuff(localObj, "Stealth")) then
 				if (CastSpellByName("Stealth")) then
+					self.waitTimer = GetTimeEX() + 150;
+					Jump();
 					return;
 				end
 			end

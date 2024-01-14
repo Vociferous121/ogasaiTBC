@@ -184,9 +184,21 @@ function script_rogue:run(targetObj)
 		-- Dismount
 		DismountEX();
 
+		if (not IsInCombat()) and (HasSpell("Stealth")) and (script_rogue.alwaysStealth) and (script_rogue.useStealth) and (not HasBuff(localObj, "Stealth")) and (IsSpellOnCD("Stealth")) then
+			self.message = "Waiting for stealth cooldown...";
+			if (IsMoving()) then
+				StopMoving();
+				return;
+			end
+			script_path.savedPos['time'] = GetTimeEX();
+		return;
+		end
+
+
 		-- cast stealth
 		if (not IsInCombat()) and (script_rogue.useStealth) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not HasBuff(localObj, "Stealth")) then
 			if (CastSpellByName("Stealth")) then
+				Jump();
 				script_rogue:setTimers(1050);
 				return;
 			end
@@ -497,10 +509,17 @@ end
 
 function script_rogue:rest()
 
-	if(not self.isSetup) then script_rogue:setup(); return; end
+	if(not self.isSetup) then
+		script_rogue:setup();
+		return;
+	end
 
 	local localObj = GetLocalPlayer();
 	local localHealth = GetHealthPercentage(localObj);
+
+	if (self.waitTimer > GetTimeEX()) then
+		return;
+	end
 
 	-- Update rest values
 	if (script_grind.restHp ~= 0) then
@@ -510,6 +529,7 @@ function script_rogue:rest()
 	--Eat 
 	if (not IsInCombat()) and (not IsEating() and localHealth < self.eatHealth) then
 		script_debug.debugCombat = "rest eat";
+		ClearTarget();
 		if (IsMoving()) then
 			StopMoving();
 			script_grind:restOn();
@@ -517,6 +537,7 @@ function script_rogue:rest()
 		end
 		
 		if (not IsInCombat()) and (not IsLooting()) then
+				script_rogue:setTimers(1550);
 			if (script_helper:eat()) then
 				script_debug.debugCombat = "use script_helper:eat";
 				script_rogue:setTimers(1550);

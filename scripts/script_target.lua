@@ -26,7 +26,7 @@ script_target = {
 }
 
 function script_target:setup()
-	self.minLevel = GetLevel(GetLocalPlayer())-3;
+	self.minLevel = GetLevel(GetLocalPlayer())-5;
 	self.maxLevel = GetLevel(GetLocalPlayer())+2;
 	self.lootTimer = GetTimeEX();
 	self.isSetup = true;

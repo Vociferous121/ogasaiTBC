@@ -48,13 +48,13 @@ function script_fishEX:GetBobber()
 end
 
 function script_fishEX:menu()
-		--Text("" ..script_fishEX:GetBobber().. " Bobber Object GUID (is there a bobber?)");
-		--if (GetObjectState(script_fishEX:GetBobber()) ~= nil) then
-		--Text("" ..GetObjectState(script_fishEX:GetBobber()).. " Our Current Bobber State (fish hooked?)");
-		--end
-		--Text("State should change when a fish is hooked");
-		--Text("CAN BE TESTED ON PAUSE");
-		--Separator();
+		Text("" ..script_fishEX:GetBobber().. " Bobber Object GUID (is there a bobber?)");
+		if (GetObjectState(script_fishEX:GetBobber()) ~= nil) then
+		Text("" ..GetObjectState(script_fishEX:GetBobber()).. " Our Current Bobber State (fish hooked?)");
+		end
+		Text("State should change when a fish is hooked");
+		Text("CAN BE TESTED ON PAUSE");
+		Separator();
 		Text('Status: ' .. script_fish.message);
 		Text('Script Idle: ' .. (script_fish.timer - GetTimeEX()) .. ' ms');
 		if (not script_fish.pause) then if Button('Pause') then script_fish.pause = true; end
