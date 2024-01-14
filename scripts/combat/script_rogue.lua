@@ -417,7 +417,7 @@ function script_rogue:run(targetObj)
 
 				-- Check: Use Riposte whenever we can
 				if (HasSpell("Riposte")) and (script_rogue:canRiposte() and not IsSpellOnCD("Riposte")) and (localEnergy >= 10) then 
-					if (not Cast("Riposte", targetObj)) then
+					if (not CastSpellByName("Riposte")) then
 						script_rogue:setTimers(1050);
 						return true;					
 					end
@@ -462,7 +462,7 @@ function script_rogue:run(targetObj)
 				end
 
 				-- Use Riposte when we can
-				if(script_rogue:canRiposte() and HasSpell("Riposte")) and (not IsSpellOnCD("Riposte")) and (localEnergy >= 10) then
+				if (script_rogue:canRiposte() and HasSpell("Riposte")) and (not IsSpellOnCD("Riposte")) and (localEnergy >= 10) then
 				script_debug.debugCombat = "Use riposte";
 					if (not CastSpellByName("Riposte")) then
 						script_rogue:setTimers(1050);
@@ -542,7 +542,7 @@ function script_rogue:rest()
 			return true;
 		end
 		
-		if (not IsInCombat()) and (not IsLooting()) and (not IsEating()) and (not IsMoving()) and (not script_target:isThereLoot()) then
+		if (not IsInCombat()) and (not IsLooting()) and (not IsEating()) and (not script_target:isThereLoot()) then
 			if (script_helper:eat()) then
 				script_debug.debugCombat = "use script_helper:eat";
 				script_rogue:setTimers(1550);

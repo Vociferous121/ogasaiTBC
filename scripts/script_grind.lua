@@ -26,10 +26,8 @@ function script_grind:run()
 if (not self.isSetup) then script_grind:setup(); script_debug.debugGrind = "setup"; return; end
 -- draw aggro circles
 if (script_aggro.drawAggro) then script_aggro:drawAggroCircles(65); end
-
 -- timers....
 self.currentTime = GetTimeEX(); script_rogue.waitTimer = GetTimeEX(); script_mage.waitTimer = GetTimeEX(); script_mage.gemTimer = GetTimeEX(); script_warlock.waitTimer = GetTimeEX(); script_warlocksiphonTime = GetTimeEX(); script_warlockagonyTime = GetTimeEX(); script_warlockcorruptTime = GetTimeEX(); script_warlockimmoTime = GetTimeEX(); script_warlockstoneTime = GetTimeEX(); script_warrior.waitTimer = GetTimeEX(); script_paladin.waitTimer = GetTimeEX(); script_paladin.sealTimer = GetTimeEX(); script_priest.waitTimer = GetTimeEX(); script_shaman.waitTimer = GetTimeEX(); script_hunter.waitTimer = GetTimeEX(); script_druid.waitTimer = GetTimeEX();
-
 -- Load nav mesh
 if (self.useNavMesh) then if (script_path:loadNavMesh()) then self.message = "Loading the oGasai maps..."; script_debug.debugGrind = "loading nav"; script_path.savedPos['time'] = GetTimeEX(); return; end end
 -- show raycasting path
@@ -50,43 +48,12 @@ if (IsInCombat()) then if (script_checkDebuffs:hasDisabledMovement()) then scrip
 if (IsStunned(GetLocalPlayer())) then self.waitTimer = GetTimeEX() + 550; return; end end
 -- Update min/max level if we level up
 if (script_target.currentLevel ~= GetLevel(GetLocalPlayer())) then script_target.minLevel = script_target.minLevel + 1; script_target.maxLevel = script_target.maxLevel + 2; script_target.currentLevel = script_target.currentLevel + 1; end
-
-	-- was here... testing...
-	if (self.useUnstuckScript) then --and (not self.pause) then
-			script_unstuck:drawChecks();
-	end
-	if (self.useUnstuckScript) then
-		if (not script_unstuck:pathClearAuto(2)) then
-			script_unstuck:unstuck();
-			return true;
-		end
-	end
-	-- end was here...
-	--was here goes below...
-
-	-- Check: jump over obstacles
-	if (IsMoving()) and (not self.pause) then
-
-		if (not IsInCombat()) then
-			script_debug.debugGrind = "checking jump over obstacles";
-		end
-
-		-- was here....
-		
-		-- jump
-		script_pather:jumpObstacles();
-	end
-
-	-- Update node distance depending on if we are mounted or not
-	script_path:setNavNodeDist();
-
-	-- Check: Pause, Unstuck, Vendor, Repair, Buy and Sell etc
-	if (script_grindEX:doChecks()) then
-		if (not IsInCombat()) and (not IsMoving()) then
-			script_debug.debugGrind = "doing grindEX checks";
-		end
-		return;
-	end
+-- Check: jump over obstacles
+if (IsMoving()) and (not self.pause) then if (not IsInCombat()) then script_debug.debugGrind = "checking jump over obstacles"; end if (self.useUnstuckScript) then script_unstuck:drawChecks(); end if (self.useUnstuckScript) then if (not script_unstuck:pathClearAuto(2)) then script_unstuck:unstuck(); return true; end end script_pather:jumpObstacles(); end
+-- Update node distance depending on if we are mounted or not
+script_path:setNavNodeDist();
+-- Check: Pause, Unstuck, Vendor, Repair, Buy and Sell etc
+if (script_grindEX:doChecks()) then if (not IsInCombat()) and (not IsMoving()) then script_debug.debugGrind = "doing grindEX checks"; end return; end
 
 	-- reset saved pos sent to log
 	script_grindEX.sentToLog = false;
