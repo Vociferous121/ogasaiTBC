@@ -156,8 +156,13 @@ function script_rogue:run(targetObj)
 	local targetHealth = GetHealthPercentage(targetObj);
 
 	-- Pre Check
-	if (self.waitTimer > GetTimeEX() or IsCasting() or IsChanneling()) then
+	if (self.waitTimer > GetTimeEX() + script_grind.tickRate or IsCasting() or IsChanneling()) then
 		return;
+	end
+
+	if (IsInCombat()) then
+		local tickRandom = math.random(232, 1014);
+		script_grind.tickRate = tickRandom;
 	end
 
 	local targetGUID = GetTargetGUID(targetObj);
@@ -275,7 +280,7 @@ function script_rogue:run(targetObj)
 			end
 				
 			-- Open with stealth opener
-			if (GetDistance(targetObj) <= 4) and (self.useStealth and HasSpell(self.stealthOpener) and HasBuff(localObj, "Stealth")) and (not IsInCombat()) and (GetUnitsTarget(GetLocalPlayer()) ~= 0) and (not IsSpellOnCD(self.stealthOpener)) and ( (self.usePickPocket and self.pickpocketUsed) or (not self.usePickPocket) or (GetHealthPercentage(self.target) < 100) ) then
+			if (GetDistance(targetObj) <= 4) and (self.useStealth and HasSpell(self.stealthOpener) and HasBuff(localObj, "Stealth")) and (not IsInCombat()) and (GetUnitsTarget(GetLocalPlayer()) ~= 0) and (not IsSpellOnCD(self.stealthOpener)) and ( (self.usePickPocket and self.pickpocketUsed) or (not self.usePickPocket) or (GetHealthPercentage(self.target) < 100) or (not strfind("Humanoid", creatureType) or not strfind("Undead", creatureType)) ) then
 				if (CastSpellByName(self.stealthOpener)) then
 					local x, y, z = GetPosition(GetUnitsTarget(GetLocalPlayer()));
 					self.waitTimer = GetTimeEX() + 1650;
@@ -292,7 +297,7 @@ function script_rogue:run(targetObj)
 
 			-- Use CP generator attack 
 			if (GetDistance(targetObj) < 4) then
-				if (not self.useStealth or not HasBuff(localObj, "Stealth")) and (localEnergy >= self.cpGeneratorCost) and (HasSpell(self.cpGenerator)) and (not IsSpellOnCD(self.cpGenerator)) and ( (self.usePickPocket and self.pickpocketUsed) or (not self.usePickPocket) or (GetHealthPercentage(self.target) < 100) )then
+				if (not self.useStealth or not HasBuff(localObj, "Stealth")) and (localEnergy >= self.cpGeneratorCost) and (HasSpell(self.cpGenerator)) and (not IsSpellOnCD(self.cpGenerator)) and ( (self.usePickPocket and self.pickpocketUsed) or (not self.usePickPocket) or (GetHealthPercentage(self.target) < 100) or (not strfind("Humanoid", creatureType) or not strfind("Undead", creatureType)))then
 					if (not CastSpellByName(self.cpGenerator)) then
 						script_rogue:setTimers(1050);
 					end
@@ -539,13 +544,14 @@ function script_rogue:rest()
 		end
 		
 		if (not IsInCombat()) and (not IsLooting()) then
-				script_rogue:setTimers(1550);
-			if (script_helper:eat()) then
-				script_debug.debugCombat = "use script_helper:eat";
-				script_rogue:setTimers(1550);
-				script_grind:restOn();
-				return true;
+			if (not IsEating()) and (not IsMoving()) then
+				if (script_helper:eat()) then
+					script_debug.debugCombat = "use script_helper:eat";
+					script_rogue:setTimers(1550);
+					script_grind:restOn();	
+				end
 			end
+		return true;
 		end
 	end
 

@@ -112,10 +112,6 @@ function script_grindEX:doChecks()
 		return true;
 	end
 
-	if (IsMoving()) and (not script_path.reachedHotspot) then
-		DrawMovePath();
-	end
-
 	if (GetTimeEX() + script_grind.tickRate > self.waitTimer) then
 
 		-- Check: jump to the surface if we are under water

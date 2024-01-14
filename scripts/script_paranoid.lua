@@ -26,6 +26,12 @@ function script_paranoid:doParanoia()
 				end
 			end
 
+			if (HasSpell("Shadowmeld")) and (not IsSpellOnCD("Shadowmeld")) and (not HasBuff(localObj, "Shadowmeld")) and (not IsInCombat()) and (not IsCasting()) and (not IsChanneling()) and (IsStanding()) and (not IsMounted()) then
+				if (CastSpellByName("Shadowmeld")) then
+					script_grind.waitTimer = GetTimeEX() + 1050;
+				end
+			end
+
 			-- set logout timer when paranoid
 			if (not self.logoutTimerSet) then
 				script_grind.currentTime2 = GetTimeEX();

@@ -5,6 +5,11 @@ script_grindMenu = {
 
 function script_grindMenu:menu()
 
+-- draw move path
+	if (IsMoving()) and (script_grind.drawPath) and (not script_grind.raycastPathing) then
+		DrawMovePath();
+	end
+
 	if (script_paranoid.paranoiaUsed) and (script_paranoid.logoutTimerSet) and (script_paranoid.logoutOnParanoid) then
 		local paranoiaTimer = math.floor(((script_grind.currentTime2 / 1000) - script_grind.currentTime / 1000) + script_grind.setLogoutTime);
 		Text("Paranoia Logout Timer - "..paranoiaTimer);

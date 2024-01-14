@@ -145,7 +145,6 @@ function script_path:resetAutoPath()
 end
 
 function script_path:autoPath()
-
 	if (self.waitTimer > GetTimeEX()) then
 		return;
 	end
@@ -163,20 +162,16 @@ function script_path:autoPath()
 		if (script_path:distanceToHotspot() > self.reachedHotspotDistance) then
 			if (not script_grind.raycastPathing) then
 				MoveToTarget(self.hx, self.hy, self.hz);
-				
 			else
 				script_pather:moveToTarget(self.hx, self.hy, self.hz);
 			end
 
 			-- add wait timer to each click to move action
-
 			return "Moving to hotspot...";
 		end
 		
 		return "Hotspot reached, no targets around?";
 	end
-
-	self.waitTimer = GetTimeEX() + 550;
 
 	-- Reached the first node
 	if (self.currentPathNode < 0 and self.numSavedPathNodes > 1) then
@@ -221,7 +216,6 @@ function script_path:autoPath()
 			self.savedPathNodes[self.currentPathNode]['z']);
 		end
 		
-		script_grind.waitTimer = GetTimeEX() + 200;
 		return 'Moving to auto path node ' .. self.currentPathNode;
 	end
 
@@ -233,7 +227,6 @@ function script_path:autoPath()
 			script_pather:moveToTarget(self.hx, self.hy, self.hz);
 		end
 
-		self.waitTimer = GetTimeEX() + 550;
 
 		return 'Moving to hotspot...';
 	end

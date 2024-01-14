@@ -102,11 +102,6 @@ function script_grind:run()
 	-- timers....
 self.currentTime = GetTimeEX(); script_rogue.waitTimer = GetTimeEX(); script_mage.waitTimer = GetTimeEX(); script_mage.gemTimer = GetTimeEX(); script_warlock.waitTimer = GetTimeEX(); script_warlocksiphonTime = GetTimeEX(); script_warlockagonyTime = GetTimeEX(); script_warlockcorruptTime = GetTimeEX(); script_warlockimmoTime = GetTimeEX(); script_warlockstoneTime = GetTimeEX(); script_warrior.waitTimer = GetTimeEX(); script_paladin.waitTimer = GetTimeEX(); script_paladin.sealTimer = GetTimeEX(); script_priest.waitTimer = GetTimeEX(); script_shaman.waitTimer = GetTimeEX(); script_hunter.waitTimer = GetTimeEX(); script_druid.waitTimer = GetTimeEX();
 
-	-- draw move path
-	if (IsMoving()) and (self.drawPath) and (not self.raycastPathing) then
-		DrawMovePath();
-	end
-
 	-- Load nav mesh
 	if (self.useNavMesh) then
 		if (script_path:loadNavMesh()) then
@@ -599,11 +594,7 @@ self.currentTime = GetTimeEX(); script_rogue.waitTimer = GetTimeEX(); script_mag
 
 			-- force rogue stealth
 			if (not IsInCombat()) and (not script_checkDebuffs:hasPoison()) and (GetDistance(self.target) <= script_rogue.stealthRange) and (GetHealthPercentage(GetLocalPlayer()) > script_rogue.eatHealth) and (script_rogue.useStealth) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not HasBuff(localObj, "Stealth")) and (not script_target:isThereLoot()) then
-				if (CastSpellByName("Stealth")) then
-					self.waitTimer = GetTimeEX() + 150;
-					Jump();
-					return;
-				end
+				CastSpellByName("Stealth");
 			end
 		
 			-- sprint
@@ -624,7 +615,9 @@ self.currentTime = GetTimeEX(); script_rogue.waitTimer = GetTimeEX(); script_mag
 					local x, y, z = GetPosition(self.target);
 					if (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
 						if (MoveToTarget(x, y, z)) then
-							self.waitTimer = GetTimeEX() + 250;
+							if (IsMoving()) then
+								self.waitTimer = GetTimeEX() + 350;
+							end
 						else
 							if (GetDistance(self.target) <= 2) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
 								if (IsMoving()) and (IsInLineOfSight(self.target)) then
@@ -640,7 +633,9 @@ self.currentTime = GetTimeEX(); script_rogue.waitTimer = GetTimeEX(); script_mag
 					end
 					local x, y, z = GetPosition(self.target);
 					if (MoveToTarget(x, y, z)) then
-						self.waitTimer = GetTimeEX() + 250;
+						if (IsMoving()) then
+							self.waitTimer = GetTimeEX() + 350;
+						end
 					end
 				end
 				return;
@@ -708,8 +703,11 @@ self.currentTime = GetTimeEX(); script_rogue.waitTimer = GetTimeEX(); script_mag
 
 	-- Mount before pathing
 	if (not IsMounted() and self.target ~= nil and self.target ~= 0 and IsOutdoors() and self.tryMountTime < GetTimeEX()) then if (IsMoving()) then StopMoving(); return; end script_helper:useMount(); self.tryMountTime = GetTimeEX() + 10000; return; end
+
 	-- When no valid targets around, run auto pathing
-	if (not IsInCombat() and (IsUsingNavmesh() or self.raycastPathing)) then script_debug.debugGrind = "no valid enemy, auto pathing"; self.message = script_path:autoPath(); end if (not IsUsingNavmesh() and not self.raycastPathing) then script_debug.debugGrind = "not using nav or raycast pathing - walk path"; self.message = "Navigating the walk path..."; Navigate(); end end
+	if (not IsInCombat() and (IsUsingNavmesh() or self.raycastPathing)) then script_debug.debugGrind = "no valid enemy, auto pathing"; self.message = script_path:autoPath(); script_grind.tickRate = 50; if (IsMoving() and not IsMounted() and not HasBuff(localObj, "Sprint")) then script_grind.waitTimer = GetTimeEX() + 500; end
+
+end if (not IsUsingNavmesh() and not self.raycastPathing) then script_debug.debugGrind = "not using nav or raycast pathing - walk path"; self.message = "Navigating the walk path..."; Navigate(); end end
 function script_grind:turnfOffLoot(reason) self.skipReason = reason; self.skipLoot = true; self.bagsFull = true; end
 function script_grind:turnfOnLoot() self.skipLoot = false; self.bagsFull = false; end
 function script_grind:restOn() self.shouldRest = true; end
