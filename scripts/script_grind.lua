@@ -241,6 +241,9 @@ function script_grind:run()
 		return;
 	end
 
+	-- reset saved pos sent to log
+	script_grindEX.sentToLog = false;
+
 	if (script_paranoid.paranoiaUsed) then
 		script_paranoid.paranoiaUsed = false;
 	end

@@ -11,6 +11,7 @@ script_grindEX = {
 	strafeLeft = false,
 	jumpFloat = 97,
 	waitTimer = 0,
+	sentToLog = false,
 }
 
 function script_grindEX:setup()
@@ -141,7 +142,18 @@ function script_grindEX:doChecks()
 	script_path:savePos(false); 
 
 	if (script_grind.unStuckTime > GetTimeEX()) then
+
+		-- send position to log file
+		if (not self.sentToLog) then
+			local x, y, z = GetPosition(GetLocalPlayer());
+			local time = math.floor(GetTimeEX()/1000);
+			local angle = math.floor(GetAngle(GetLocalPlayer()));
+			local string = "Time - " ..time.. " | Position - x " ..x.. " | y " ..y..  " | z "  ..z.. " | Facing Angle - " .. angle ..  "";
+			ToFile(string);
+			self.sentToLog = true;
+		end
 		script_target:resetLoot(); -- remove loot so we dont stuck on loot targets we cant reach
+
 		if (not self.unstuckRight) then
 			StrafeRightStart();
 		else

@@ -11,6 +11,7 @@ function script_debug:menu()
 
 	wasClicked, script_grind.adjustTickRate = Checkbox("Adjust Tick Rate", script_grind.adjustTickRate);
 	script_grind.tickRate = SliderInt("Grinder Tick Rate", 0, 5000, script_grind.tickRate);
+
 	if (CollapsingHeader("Debug")) then
 		Text("Grinder Debug - ");
 		Text(self.debugGrind);
@@ -43,12 +44,13 @@ function script_debug:menu()
 
 
 		local curMap = GetZoneText();
-		Text("Current GetZoneText()"..curMap);
+		Text("Current GetZoneText() - "..curMap);
 	end
 		Separator();
 
 
-	if (CollapsingHeader("Unstuck Debuf")) then
+	if (CollapsingHeader("Unstuck Debug/FaceAngle")) then
+
 		Text("Face Angle (rogue/mage)");
 		local mytarget = GetUnitsTarget(GetLocalPlayer());
 	
@@ -78,6 +80,7 @@ function script_debug:menu()
 		local path = script_pather.updatePathDist;
 		Text("Pather update path distance " ..path);
 		Separator();
+		Text("Path Script Timer - " ..script_path.waitTimer);
 	end
 
 

@@ -176,7 +176,7 @@ function script_path:autoPath()
 		return "Hotspot reached, no targets around?";
 	end
 
-self.waitTimer = GetTimeEX() + 550;
+	self.waitTimer = GetTimeEX() + 550;
 
 	-- Reached the first node
 	if (self.currentPathNode < 0 and self.numSavedPathNodes > 1) then
