@@ -96,9 +96,6 @@ function script_grindMenu:menu()
 				Separator();
 			
 		end
-		if (IsMounted()) or (script_grind.useMount) then
-			script_grind.jump = false;
-		end
 		if (GetLevel(GetLocalPlayer()) >= 40) then
 			wasClicked, script_grind.useMount = Checkbox("Use Mount", script_grind.useMount);
 			SameLine();

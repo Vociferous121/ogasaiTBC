@@ -36,10 +36,15 @@ script_pather = {
 	straightPath = include("scripts\\script_pathStraight.lua"),
 	circlePath = include("scripts\\script_pathCircle.lua"),
 	flyPath = include("scripts\\script_pathFlying.lua"),
-	flyPathExtra = include("scripts\\script_pathFlyingEX.lua")
+	flyPathExtra = include("scripts\\script_pathFlyingEX.lua"),
+	waitTimer = 0,
 }
 
 function script_pather:moveToTarget(xx, yy, zz)
+
+	if (self.waitTimer > GetTimeEX()) then
+		return;
+	end
 
 	if (IsMounted()) then
 		self.nodeDist = self.nodeDistMounted;
@@ -154,7 +159,7 @@ function script_pather:moveToTarget(xx, yy, zz)
 
 	if (not IsDead(GetLocalPlayer())) then
 		if (self.pathSize < 9) then
-			self.updatePathDist = 25;
+			self.updatePathDist = 50;
 		end
 	end
 
@@ -221,12 +226,19 @@ function script_pather:moveToTarget(xx, yy, zz)
 			end
 		end
 	end
-
-	if (Move(self.path[self.goToIndex]['x'], self.path[self.goToIndex]['y'], self.path[self.goToIndex]['z'])) then
-		return true;
+	if (script_grind.moveToMeleeRange) and (enemy ~= 0) and (enemy ~= nil) and (not IsDead(enemy)) and (GetDistance(enemy) <= script_grind.meleeDistance) and (IsInLineOfSight(enemy)) then
+		if (IsMoving()) then
+			StopMoving();
+			return true;
+		end
 	end
 
-	
+	Move(self.path[self.goToIndex]['x'], self.path[self.goToIndex]['y'], self.path[self.goToIndex]['z']);
+		if (IsMoving()) then
+			self.waitTimer = GetTimeEX() + 50;
+		end
+	return true;
+
 end
 
 function script_pather:jumpObstacles()

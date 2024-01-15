@@ -15,7 +15,7 @@ function script_paranoid:doParanoia()
 	localObj = GetLocalPlayer();
 
 	-- if paranoid turned on then do....
-	if (script_paranoid.paranoidOn) and (not IsLooting()) and (not script_grind.pause) then
+	if (script_paranoid.paranoidOn) and (self.useParanoia) and (not IsLooting()) and (not script_grind.pause) then
 
 		-- if players in range
 		if (script_paranoid:playersWithinRange(self.paranoidRange)) then
