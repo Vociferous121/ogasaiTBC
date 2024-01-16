@@ -86,7 +86,7 @@ function script_helper:ress(x, y, z)
 			if CanAttack(i) and not IsDead(i) and not IsCritter(i) then
 
 				-- set safe res distances based on level
-				aggro = GetLevel(i) - GetLevel(localObj) + 15;
+				aggro = GetLevel(i) - GetLevel(localObj) + 18;
 
 				-- extra safe range add 5 yards
 				local range = aggro + 5;
@@ -98,7 +98,7 @@ function script_helper:ress(x, y, z)
 					if (closestEnemy == 0) then
 						closestEnemy = i;
 						aggroClosest = GetLevel(i) - GetLevel(i) + 15;
-				else
+					else
 						-- get nearest enemy from closest enemy position
 						local dist = GetDistance(i);
 						local closestDist = 999
@@ -138,7 +138,7 @@ function script_helper:ress(x, y, z)
 
 		return;
 		end
-			RetrieveCorpse();	
+			--RetrieveCorpse();	
 	end
 
 	if (IsUsingNavmesh() or script_grind.raycastPathing) then
@@ -207,7 +207,7 @@ function script_helper:useBandage()
 			StopMoving();
 		return;
 		end
-		if (not IsMoving()) and (UseItem(self.bandage[bandageIndex])) then
+		if (UseItem(self.bandage[bandageIndex])) then
 			if (IsMoving()) then
 				StopMoving();
 			return;

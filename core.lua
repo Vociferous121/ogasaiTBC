@@ -29,14 +29,12 @@ end
 function Buff(spellName, player)
 	if (IsStanding()) then
 		if (not IsMoving()) then
-			if (IsInLineOfSight(player)) then
-				if (HasSpell(spellName)) then
-					if (not IsSpellOnCD(spellName)) then
-						if (not IsAutoCasting(spellName)) then
-							if (not HasBuff(player, spellName)) then
-								CastSpell(spellName, player);
-								return true;
-							end
+			if (HasSpell(spellName)) then
+				if (not IsSpellOnCD(spellName)) then
+					if (not IsAutoCasting(spellName)) then
+						if (not HasBuff(player, spellName)) then
+							CastSpell(spellName, player);
+							return true;
 						end
 					end
 				end

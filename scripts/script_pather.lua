@@ -42,8 +42,29 @@ script_pather = {
 
 function script_pather:moveToTarget(xx, yy, zz)
 
-	if (self.waitTimer > GetTimeEX()) then
+	if (self.waitTimer > GetTimeEX() or IsCasting() or IsChanneling()) then
 		return;
+	end
+	local localHealth = GetHealthPercentage(GetLocalPlayer());
+	local localMana = GetManaPercentage(GetLocalPlayer());
+	if (not IsInCombat()) and (not IsMoving()) and (script_grind.enemiesAttackingUs() == 0 or script_info:nrTargetingMe() == 0) and (script_rogue.useBandage) and (localHealth <= script_rogue.eatHealth) and (localHealth > 35) and (not HasDebuff(localObj, "Recently Bandaged")) and (not IsDead(GetLocalPlayer())) then
+		script_grind.message = "Trying to bandage...";
+		if (IsMoving()) then
+			StopMoving();
+			return;
+		end
+	StopMoving();
+	return true;
+	end
+
+	if ( (script_info:nrTargetingMe() == 0 and not IsInCombat() and not IsFleeing(self.target)) or (not IsInCombat()) )
+	and ( (localMana <= script_grind.restMana and script_grind.useMana) or (localHealth <= script_grind.restHp) ) and (not IsDead(GetLocalPlayer())) then
+		script_grind.message = "Waiting to eat/drink...";
+		if (IsMoving()) then
+			StopMoving();
+			return;
+		end
+	return true;
 	end
 
 	if (IsMounted()) then

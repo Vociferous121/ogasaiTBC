@@ -1,7 +1,7 @@
 script_grind = {
 	isSetup = false, grindSetupLoaded = include("scripts\\script_grindSetup.lua"), grindTimersLoaded = include("scripts\\script_grindTimers.lua"),
 helperLoaded = include("scripts\\script_helper.lua"), targetLoaded = include("scripts\\script_target.lua"), pathLoaded = include("scripts\\script_path.lua"),  vendorScript = include("scripts\\script_vendor.lua"), grindExtra = include("scripts\\script_grindEX.lua"), grindMenu = include("scripts\\script_grindMenu.lua"), autoTalents = include("scripts\\script_talent.lua"), safeRessLoaded = include("scripts\\script_safeRess.lua"), info = include("scripts\\script_info.lua"), gather = include("scripts\\script_gather.lua"), rayPather = include("scripts\\script_pather.lua"), debugincluded = include("scripts\\script_debug.lua"), aggroincluded = include("scripts\\script_aggro.lua"), checkDebuffsLoaded = include("scripts\\script_checkDebuffs.lua"), unstuckLoaded = include("scripts\\script_unstuck.lua"), paranoidLoaded = include("scripts\\script_paranoid.lua"), grindEX2Loaded = include("scripts\\script_grindEX2.lua"), counterMenuLoaded = include("scripts\\script_counterMenu.lua"),
-message = 'Starting the grinder...', alive = true, target = 0, targetTimer = GetTimeEX(), pullDistance = 30, waitTimer = 0, tickRate = 50, adjustTickRate = false, restHp = 60, restMana = 60, potHp = 10, potMana = 10, pause = true, stopWhenFull = false, hsWhenFull = false, shouldRest = false, skipMobTimer = 0, useMana = true, skipLoot = false, currentTime2 = 0, skipReason = 'user selected...', stopIfMHBroken = false, useVendor = true, sellWhenFull = true, repairWhenYellow = true, bagsFull = false, vendorRefill = false, refillMinNr = 5, unStuckPos = {}, unStuckTime = 0, jump = true, useMount = true, tryMountTime = 0, autoTalent = true, gather = true, raycastPathing = false, showRayMenu = false, useNavMesh = true, potUsed = false,
+message = 'Starting the grinder...', alive = true, target = 0, targetTimer = GetTimeEX(), pullDistance = 30, waitTimer = 0, tickRate = 50, adjustTickRate = false, restHp = 60, restMana = 60, potHp = 15, potMana = 15, pause = true, stopWhenFull = false, hsWhenFull = false, shouldRest = false, skipMobTimer = 0, useMana = true, skipLoot = false, currentTime2 = 0, skipReason = 'user selected...', stopIfMHBroken = false, useVendor = true, sellWhenFull = true, repairWhenYellow = true, bagsFull = false, vendorRefill = false, refillMinNr = 5, unStuckPos = {}, unStuckTime = 0, jump = true, useMount = true, tryMountTime = 0, autoTalent = true, gather = true, raycastPathing = false, showRayMenu = false, useNavMesh = true, potUsed = false,
 combatStatus = 0, -- 0 = in range, 1 = not in range
 drawPath = false, useUnstuckScript = false, setLogoutTime = 30, currentTime = 0, timerSet = false, moveToMeleeRange = false, monsterKillCount = 0, moneyObtainedCount = 0, currentMoney = 0, dead = false, meleeDistance = 2.5,
 }
@@ -141,13 +141,17 @@ if (not script_paranoid:doParanoia()) then script_paranoid.logoutTimerSet = fals
 	else
 		-- Use Potions in combat
 		if (hp < self.potHp) and (not self.potUsed) then
+			script_grind.waitTimer = GetTimeEX() + 100;
 			if (script_helper:useHealthPotion()) then
+				script_grind.waitTimer = GetTimeEX() + 1000;
 				script_debug.debugGrind = "using potion";
 				self.potUsed = true;
 			end
 		end
 		if (mana < self.potMana and self.useMana) and (not self.potUsed) then
+			script_grind.waitTimer = GetTimeEX() + 100;
 			if (script_helper:useHealthPotion()) then
+				script_grind.waitTimer = GetTimeEX() + 1000;
 				script_debug.debugGrind = "using potion";
 				self.potUsed = true;
 			end
@@ -205,10 +209,9 @@ if (not script_paranoid:doParanoia()) then script_paranoid.logoutTimerSet = fals
 	end
 
 	-- stuck in combat
-	if (IsInCombat()) and (not script_grindEX2:isAnyTargetTargetingMe()) and (GetHealthPercentage(GetUnitsTarget(localObj)) >= 100)
-		and (GetDistance(GetUnitsTarget(localObj)) > 10) then
+	if (IsInCombat() and not IsFleeing(self.target) and script_info:nrTargetingMe() == 0)
+	or (GetHealthPercentage(GetUnitsTarget(localObj)) >= 100 and script_info:nrTargetingMe() == 0 and IsInCombat() and not IsFleeing(self.target)) then
 		self.message = "Stuck in combat... waiting...";
-		ClearTarget();
 		if (IsMoving()) then
 			StopMoving();
 			return;
@@ -265,16 +268,7 @@ if (not script_paranoid:doParanoia()) then script_paranoid.logoutTimerSet = fals
 	end
 --wait for always rogue stealth
 if (not IsInCombat()) and (HasSpell("Stealth")) and (script_rogue.alwaysStealth) and (script_rogue.useStealth) and (not HasBuff(localObj, "Stealth")) and (IsSpellOnCD("Stealth")) and (not script_target:isThereLoot()) then self.message = "Waiting for stealth cooldown..."; if (IsMoving()) then ClearTarget(); StopMoving(); return; end script_path.savedPos['time'] = GetTimeEX(); return; end
-
-local localHealth = GetHealthPercentage(GetLocalPlayer());
-	if (not IsMoving()) and (script_grind.enemiesAttackingUs() == 0) and (script_rogue.useBandage) and (localHealth <= script_rogue.eatHealth) and (localHealth > 35) and (not HasDebuff(localObj, "Recently Bandaged")) then
-		if (IsMoving()) then
-			StopMoving();
-			return;
-		end
-	StopMoving();
-	return true;
-	end	
+	
 		
 	-- Fetch a new target
 	if (self.skipMobTimer < GetTimeEX()) or (IsInCombat() and script_info:nrTargetingMe() > 0) then	
@@ -405,9 +399,24 @@ if (script_rogue.useSprint) and (HasBuff(localObj, "Stealth")) and (HasSpell("Sp
 
 -- move to target...
 if (not self.raycastPathing) and (not IsCasting()) and (not IsChanneling()) then if (self.moveToMeleeRange) and (GetDistance(self.target) > self.meleeDistance) then if (not self.adjustTickRate) then script_grind.tickRate = 50; end local x, y, z = GetPosition(self.target); if (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then if (MoveToTarget(x, y, z)) then if (IsMoving()) then self.waitTimer = GetTimeEX() + 350; end else if (GetDistance(self.target) <= self.meleeDistance) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then if (IsMoving()) and (IsInLineOfSight(self.target)) then StopMoving(); return; end end end end elseif (GetDistance(self.target) > 27 or not IsInLineOfSight(self.target)) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then if (not self.adjustTickRate) then script_grind.tickRate = 50; end local x, y, z = GetPosition(self.target); if (MoveToTarget(x, y, z)) then if (IsMoving()) then self.waitTimer = GetTimeEX() + 350; end end end return; end
-if (self.raycastPathing) and (not IsCasting()) and (not IsChanneling()) and (not HasDebuff(self.target, "Frost Nova")) then local tarDist = GetDistance(self.target); local cx, cy, cz = GetPosition(self.target); if (self.moveToMeleeRange) and (tarDist > self.meleeDistance) then script_pather:moveToTarget(cx, cy, cz); self.waitTimer = GetTimeEX() + 550; if (GetDistance(self.target) <= self.meleeDistance) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then if (IsMoving()) and (IsInLineOfSight(self.target)) then StopMoving(); return; end end elseif (GetDistance(self.target) > 27) then script_pather:moveToTarget(cx, cy, cz); self.waitTimer = GetTimeEX() + 550; if (GetDistance(self.target) <= 27) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then if (IsMoving()) and (IsInLineOfSight(self.target)) then StopMoving(); return; end end end return; end end
+if (self.raycastPathing) and (not IsCasting()) and (not IsChanneling()) and (not HasDebuff(self.target, "Frost Nova")) then local tarDist = GetDistance(self.target); local cx, cy, cz = GetPosition(self.target); if (self.moveToMeleeRange) and (tarDist > self.meleeDistance) then
+script_grind.tickRate = 50; script_pather:moveToTarget(cx, cy, cz); self.waitTimer = GetTimeEX() + 550; if (GetDistance(self.target) <= self.meleeDistance) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then if (IsMoving()) and (IsInLineOfSight(self.target)) then StopMoving(); return; end end elseif (GetDistance(self.target) > 27) then script_grind.tickRate = 50; script_pather:moveToTarget(cx, cy, cz); self.waitTimer = GetTimeEX() + 550; if (GetDistance(self.target) <= 27) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then if (IsMoving()) and (IsInLineOfSight(self.target)) then StopMoving(); return; end end end return; end end
 --gift of naruu
 if (IsInCombat()) and ( (script_grind.enemiesAttackingUs() >= 2 and GetHealthPercentage(GetLocalPlayer()) <= 75) or (GetHealthPercentage(GetLocalPlayer()) <= 40) ) then if (HasSpell("Gift of the Naaru")) and (not IsSpellOnCD("Gift of the Naaru")) then if (not IsSpellOnCD("Gift of the Naaru")) then Cast("Gift of the Naaru"); CastSpellByName("Gift of the Naaru"); self.waitTimer = GetTimeEX() + 2000; return; end end end
+
+	local localHealth = GetHealthPercentage(GetLocalPlayer());
+	local localMana = GetManaPercentage(GetLocalPlayer());
+
+	if (not IsMoving() and (script_grind.enemiesAttackingUs() == 0 or script_info:nrTargetingMe() == 0) and script_rogue.useBandage and localHealth <= script_rogue.eatHealth and localHealth > 35 and not HasDebuff(localObj, "Recently Bandaged")) or ( (script_grind.enemiesAttackingUs() == 0 or script_info:nrTargetingMe() == 0) and (localHealth <= self.restHp) ) then
+		if (IsMoving()) then
+			StopMoving();
+			return;
+		end
+	return;
+	end
+if (script_grind.enemiesAttackingUs() == 0 or script_info:nrTargetingMe() == 0) and ( (localMana <= script_grind.restMana and script_grind.useMana) or (localHealth <= script_grind.restHp) ) then
+		return;
+	end
 		self.message = 'Attacking target...';
 		script_debug.debugGrind = "Attacking the target";
 		script_path:resetAutoPath();

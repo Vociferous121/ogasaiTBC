@@ -187,6 +187,10 @@ function script_rogue:run(targetObj)
 		return;
 	end
 
+	if (IsDead(GetLocalPlayer())) or (HasDebuff(GetLocalPlayer(), "Ghost")) then
+		return;
+	end
+
 	local localObj = GetLocalPlayer();
 	local localEnergy = GetEnergy(localObj);
 	local localHealth = GetHealthPercentage(localObj);
@@ -197,6 +201,9 @@ function script_rogue:run(targetObj)
 		return;
 	end
 
+	if (script_info:nrTargetingMe() == 0) and (localHealth <= self.eatHealth) then
+		return;
+	end
 
 
 	if (IsInCombat()) and (not script_grind.adjustTickRate) then
@@ -335,7 +342,7 @@ function script_rogue:run(targetObj)
 				if (not CastSpellByName(self.stealthOpener)) then
 					local x, y, z = GetPosition(GetUnitsTarget(GetLocalPlayer()));
 					self.waitTimer = GetTimeEX() + 1250;
-					script_grind.waitTimer = GetTimeEX() + 1250;
+					--script_grind.waitTimer = GetTimeEX() + 1250;
 					if (not self.useRotation) then
 						local moveBuffer = random(-2, 2);
 						if (Move(x+moveBuffer, y+moveBuffer, z)) then
@@ -414,7 +421,7 @@ function script_rogue:run(targetObj)
 
 			-- Check: Use Evasion
 			if (HasSpell('Evasion') and not IsSpellOnCD('Evasion')) then
-				if (localHealth < targetHealth and localHealth < 35) then
+				if (localHealth < targetHealth and localHealth < 35) or (script_info:nrTargetingMe() >= 2) then
 					script_debug.debugCombat = "use evasion";
 					if (not CastSpellByName('Evasion')) then
 						script_rogue:setTimers(1050);
@@ -458,7 +465,12 @@ function script_rogue:run(targetObj)
 					end 
 				end
 			end
-
+			if (HasDebuff(targetObj, "Gouge")) then
+				if (IsMoving()) then
+					StopMoving();
+					return;
+				end
+			end
 
 	-- start of combat in melee range
 
@@ -628,7 +640,7 @@ function script_rogue:rest()
 
 	script_rogueEX:checkBandage();
 	-- if has bandage then use bandages
-	if (self.eatHealth >= 35) and (self.hasBandage) and (self.useBandage) and (localHealth < self.eatHealth) and (not IsInCombat()) and (not HasDebuff(localObj, "Recently Bandaged")) and (not IsEating()) then
+	if (not IsInCombat()) and (self.eatHealth >= 35) and (self.hasBandage) and (self.useBandage) and (localHealth < self.eatHealth) and (not IsInCombat()) and (not HasDebuff(localObj, "Recently Bandaged")) and (not IsEating()) then
 		script_rogue:setTimers(1050);
 		if (IsMoving()) then
 			StopMoving();
@@ -636,6 +648,7 @@ function script_rogue:rest()
 		end	
 		if (not IsMoving()) then
 		 	script_helper:useBandage();
+			script_path.savedPos['time'] = GetTimeEX();
 			if (IsMoving()) then
 				StopMoving();
 			return true;
@@ -647,9 +660,8 @@ function script_rogue:rest()
 	end
 
 	--Eat 
-	if (not IsCasting()) and (not IsChanneling()) and (not IsInCombat()) and (not IsEating()) and ( (localHealth <= self.eatHealth and not self.useBandage) or (localHealth < self.eatHealth and localHealth <= 35) ) then
+	if (not IsCasting()) and (not IsChanneling()) and (not IsInCombat()) and (not IsEating()) and ( (localHealth <= self.eatHealth and not self.useBandage) or (localHealth < self.eatHealth) ) then
 		script_debug.debugCombat = "rest eat";
-		ClearTarget();
 		if (IsMoving()) then
 			StopMoving();
 			script_grind:restOn();

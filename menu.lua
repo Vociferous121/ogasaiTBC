@@ -35,6 +35,8 @@ function menu:draw()
 		LoadScript("Fish", "scripts\\script_fish.lua");
 		AddScriptToMode("Fishing", "script_fish");
 
+
+
 		-- Combat scripts
 		LoadScript("Mage", "scripts\\combat\\script_mage.lua");
 		AddScriptToCombat("Mage - Frost", "script_mage");
@@ -62,39 +64,5 @@ function menu:draw()
 
 		LoadScript("Shaman", "scripts\\combat\\script_shaman.lua");
 		AddScriptToCombat("Shaman - Enhance", "script_shaman");
-
 	end
-
-	--Separator();
-
-	-- Add mode menus
-	--if (CollapsingHeader("[Grinder options")) then
-	--	script_grindMenu:menu();
-	--end
-
-	--if (CollapsingHeader("[Rotation Options")) then
-	--	script_rotation:menu();
-	--end
-
-	--script_gatherMenu:menu();
-
-	--if (CollapsingHeader("[Fishing options")) then
-	--	script_fishEX:menu();
-	--end
-
-	--Separator();
-
-	-- Add Combat scripts menus
-	--if (CollapsingHeader("[Combat options")) then
-	--	script_mage:menu();
-	--	script_hunter:menu();
-	--	script_warlock:menu();
-	--	script_paladin:menu();
-	--	script_druid:menu();
-	--	script_priest:menu();
-	--	script_warrior:menu();
-	--	script_rogue:menu();
-	--	script_shaman:menu();
-	--end
-	
 end
