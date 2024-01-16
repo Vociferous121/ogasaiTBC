@@ -316,7 +316,7 @@ function script_rogue:run(targetObj)
 					return;
 				end
 			end
-			if (GetHealthPercentage(targetObj) >= 100) and (strfind("Humanoid", creatureType) or strfind("Undead", creatureType)) and (HasBuff(localObj, "Stealth")) and (HasSpell("Pick Pocket")) and (GetDistance(targetObj) < 5) and (self.useStealth) and (not IsSpellOnCD("Pick Pocket")) and (not IsInCombat()) and (not self.pickpocketUsed) then
+			if (GetHealthPercentage(targetObj) >= 100) and (strfind("Humanoid", creatureType) or strfind("Undead", creatureType)) and (HasBuff(localObj, "Stealth")) and (HasSpell("Pick Pocket")) and (GetDistance(targetObj) < 5) and (self.useStealth) and (not IsSpellOnCD("Pick Pocket")) and (not IsInCombat()) and (not self.pickpocketUsed) and (self.usePickPocket) then
 			if (not script_grind.adjustTickRate) then
 				script_grind.tickRate = 500;
 			end
@@ -629,6 +629,7 @@ function script_rogue:rest()
 	script_rogueEX:checkBandage();
 	-- if has bandage then use bandages
 	if (self.eatHealth >= 35) and (self.hasBandage) and (self.useBandage) and (localHealth < self.eatHealth) and (not IsInCombat()) and (not HasDebuff(localObj, "Recently Bandaged")) and (not IsEating()) then
+		script_rogue:setTimers(1050);
 		if (IsMoving()) then
 			StopMoving();
 			return true;
