@@ -27,6 +27,9 @@ script_rogue = {
 	envenomHealth = 15,
 	useEnvenom = false,
 	poisonName = "Instant Poison",
+	pickpocketMoney = 0,
+	ppmoney = GetMoney(),
+	ppVarUsed = false,
 
 }
 
@@ -299,17 +302,23 @@ function script_rogue:run(targetObj)
 			if (not IsMoving()) and (not IsDead(targetObj)) and (GetHealthPercentage(targetObj) <= 99) then
 				FaceTarget(GetUnitsTarget(GetLocalPlayer()));
 			end
-
-				if (GetHealthPercentage(targetObj) >= 100) and (strfind("Humanoid", creatureType) or strfind("Undead", creatureType)) and (HasBuff(localObj, "Stealth")) and (HasSpell("Pick Pocket")) and (GetDistance(targetObj) < 5) and (self.useStealth) and (not IsSpellOnCD("Pick Pocket")) and (not IsInCombat()) and (not self.pickpocketUsed) then
-				StopMoving();
-				if (not script_grind.adjustTickRate) then
-					script_grind.tickRate = 1500;
+			if (self.usePickPocket) and (not self.pickpocketUsed) and (GetDistance(targetObj) <= 5) then
+				if (IsMoving()) then
+					StopMoving();
+					return;
 				end
-				CastSpellByName("Pick Pocket");
-				self.pickpocketUsed = true;
-				script_rogue:setTimers(500);
 			end
-				
+			if (GetHealthPercentage(targetObj) >= 100) and (strfind("Humanoid", creatureType) or strfind("Undead", creatureType)) and (HasBuff(localObj, "Stealth")) and (HasSpell("Pick Pocket")) and (GetDistance(targetObj) < 5) and (self.useStealth) and (not IsSpellOnCD("Pick Pocket")) and (not IsInCombat()) and (not self.pickpocketUsed) then
+			if (not script_grind.adjustTickRate) then
+				script_grind.tickRate = 500;
+			end
+			CastSpellByName("Pick Pocket");
+			self.ppmoney = GetMoney();
+			self.ppVarUsed = false;
+			self.pickpocketUsed = true;
+			script_rogue:setTimers(500);
+			end
+
 			-- Open with stealth opener
 			if (GetDistance(targetObj) < 5) and (self.useStealth and HasSpell(self.stealthOpener) and HasBuff(localObj, "Stealth")) and (not IsInCombat()) and (GetUnitsTarget(GetLocalPlayer()) ~= 0) and (not IsSpellOnCD(self.stealthOpener)) and ( (self.usePickPocket and self.pickpocketUsed) or (not self.usePickPocket) or (GetHealthPercentage(self.target) < 100) or (not strfind("Humanoid", creatureType) or not strfind("Undead", creatureType)) ) then
 					if (not script_grind.adjustTickRate) then
@@ -320,10 +329,10 @@ function script_rogue:run(targetObj)
 					self.waitTimer = GetTimeEX() + 1250;
 					script_grind.waitTimer = GetTimeEX() + 1250;
 					if (not self.useRotation) then
-						local moveBuffer = random(-1, 3);
+						local moveBuffer = random(-2, 2);
 						if (Move(x+moveBuffer, y+moveBuffer, z)) then
-							self.waitTimer = GetTimeEX() + 1250;
-							script_grind.waitTimer = GetTimeEX() + 1250;
+						--	self.waitTimer = GetTimeEX() + 1250;
+						--	script_grind.waitTimer = GetTimeEX() + 1250;
 						end
 					end
 				end
@@ -367,6 +376,11 @@ function script_rogue:run(targetObj)
 			local cp = GetComboPoints(localObj);
 			local tarDist = GetDistance(targetObj);
 
+		if (self.ppmoney ~= GetMoney()) and (not self.ppVarUsed) and (IsInCombat()) then
+			self.pickpocketMoney = self.pickpocketMoney + (GetMoney() - self.ppmoney);
+			self.ppVarUsed = true;
+		end
+
 		if (IsInCombat()) then
 			self.pickpocketUsed = false;
 		end
@@ -393,7 +407,7 @@ function script_rogue:run(targetObj)
 
 			-- Check: Use Evasion
 			if (HasSpell('Evasion') and not IsSpellOnCD('Evasion')) then
-				if (localHealth < targetHealth and localHealth < 50) then
+				if (localHealth < targetHealth and localHealth < 35) then
 					script_debug.debugCombat = "use evasion";
 					if (not CastSpellByName('Evasion')) then
 						script_rogue:setTimers(1050);

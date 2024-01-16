@@ -314,7 +314,7 @@ function script_grindEX:setZone()
 		or myZone == "Netherstorm" then
 
 		script_grind.raycastPathing = true;
-		script_grind.meleeDistance = 3.0;
+		script_grind.meleeDistance = 3.5;
 	end
 return false;
 end

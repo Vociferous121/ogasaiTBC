@@ -94,7 +94,8 @@ if (not script_paranoid:doParanoia()) then script_paranoid.logoutTimerSet = fals
 
 	-- we are dead, but not ghost yet - wait timer
 	if (not self.dead) and (IsDead(GetLocalPlayer())) and (not HasDebuff(GetLocalPlayer(), "Ghost")) then
-		self.waitTimer = GetTimeEX() + 5000;
+		local randomReleaseTimer = math.random(1000, 6000);
+		self.waitTimer = GetTimeEX() + randomReleaseTimer;
 		self.message = "Waiting to release spirit";
 		self.dead = true;
 		return;
@@ -337,7 +338,7 @@ if (not script_paranoid:doParanoia()) then script_paranoid.logoutTimerSet = fals
 		end
 
 		script_debug.debugGrind = "attack valid target";
-		if (GetDistance(self.target) < self.pullDistance and IsInLineOfSight(self.target)) and (not IsMoving() or GetDistance(self.target) <= self.meleeDistance) then
+		if (GetDistance(self.target) < self.pullDistance and IsInLineOfSight(self.target)) and (not IsMoving() or GetDistance(self.target) <= self.meleeDistance+2) then
 			-- stop movement when we reach target
 			if (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
 				if (IsMoving()) and (IsInLineOfSight(self.target)) then

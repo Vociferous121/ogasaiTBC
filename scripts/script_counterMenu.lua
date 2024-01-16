@@ -23,7 +23,7 @@ function script_counterMenu:menu()
 		local moneyObtainedCountSilver = math.floor(moneyObtainedCount / 100);
 
 		-- get gold amount from copper
-		local moneyObtainedCountGold = math.floor(moneyObtainedCount / 10000);
+		local moneyObtainedCountGold = math.floor(moneyObtainedCount / 1000);
 
 		-- silver from copper when we have gold
 		local test = (moneyObtainedCount - moneyObtainedCountSilver * 100);
@@ -37,8 +37,8 @@ function script_counterMenu:menu()
 			-- show copper only
 			Text("Money Obtained : " ..moneyObtainedCount.. " Copper");
 
-		-- more than 100 copper but less than 10000 copper
-		elseif (moneyObtainedCount > 100) and (moneyObtainedCount < 10000) then
+		-- more than 100 copper but less than 1000 copper
+		elseif (moneyObtainedCount > 100) and (moneyObtainedCount < 1000) then
 
 			-- show silver and copper
 			Text("Money Obtained : " ..moneyObtainedCountSilver .. " Silver " ..test.. " Copper");
@@ -49,5 +49,22 @@ function script_counterMenu:menu()
 			-- show gold and silver
 			Text("Money Obtained : " ..moneyObtainedCountGold.. " Gold " ..test.. " Silver");
 		end
-		
+
+		if (HasSpell("Stealth")) and (script_rogue.useStealth) and (script_rogue.usePickPocket) then
+			local ppmoney = script_rogue.pickpockMoney;
+			if ppmoney < 100 then
+				local ppmoneyObtained = script_rogue.pickPocketMoney;
+				Text("Money Obtained Pick Pocketing : "..ppmoneyObtained);
+			end
+			if ppmoney > 100 and pp money < 1000 then
+				local ppmoneyObtained = math.floor(ppmoney / 100);
+				Text("Money Obtained Pick Pocketing : "..ppmoneyObtained);
+			end
+			if pp money > 1000 then
+				local ppmoneyGold =  math.floor(ppmoney / 1000);
+				local ppmoneySilver = ppmoneyGold - math.floor(ppmoney / 100);
+				Text("Money Obtained Pick Pocketing : "..ppmoneyGold..":"..ppmoneySilver);
+			end
+
+		end
 end
