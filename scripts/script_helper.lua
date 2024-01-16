@@ -207,13 +207,14 @@ function script_helper:useBandage()
 			StopMoving();
 		return;
 		end
-		if (UseItem(self.bandage[bandageIndex])) then
+		if (not IsMoving()) and (UseItem(self.bandage[bandageIndex])) then
 			if (IsMoving()) then
 				StopMoving();
 			return;
 			end
-		return true;
+		return;
 		end
+	return;
 	end
 end
 

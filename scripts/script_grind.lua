@@ -159,6 +159,14 @@ if (not script_paranoid:doParanoia()) then script_paranoid.logoutTimerSet = fals
 		script_pather:resetPath()
 		script_debug.debugGrind = "reset navigate";
 	end
+	local localHealth = GetHealthPercentage(GetLocalPlayer());
+	if (not IsInCombat()) and (script_rogue.useBandage) and (localHealth <= script_rogue.eatHealth) and (localHealth > 35) and (not HasDebuff(localObj, "Recently Bandaged")) then
+		if (IsMoving()) then
+			StopMoving();
+			return;
+		end
+	return;
+	end
 
 	-- stop rogue attack for stealth attacks....
 	if (HasBuff(localObj, "Stealth")) and (GetUnitsTarget(GetLocalPlayer()) ~= 0) then

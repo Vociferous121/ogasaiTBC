@@ -631,16 +631,18 @@ function script_rogue:rest()
 	if (self.eatHealth >= 35) and (self.hasBandage) and (self.useBandage) and (localHealth < self.eatHealth) and (not IsInCombat()) and (not HasDebuff(localObj, "Recently Bandaged")) and (not IsEating()) then
 		if (IsMoving()) then
 			StopMoving();
-			return;
+			return true;
 		end	
-		if (not IsMoving()) and (script_helper:useBandage()) then
+		if (not IsMoving()) then
+		 	script_helper:useBandage();
 			if (IsMoving()) then
 				StopMoving();
-				return;
+			return true;
 			end
 		script_rogue:setTimers(6500);
+		return true;
 		end
-	return;	
+	return true;	
 	end
 
 	--Eat 
