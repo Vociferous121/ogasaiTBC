@@ -135,6 +135,7 @@ function hotspotDB:setup()
 	hotspotDB:addHotspot("Ghostlands 12 - 14", "Horde", 12, 14, 7642.81, -6449.86, 14.05);
 	hotspotDB:addHotspot("The Dead Scar 14 - 16", "Horde", 14, 16, 7355.93, -6487.56, 22.21);
 	hotspotDB:addHotspot("The Dead Scar 16 - 18", "Horde", 16, 18, 7030.67, -6485.83, 19.1);
+	hotspotDB:addHotspot("The Dead Scar 18 - 20", "Horde", 18, 20, 7149.81, -6551.57, 13.72);
 	hotspotDB:addHotspot("Zeb'Nowa 18 - 20", "Horde", 18, 20, 6842.18, -7346.31, 47.07);
 --BOTH
 	-- stonetalon

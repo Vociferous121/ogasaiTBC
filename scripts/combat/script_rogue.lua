@@ -39,6 +39,8 @@ script_rogue = {
 
 function script_rogue:setup()
 
+	script_rogueEX:checkBandage();
+
 	--set backstab as opener
 	if (GetLevel(GetLocalPlayer()) < 10) then
 		self.stealthOpener = "Backstab";
@@ -337,7 +339,7 @@ function script_rogue:run(targetObj)
 
 			-- Open with stealth opener
 			if (not self.openerUsed) and (GetDistance(targetObj) < 5) and (self.useStealth and HasSpell(self.stealthOpener) and HasBuff(localObj, "Stealth")) and (not IsInCombat()) and (GetUnitsTarget(GetLocalPlayer()) ~= 0) and (not IsSpellOnCD(self.stealthOpener)) and
-		( (self.usePickPocket and self.pickpocketUsed) or (not self.usePickPocket and GetHealthPercentage(self.target) >= 100) ) then
+		( (self.usePickPocket and self.pickpocketUsed) or (not self.usePickPocket and GetHealthPercentage(self.target) >= 100) or (self.usePickPocket and not self.pickpocketUsed and not (strfind("Humanoid", creatureType) or not strfind("Undead", creatureType)))) then
 					if (not script_grind.adjustTickRate) then
 						script_grind.tickRate = 50;
 					end
@@ -358,7 +360,7 @@ function script_rogue:run(targetObj)
 
 			-- Use CP generator attack 
 			if (GetDistance(targetObj) < 4) then
-				if (not self.useStealth or not HasBuff(localObj, "Stealth") or self.openerUsed) and (localEnergy >= self.cpGeneratorCost) and (HasSpell(self.cpGenerator)) and (not IsSpellOnCD(self.cpGenerator)) and ( (self.usePickPocket and self.pickpocketUsed) or (not self.usePickPocket and GetHealthPercentage(self.target) >= 100) ) then
+				if (not self.useStealth or not HasBuff(localObj, "Stealth") or self.openerUsed) and (localEnergy >= self.cpGeneratorCost) and (HasSpell(self.cpGenerator)) and (not IsSpellOnCD(self.cpGenerator)) and ( (self.usePickPocket and self.pickpocketUsed) or (not self.usePickPocket and GetHealthPercentage(self.target) >= 100) or (self.usePickPocket and not self.pickpocketUsed and not (strfind("Humanoid", creatureType) or not strfind("Undead", creatureType)))) then
 					if (not CastSpellByName(self.cpGenerator)) then
 						FaceTarget(targetObj);
 						script_rogue:setTimers(1050);
@@ -476,7 +478,7 @@ function script_rogue:run(targetObj)
 	-- start of combat in melee range
 
 			-- Check: If we are in meele range
-			if (GetDistance(targetObj) < script_grind.meleeDistance) then 
+			if (GetDistance(targetObj) <= script_grind.meleeDistance+2) then 
 
 				-- Auto attack
 				if (not self.useRotation) and (not IsMoving()) then
@@ -643,21 +645,19 @@ function script_rogue:rest()
 
 	-- if has bandage then use bandages
 	if (not script_checkDebuffs:hasPoison()) and (not IsInCombat()) and (self.eatHealth >= 35) and (self.hasBandage) and (self.useBandage) and (localHealth < self.eatHealth) and (not HasDebuff(localObj, "Recently Bandaged")) and (not IsEating()) and (not IsDead(GetLocalPlayer())) then
-		script_rogue:setTimers(1050);
 		if (IsMoving()) then
 			StopMoving();
 			return true;
 		end	
 		script_grind:restOn();
-		script_helper:useBandage();
+		script_rogue:setTimers(1550);
+		script_grind.tickRate = 1500;
+		if (not script_helper:useBandage()) then
+			script_rogue:setTimers(1550);
+		end
 		script_path.savedPos['time'] = GetTimeEX();
-		if (IsMoving()) then
-			StopMoving();
-		return;
-		end
-		if (not IsMoving()) then
-			script_rogue:setTimers(6500);
-		end
+		
+	script_rogue:setTimers(8500);
 	return;	
 	end
 

@@ -90,10 +90,10 @@ function script_target:doLoot()
 			
 			if (script_pather:moveToTarget(GetPosition(lootTarget))) then
 				script_grind.waitTimer = GetTimeEX() + 50;
-				return;
+				return true;
 			end
 		end
-		return;
+		return true;
 	end
 		
 	if (GetDistance(lootTarget) < self.lootDistance) then

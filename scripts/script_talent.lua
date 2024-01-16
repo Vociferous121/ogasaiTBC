@@ -247,7 +247,7 @@ function script_talent:learnTalents()
 		-- Spend talent points
 		script_talent:learnClassTalents();
 
-		self.talentTimer = GetTimeEX() + 250;
+		self.talentTimer = GetTimeEX() + 200;
 
 	end
 

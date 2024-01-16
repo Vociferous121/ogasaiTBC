@@ -202,20 +202,18 @@ function script_helper:useBandage()
 		StopMoving();
 		return;
 	end
-	if(HasItem(self.bandage[bandageIndex])) and (not HasDebuff(GetLocalPlayer(), "Recently Bandaged")) then
+	if (HasItem(self.bandage[bandageIndex])) and (not HasDebuff(GetLocalPlayer(), "Recently Bandaged")) then
 		if (IsMoving()) then
 			StopMoving();
 		return;
 		end
-		if (UseItem(self.bandage[bandageIndex])) then
-			script_grind.waitTimer = GetTimeEX() + 6000;
-			if (IsMoving()) then
-				StopMoving();
-			return;
-			end
+		script_grind.waitTimer = GetTimeEX() + 1550;
+		if (not UseItem(self.bandage[bandageIndex])) then
+			script_grind.waitTimer = GetTimeEX() + 6500;
+			
 		return;
 		end
-	return;
+	return true;
 	end
 end
 

@@ -198,6 +198,8 @@ script_path.numSavedPathNodes = 0;
 			if (script_talent:learnTalents()) then
 				script_grind.message = "Checking/learning talent: " .. script_talent:getNextTalentName();
 				script_path.savedPos['time'] = GetTimeEX();
+				script_grind.tickRate = 50;
+				script_grind.waitTimer = GetTimeEX() - 5000;
 				script_path:savePos(true); 
 				return true;
 			end
