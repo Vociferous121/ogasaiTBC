@@ -12,6 +12,8 @@ script_helper = {
 	ressMoveTimer = GetTimeEX(),
 	jumpTimer = GetTimeEX(),
 	waitTimer = GetTimeEX(),
+	bandage = {},
+	numBandage = 0,
 }
 
 function script_helper:inLineOfSight(target) 
@@ -167,6 +169,11 @@ function script_helper:ress(x, y, z)
 
 end
 
+function script_helper:addBandage(name)
+	self.bandage[self.numBandage] = name;
+	self.numBandage = self.numBandage +1;
+end
+
 function script_helper:addHealthPotion(name)
 
 	self.healthPotion[self.numHealthPotion] = name;
@@ -179,6 +186,35 @@ function script_helper:addManaPotion(name)
 	self.manaPotion[self.numManaPotion] = name;
 	self.numManaPotion = self.numManaPotion + 1;
 
+end
+
+function script_helper:useBandage()
+
+	---- Search for bandage
+	local bandageIndex = -1;
+	for i=0,self.numBandage do
+		if (HasItem(self.bandage[i])) then
+			bandageIndex = i;
+			break;
+		end
+	end
+	if (IsMoving()) then
+		StopMoving();
+		return;
+	end
+	if(HasItem(self.bandage[bandageIndex])) and (not HasDebuff(GetLocalPlayer(), "Recently Bandaged")) then
+		if (IsMoving()) then
+			StopMoving();
+		return;
+		end
+		if (UseItem(self.bandage[bandageIndex])) then
+			if (IsMoving()) then
+				StopMoving();
+			return;
+			end
+		return true;
+		end
+	end
 end
 
 function script_helper:useHealthPotion()
@@ -233,6 +269,19 @@ function script_helper:addMount(name)
 end
 
 function script_helper:setup()
+
+	-- Add Bandages
+	script_helper:addBandage("Linen Bandage");
+	script_helper:addBandage("Heavy Linen Bandage");
+	script_helper:addBandage("Wool Bandage");
+	script_helper:addBandage("Heavy Wool Bandage");
+	script_helper:addBandage("Silk Bandage");
+	script_helper:addBandage("Heavy Silk Bandage");
+	script_helper:addBandage("Mageweave Bandage");
+	script_helper:addBandage("Heavy Mageweave Bandage");
+	script_helper:addBandage("Runecloth Bandage");
+	script_helper:addBandage("Heavy Runecloth Bandage");
+
 
 	-- Add Health Potions
 	script_helper:addHealthPotion("Minor Healing Potion");

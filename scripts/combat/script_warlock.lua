@@ -2,6 +2,7 @@ script_warlock = {
 	version = '1.0 by Vociferous',
 	message = 'Warlock Combat Script',
 	warlockDOTS = include("scripts\\combat\\script_warlockDOTS.lua"),
+	warlockEXLoaded = include("scripts\\combat\\script_warlockEX.lua"),
 	drinkMana = 50,
 	eatHealth = 50,
 	isSetup = false,
@@ -710,107 +711,4 @@ function script_warlock:rest()
 	
 	script_grind:restOff();
 	return false;
-end
-
-function script_warlock:menu()
-
-	if (CollapsingHeader("Warlock Combat Menu")) then
-
-		local wasClicked = false;
-		
-		if (HasSpell("Create Healthstone")) then
-			Text("Use Healthstones below HP percent");
-			self.stoneHealth = SliderFloat("HSHP", 1, 99, self.stoneHealth);
-			Separator();
-		end
-
-		-- wand
-		local max = 0;
-		local dur = 0;
-		if (GetInventoryItemDurability(18) ~= nil) then
-			dur, max = GetInventoryItemDurability(18);
-		end
-
-		if (dur > 0) then
-			wasClicked, self.useWand = Checkbox("Use Wand", self.useWand);
-		end
-		if (dur > 0) then
-			SameLine();
-		end
-
-		-- life tap
-		if (HasSpell("Life Tap")) then
-			wasClicked, self.useLifeTap = Checkbox("Use Life Tap", self.useLifeTap);
-		end
-
-		-- drain life
-		if (HasSpell("Drain Life")) then
-			SameLine();
-			wasClicked, self.useDrainLife = Checkbox("Use Drain Life", self.useDrainLife);
-		end
-
-		Separator();
-
-		if (self.useFelguard) then
-			self.useVoid = false;
-			self.useImp = false;
-		end
-			
-		if (self.useVoid) then
-			self.useFelguard = false;
-			self.useImp = false;
-		end
-		if (self.useImp) then
-			self.useFelguard = false;
-			self.useVoid = false;
-		end
-
-		if (HasSpell("Summon Imp")) then
-			wasClicked, self.useImp = Checkbox("Use Imp", self.useImp);
-		end
-		if (HasSpell("Summon Voidwalker")) then
-			SameLine();
-			wasClicked, self.useVoid = Checkbox("Use Voidwalker", self.useVoid);
-		end
-		if (HasSpell("Summon Felguard")) then
-			SameLine();
-			wasClicked, self.useFelguard = Checkbox("Use Felguard", self.useFelguard);
-		end
-		
-		
-		if (CollapsingHeader("|+| DoT Options")) then
-			if (HasSpell("Immolate")) then
-				wasClicked, self.useImmolate = Checkbox("Use Immolate", self.useImmolate);
-			end
-			if (HasSpell("Corruption")) then
-				SameLine();
-				wasClicked, self.useCorruption = Checkbox("Use Corruption", self.useCorruption)
-			end
-			if(HasSpell("Curse of Agony")) then
-				wasClicked, self.useCurseOfAgony = Checkbox("Use Agony", self.useCurseOfAgony);
-			end
-			if (HasSpell("Siphon Life")) then
-				SameLine();
-				wasClicked, self.useSiphonLife = Checkbox("Use Siphon Life", self.useSiphonLife);
-			end			
-		end
-
-		if (self.useWand) then
-			if (CollapsingHeader("|+| Wand Options")) then
-				Text("Use Wand Below Target Health Percent");
-				self.useWandHealth = SliderInt("Wand Health", 0, 100, self.useWandHealth);
-				Text("Use Wand Below Self Mana Percent");
-				self.useWandMana = SliderInt("Wand Mana", 0, 100, self.useWandMana);
-			end
-		end
-
-		if (HasSpell("Life Tap")) and (self.useLifeTap) then
-			if (CollapsingHeader("|+| Life Tap Options (out of combat)")) then
-				Text("Use Life Tap Above Self Health Percent");
-				self.lifeTapHealth = SliderInt("LTM", 1, 100, self.lifeTapHealth);
-				Text("Use Life Tap Below Self Mana Percent");
-				self.lifeTapMana = SliderInt("LTH", 1, 100, self.lifeTapMana);
-			end
-		end
-	end
 end

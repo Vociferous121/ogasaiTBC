@@ -1,5 +1,6 @@
 script_rogue = {
 	message = 'Rogue Combat',
+	rogueEXLoaded = include("scripts\\combat\\script_rogueEX.lua"),
 	eatHealth = 50,
 	isSetup = false,
 	waitTimer = 0,
@@ -30,6 +31,8 @@ script_rogue = {
 	pickpocketMoney = 0,
 	ppmoney = GetMoney(),
 	ppVarUsed = false,
+	useBandage = true,
+	hasBandage = false,
 
 }
 
@@ -65,14 +68,17 @@ function script_rogue:setup()
 		self.cpGenerator = "Hemorrhage";
 	end
 
-	if (HasSpell("Riposte")) then
-		self.cpGeneratorCost = 40;
-	end
-
+	-- if we have sinister strike then set CP cost to 45
 	if (self.cpGenerator == "Sinister Strike") then
 		self.cpGeneratorCost = 45;
 	end
 
+	-- if we have riposte we can set sinister strike energy to 40
+	if (HasSpell("Riposte")) then
+		self.cpGeneratorCost = 40;
+	end
+
+	-- if we don't have stealth then don't wait for stealth
 	if (not HasSpell("Stealth")) then
 		alwaysStealth = false;
 	end
@@ -191,7 +197,9 @@ function script_rogue:run(targetObj)
 		return;
 	end
 
-	if (IsInCombat()) then
+
+
+	if (IsInCombat()) and (not script_grind.adjustTickRate) then
 		local tickRandom = math.random(232, 1014);
 		script_grind.tickRate = tickRandom;
 	end
@@ -232,7 +240,7 @@ function script_rogue:run(targetObj)
 
 
 		-- cast stealth
-		if (not IsInCombat()) and (script_rogue.useStealth) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not HasBuff(localObj, "Stealth")) and (not script_target:isThereLoot()) then
+		if (not IsInCombat()) and (script_rogue.useStealth) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not HasBuff(localObj, "Stealth")) and (not HasDebuff(localObj, "Faerie Fire")) and (not script_target:isThereLoot()) then
 			if (CastSpellByName("Stealth")) then
 				Jump();
 				script_rogue:setTimers(1050);
@@ -376,14 +384,13 @@ function script_rogue:run(targetObj)
 			local cp = GetComboPoints(localObj);
 			local tarDist = GetDistance(targetObj);
 
-		if (self.ppmoney ~= GetMoney()) and (not self.ppVarUsed) and (IsInCombat()) then
-			self.pickpocketMoney = self.pickpocketMoney + (GetMoney() - self.ppmoney);
-			self.ppVarUsed = true;
-		end
-
-		if (IsInCombat()) then
-			self.pickpocketUsed = false;
-		end
+			if (self.ppmoney ~= GetMoney()) and (not self.ppVarUsed) and (IsInCombat()) then
+				self.pickpocketMoney = self.pickpocketMoney + (GetMoney() - self.ppmoney);
+				self.ppVarUsed = true;
+			end
+			if (IsInCombat()) then
+				self.pickpocketUsed = false;
+			end
 
 			-- If too far away move to the target then stop
 			if (not self.useRotation) then
@@ -619,8 +626,25 @@ function script_rogue:rest()
 		self.eatHealth = script_grind.restHp;
 	end
 
+	script_rogueEX:checkBandage();
+	-- if has bandage then use bandages
+	if (self.eatHealth >= 35) and (self.hasBandage) and (self.useBandage) and (localHealth < self.eatHealth) and (not IsInCombat()) and (not HasDebuff(localObj, "Recently Bandaged")) and (not IsEating()) then
+		if (IsMoving()) then
+			StopMoving();
+			return;
+		end	
+		if (not IsMoving()) and (script_helper:useBandage()) then
+			if (IsMoving()) then
+				StopMoving();
+				return;
+			end
+		script_rogue:setTimers(6500);
+		end
+	return;	
+	end
+
 	--Eat 
-	if (not IsInCombat()) and (not IsEating() and localHealth <= self.eatHealth) then
+	if (not IsCasting()) and (not IsChanneling()) and (not IsInCombat()) and (not IsEating()) and ( (localHealth <= self.eatHealth and not self.useBandage) or (localHealth < self.eatHealth and localHealth <= 35) ) then
 		script_debug.debugCombat = "rest eat";
 		ClearTarget();
 		if (IsMoving()) then
@@ -644,7 +668,7 @@ function script_rogue:rest()
 	return true;
 	end
 
-	if (IsEating()) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (self.useStealth) and (not script_target:isThereLoot()) then
+	if (IsEating()) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (self.useStealth) and (not script_target:isThereLoot()) and (not HasDebuff(localObj, "Faerie Fire")) then
 		if (CastSpellByName("Stealth")) then
 		script_rogue:setTimers(1550);
 		return true;
@@ -669,140 +693,3 @@ function script_rogue:rest()
 	return false;
 end
 
-function script_rogue:menu()
-
-	if (CollapsingHeader("Rogue Combat Menu")) then
-
-		local wasClicked = false;
-		Text("Melee Distance To Target    ");
-		SameLine();
-		wasClicked, self.useThrow = Checkbox("Use Throw", self.useThrow);
-
-		script_grind.meleeDistance = SliderFloat("Melee Distance", 0, 5, script_grind.meleeDistance);
-
-		-- show use stealth button
-		if (HasSpell("Stealth")) then
-			Separator();
-			wasClicked, self.useStealth = Checkbox("Use Stealth", self.useStealth);
-
-			-- if use stealth show stealth options
-			if (self.useStealth) then
-				SameLine();
-
-				wasClicked, self.alwaysStealth = Checkbox("Always Stealth", self.alwaysStealth);
-
-				if (HasSpell("Pick Pocket")) then
-					SameLine();
-					wasClicked, self.usePickPocket = Checkbox("Pick Pocket", self.usePickPocket);
-				end
-
-				Text("Stealth Range To Target");
-				self.stealthRange = SliderInt("(yds)", 5, 100, self.stealthRange);
-				Separator();
-
-			end
-		end
-
-		-- sprint
-		if (HasSpell("Sprint")) then
-			if (not self.useStealth) then
-				SameLine();
-			end
-			wasClicked, self.useSprint = Checkbox("Sprint To Target", self.useSprint);
-		end
-
-		if (HasSpell("Poisons")) and (HasSpell("Envenom")) then
-			SameLine();
-			wasClicked, self.useEnvenom = Checkbox("Use Envenom", self.useEnvenom);
-		end
-
-		-- feint
-		if (HasSpell("Feint")) and (GetNumPartyMembers() >= 1) then
-			SameLine();
-			wasClicked, self.useFeint = Checkbox("Use Feint", self.useFeint);
-		end
-
-		-----------------------------------
-
-		-- slice and dice
-		if (HasSpell("Slice and Dice")) then
-			Separator();
-			wasClicked, self.useSlice = Checkbox("Slice & Dice", self.useSlice);
-		end
-		
-		-- expose armor
-		if (HasSpell("Expose Armor")) then
-			SameLine();
-			wasClicked, self.useExposeArmor = Checkbox("Expose Armor", self.useExposeArmor);
-		end
-		
-		-- rupture
-		if (HasSpell("Rupture")) then
-			SameLine();
-			wasClicked, self.useRupture = Checkbox("Rupture", self.useRupture);
-		end
-
-		-- combo point menu
-		if (CollapsingHeader("|+| Combo Point Generator")) then
-			Text("Combo Point ability");
-			script_rogue.cpGenerator = InputText("CPA", script_rogue.cpGenerator);
-			Text("Energy cost of CP-ability");
-			script_rogue.cpGeneratorCost = SliderInt("Energy", 20, 50, script_rogue.cpGeneratorCost);
-		end
-			
-		-- stealth opener menu
-		if (HasSpell("Stealth")) then
-			if(CollapsingHeader("|+| Stealth Ability Opener")) then
-				Text("Stealth ability opener");
-				script_rogue.stealthOpener = InputText("STO", script_rogue.stealthOpener);
-			end
-		end
-
-		-- poisons menu
-		if (GetLevel(GetLocalPlayer()) >= 20) and (HasSpell("Poisons")) then
-			if (CollapsingHeader("|+| Posion Options")) then
-				wasClicked, self.usePoisons = Checkbox("Use Poisons", self.usePoisons);
-				Text("Poison on Main Hand");
-				self.mainhandPoison = InputText("PMH", self.mainhandPoison);
-				Text("Poison on Off Hand");
-				self.offhandPoison = InputText("POH", self.offhandPoison);
-			end
-		end
-
-		-- riposte menu
-		if (HasSpell("Riposte")) then
-			if (CollapsingHeader("|+| Riposte Skill Options")) then
-				Text("Action Bar Slots 1 - 12");
-				script_rogue.riposteActionBarSlot = InputText("RS", script_rogue.riposteActionBarSlot);	-- riposte
-			end
-		end
-		
-		-- envenom
-		if (HasSpell("Envenom")) and (self.usePoisons) and (self.useEnvenom) then
-			if (CollapsingHeader("|+| Envenom Options")) then
-				Text("Use Envenom Below Target Health Percent");
-				self.envenomHealth = SliderInt("ENVH", 0, 25, self.envenomHealth);
-				Text("Name Of Poison Applied To Target");
-				self.poisonName = InputText("Poison Name", self.poisonName);
-			end
-		end
-
-		-- expose armor menu
-		if (HasSpell("Expose Armor")) and (self.useExposeArmor) then
-			if (CollapsingHeader("|+| Expose Armor Options")) then
-				Text("Expose Armor Stacks On Target");
-				self.exposeArmorStacks = SliderInt("EAXS", 0, 5, self.exposeArmorStacks);
-			end
-		end
-
-		-- rupture menu
-		if (HasSpell("Rupture")) and (self.useRupture) then
-			if (CollapsingHeader("|+| Rupture Options")) then
-				Text("Combo Points To Use Rupture");
-				self.ruptureStacks = SliderInt("RUPS", 0, 5, self.ruptureStacks);
-			end
-		end
-
-
-	end
-end

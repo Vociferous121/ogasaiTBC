@@ -187,32 +187,4 @@ function script_checkDebuffs:hasSilence()
 	end
 end
 
-function script_checkDebuffs:enemyBuff()
-	
-	local localObj = GetLocalPlayer();
-	local myTarget = GetUnitsTarget(localObj);
-	
-	if ( script_target:getTarget() ~= 0 and  script_target:getTarget() ~= nil) then
-		if (mytarget ~= 0) then
-
-			local enemy = GetUnitsTarget(localObj);
-	
-			if (enemy:HasBuff("Power Word:Shield")) 
-			or (enemy:HasBuff("Quick Flame Ward"))
-			or (enemy:HasBuff("Rejuvenation"))
-			or (enemy:HasBuff("Regrowth"))
-			or (enemy:HasBuff("Renew"))
-			or (enemy:HasBuff("Mana Shield"))
-			
-
-
-			then
-			
-			return true;
-	
-			else
-		return false;
-			end
-		end
-	end
-end
+function script_checkDebuffs:enemyBuff() local localObj = GetLocalPlayer(); local myTarget = GetUnitsTarget(localObj); if ( script_target:getTarget() ~= 0 and  script_target:getTarget() ~= nil) then if (mytarget ~= 0) then local enemy = GetUnitsTarget(localObj); if (enemy:HasBuff("Power Word:Shield"))  or (enemy:HasBuff("Quick Flame Ward")) or (enemy:HasBuff("Rejuvenation")) or (enemy:HasBuff("Regrowth")) or (enemy:HasBuff("Renew")) or (enemy:HasBuff("Mana Shield")) then return true; else return false; end end end end

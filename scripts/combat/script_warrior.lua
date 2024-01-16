@@ -1,6 +1,7 @@
 script_warrior = {
 	version = '0.1',
 	message = 'Warrior Combat',
+	warriorEXLoaded = include("scripts\\combat\\script_warriorEX.lua"),
 	eatHealth = 50,
 	isSetup = false,
 	timer = 0,
@@ -310,22 +311,5 @@ function script_warrior:rest()
 end
 
 function script_warrior:mount()
-
-end
-
-function script_warrior:menu()
-
-	if (CollapsingHeader("[Warrior - Fury")) then
-		self.meleeDistance = SliderFloat("Melee Distance", 2, 8, self.meleeDistance);
-		local clickCharge = false;
-		local clickThrow = false;
-		Text('Pull options:');
-		clickCharge, self.useCharge = Checkbox("Use Charge", self.useCharge);
-		SameLine();
-		clickThrow, self.useThrow = Checkbox("Use Throw", self.useThrow);
-		if (clickCharge) then self.useThrow = false; end
-		if (clickThrow) then self.useCharge = false; end
-		Separator();
-	end
 
 end

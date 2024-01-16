@@ -1,5 +1,6 @@
 script_priest = {
 	version = '0.1',
+	priestEXLoaded = include("scripts\\combat\\script_priestEX.lua"),
 	message = 'Priest Combat',
 	drinkMana = 50,
 	eatHealth = 50,
@@ -396,21 +397,4 @@ function script_priest:rest()
 	
 	script_grind:restOff();
 	return false;
-end
-
-function script_priest:menu()
-	if (CollapsingHeader("[Priest - Shadow")) then
-		local wasClicked = false;
-		Text('Skills options:');
-		Separator();
-		wasClicked, self.useWand = Checkbox("Use Wand", self.useWand);
-		self.wandMana = SliderInt("Mana to Wand", 1, 99, self.wandMana);
-		self.wandHealth = SliderInt("Health to Wand", 1, 99, self.wandHealth);
-		self.renewHP = SliderInt("Renew HP", 1, 99, self.renewHP);
-		self.shieldHP = SliderInt("Shield HP", 1, 99, self.shieldHP);
-		self.flashHealHP = SliderInt("Flash HP", 1, 99, self.flashHealHP);
-		self.lesserHealHP = SliderInt("Lesser HP", 1, 99, self.lesserHealHP);
-		self.healHP = SliderInt("Heal HP", 1, 99, self.healHP);
-		self.greaterHealHP = SliderInt("Greater HP", 1, 99, self.greaterHealHP);
-	end
 end

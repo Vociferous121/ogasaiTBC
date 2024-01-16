@@ -141,3 +141,55 @@ function script_paladinEX:meleeAttack(targetGUID)
 
 return false;
 end
+
+function script_paladinEX:menu()
+
+	if (CollapsingHeader("Paladin Combat Menu")) then
+
+		local wasClicked = false;
+
+		-- seal of righteousness
+		wasClicked, script_paladin.useRighteousness = Checkbox("Use Righteousness", script_paladin.useRighteousness);
+
+		-- judgement
+		if (HasSpell("Judgement")) then
+			SameLine();
+			wasClicked, script_paladin.useJudgement = Checkbox("Use Judgement", script_paladin.useJudgement);
+		end
+
+		-- seal of crusader
+		if (HasSpell("Seal of the Crusader")) then
+			wasClicked, script_paladin.useCrusader = Checkbox("Use Crusader", script_paladin.useCrusader);
+		end
+
+		-- seal of command
+		if (HasSpell("Seal of Command")) then
+			SameLine();
+			wasClicked, script_paladin.useCommand = Checkbox("Use Command", script_paladin.useCommand);
+		end
+
+		-- auras and blessings
+		if (CollapsingHeader("|+| Aura + Blessing Options")) then
+			Text("Aura");
+			script_paladin.aura = InputText("Aura", script_paladin.aura);
+			Separator();
+			Text("Blessing");
+			script_paladin.blessing = InputText("Blessing", script_paladin.blessing);
+		end
+
+		Text("Use Holy Light Below Self Health Percent");
+		script_paladin.healHealth = SliderInt("HIC", 1, 99, script_paladin.healHealth);
+
+		Text("Use Holy Light Above Self Mana Percent");
+		script_paladin.holyLightMana = SliderInt("HLM", 1, 100, script_paladin.holyLightMana);
+
+		Separator();
+
+		Text("Use Lay On Hands Below Self Health Percent");
+		script_paladin.lohHealth = SliderInt("LoH", 1, 99, script_paladin.lohHealth);
+
+		Text("Use Shields Below Self Health Percent");
+		script_paladin.bopHealth = SliderInt("BoP", 1, 99, script_paladin.bopHealth);
+
+	end
+end

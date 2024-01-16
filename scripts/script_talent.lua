@@ -58,9 +58,10 @@ function script_talent:setup()
 		self.rogueTalents = {
 			"2;Improved Sinister Strike", "2;Improved Sinister Strike",
 			"2;Lightning Reflexes", "2;Lightning Reflexes", "2;Lightning Reflexes",
-			"2;Precision", "2;Precision", "2;Precision", "2;Precision", "2;Precision", 
 			"2;Deflection", "2;Deflection", "2;Deflection", "2;Deflection", "2;Deflection",
-			"2;Riposte",
+			"2;Riposte", 
+			"2;Precision", "2;Precision", "2;Precision", "2;Precision", "2;Precision",
+
 			"2;Dual Wield Specialization", "2;Dual Wield Specialization", "2;Dual Wield Specialization", "2;Dual Wield Specialization",
 			"2;Blade Flurry",
 			"2;Sword Specialization", "2;Sword Specialization", "2;Sword Specialization", "2;Sword Specialization",

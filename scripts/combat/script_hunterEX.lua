@@ -444,3 +444,65 @@ function script_hunterEX:petChecks()
 
 	return false;
 end
+
+
+function script_hunterEX:menu()
+	if (CollapsingHeader("Hunter - Beastmaster")) then
+		local wasClicked = false;
+		
+		if (HasSpell("Hunter's Mark")) then
+			wasClicked, script_hunterEX.useHuntersMark = Checkbox("Use Hunter's Mark", script_hunterEX.useHuntersMark);
+		end
+
+		if (HasSpell("Arcane Shot")) then
+			SameLine();
+			wasClicked, script_hunterEX.useArcaneShot = Checkbox("Use Arcane Shot", script_hunterEX.useArcaneShot);
+		end
+
+		if (HasSpell("Serpent Sting")) then
+			wasClicked, script_hunterEX.useSerpentSting = Checkbox("Use Serpent Sting", script_hunterEX.useSerpentSting);
+		end
+		
+		if (HasSpell("Aspect of the Cheetah")) then
+			SameLine();
+			wasClicked, script_hunterEX.useCheetah = Checkbox("Use Cheetah", script_hunterEX.useCheetah);
+		end
+
+		Separator();
+
+		if (HasSpell("Arcane Shot")) and (script_hunterEX.useArcaneShot) then
+			Text("Use Arcane Shot Above Mana Percent");
+			script_hunterEX.arcaneMana = SliderInt("ASM", 1, 100, script_hunterEX.arcaneMana);
+			Separator();
+		end
+		if (HasSpell("Hunter's Mark")) and (script_hunterEX.useHuntersMark) then
+			Text("Use Hunter's Mark Above Mana Percent");
+			script_hunterEX.huntersMarkMana = SliderInt("HMM", 1, 100, script_hunterEX.huntersMarkMana);
+			Separator();
+		end
+		if (HasSpell("Serpent Sting")) and (script_hunterEX.useSerpentSting) then
+			Text("Use Serpent Sting Above Mana Percent");
+			script_hunterEX.serpentStingMana = SliderInt("SSM", 1, 100, script_hunterEX.serpentStingMana);
+			Separator();
+		end
+		Text("Bag# with pet food (1-5)");
+		script_hunter.bagWithPetFood = InputText("BPF", script_hunter.bagWithPetFood);
+		Text("Slot# with pet food (1-MaxSlot)");
+		script_hunter.slotWithPetFood = InputText("SPF", script_hunter.slotWithPetFood);
+		Text('Pet food name:');
+		script_hunter.foodName = InputText("PFN", script_hunter.foodName);
+		Separator();
+		Text("Bag# for quiver (2-5)");
+		script_hunter.quiverBagNr = InputText("QS", script_hunter.quiverBagNr);
+		Separator();
+		wasClicked, script_hunter.buyWhenAmmoEmpty = Checkbox("Buy ammo when almost out", script_hunter.buyWhenAmmoEmpty);
+		SameLine(); wasClicked, script_hunter.ammoIsArrow = Checkbox("Ammo is Arrows", script_hunter.ammoIsArrow);
+		script_hunter.ammoName = InputText("Ammo Name", script_hunter.ammoName); 
+		if (CollapsingHeader("|+| Stop Settings")) then
+			Text('Stop settings:');
+			wasClicked, script_hunter.stopWhenBagsFull = Checkbox("Stop when bags are full", script_hunter.stopWhenBagsFull);
+			wasClicked, script_hunter.stopWhenQuiverEmpty = Checkbox("Stop when we run out of ammo", script_hunter.stopWhenQuiverEmpty);
+			wasClicked, script_hunter.stopWhenNoPetFood = Checkbox("Stop when we run out of pet food", script_hunter.stopWhenNoPetFood);
+		end	
+	end
+end
