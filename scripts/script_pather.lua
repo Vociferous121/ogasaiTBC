@@ -47,14 +47,14 @@ function script_pather:moveToTarget(xx, yy, zz)
 	end
 	local localHealth = GetHealthPercentage(GetLocalPlayer());
 	local localMana = GetManaPercentage(GetLocalPlayer());
-	if (not IsInCombat()) and (not IsMoving()) and (script_grind.enemiesAttackingUs() == 0 or script_info:nrTargetingMe() == 0) and (script_rogue.useBandage) and (localHealth <= script_rogue.eatHealth) and (localHealth > 35) and (not HasDebuff(localObj, "Recently Bandaged")) and (not IsDead(GetLocalPlayer())) then
+	if (not IsInCombat()) and (script_info:nrTargetingMe() == 0) and (script_rogue.useBandage) and (localHealth <= script_rogue.eatHealth) and (localHealth > 35) and (not HasDebuff(localObj, "Recently Bandaged")) and (not IsDead(GetLocalPlayer())) then
 		script_grind.message = "Trying to bandage...";
 		if (IsMoving()) then
 			StopMoving();
 			return;
 		end
 	StopMoving();
-	return true;
+	return;
 	end
 
 	if ( (script_info:nrTargetingMe() == 0 and not IsInCombat() and not IsFleeing(self.target)) or (not IsInCombat()) )

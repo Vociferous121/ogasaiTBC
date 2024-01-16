@@ -208,7 +208,7 @@ local targetObj, targetType = GetFirstObject();
 					if (self.herbs[i][1] == id) then
 						name = self.herbs[i][0];
 						local this = ""..dist.." yd";
-						DrawText(this, _tX-10, _tY+15, 255, 255, 0);
+						DrawText(this, _tX-10, _tY+12, 255, 255, 0);
 					end
 				end
 
@@ -216,22 +216,22 @@ local targetObj, targetType = GetFirstObject();
 					if (self.minerals[i][1] == id) then
 						name = self.minerals[i][0];
 						local this = ""..dist.." yd";
-						DrawText(this, _tX-10, _tY+15, 255, 255, 0);
+						DrawText(this, _tX-10, _tY+12, 255, 255, 0);
 					end
 				end
 				for i=0,self.numChests - 1 do
 					if (self.chests[i][1] == id) then
-						name2 = self.chests[i][0];
+						name2 = "*"..self.chests[i][0].."*";
 						local this = ""..dist.." yd";
-						DrawText(this, _tX-10, _tY+15, 255, 255, 0);
+						DrawText(this, _tX-10, _tY+12, 255, 0, 0);
 					end
 				end
 
 				DrawText(name, _tX-10, _tY, 255, 255, 0);
-				DrawText(name2, _tX-10, _tY, 255, 255, 0);
+				DrawText(name2, _tX-10, _tY, 255, 0, 0);
 				if (id ~= 192) and (id ~= 0) and (id ~= 386) then
 					local idd = "ID - "..id.."";
-					DrawText(idd, _tX-10, _tY-20, 255, 255, 0);
+					DrawText(idd, _tX-10, _tY-12, 255, 255, 0);
 				end
 		
 			end

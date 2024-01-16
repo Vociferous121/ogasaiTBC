@@ -33,6 +33,7 @@ script_rogue = {
 	ppVarUsed = false,
 	useBandage = true,
 	hasBandage = false,
+	openerUsed = false,
 
 }
 
@@ -207,7 +208,7 @@ function script_rogue:run(targetObj)
 
 
 	if (IsInCombat()) and (not script_grind.adjustTickRate) then
-		local tickRandom = math.random(232, 1014);
+		local tickRandom = math.random(232, 514);
 		script_grind.tickRate = tickRandom;
 	end
 
@@ -335,14 +336,16 @@ function script_rogue:run(targetObj)
 			end
 
 			-- Open with stealth opener
-			if (GetDistance(targetObj) < 5) and (self.useStealth and HasSpell(self.stealthOpener) and HasBuff(localObj, "Stealth")) and (not IsInCombat()) and (GetUnitsTarget(GetLocalPlayer()) ~= 0) and (not IsSpellOnCD(self.stealthOpener)) and ( (self.usePickPocket and self.pickpocketUsed) or (not self.usePickPocket) or (GetHealthPercentage(self.target) < 100) or (not strfind("Humanoid", creatureType) or not strfind("Undead", creatureType)) ) then
+			if (not self.openerUsed) and (GetDistance(targetObj) < 5) and (self.useStealth and HasSpell(self.stealthOpener) and HasBuff(localObj, "Stealth")) and (not IsInCombat()) and (GetUnitsTarget(GetLocalPlayer()) ~= 0) and (not IsSpellOnCD(self.stealthOpener)) and
+		( (self.usePickPocket and self.pickpocketUsed) or (not self.usePickPocket and GetHealthPercentage(self.target) >= 100) ) then
 					if (not script_grind.adjustTickRate) then
 						script_grind.tickRate = 50;
 					end
 				if (not CastSpellByName(self.stealthOpener)) then
+					self.openerUsed = true;
 					local x, y, z = GetPosition(GetUnitsTarget(GetLocalPlayer()));
 					self.waitTimer = GetTimeEX() + 1250;
-					--script_grind.waitTimer = GetTimeEX() + 1250;
+					script_grind.waitTimer = GetTimeEX() + 1250;
 					if (not self.useRotation) then
 						local moveBuffer = random(-2, 2);
 						if (Move(x+moveBuffer, y+moveBuffer, z)) then
@@ -355,8 +358,9 @@ function script_rogue:run(targetObj)
 
 			-- Use CP generator attack 
 			if (GetDistance(targetObj) < 4) then
-				if (not self.useStealth or not HasBuff(localObj, "Stealth")) and (localEnergy >= self.cpGeneratorCost) and (HasSpell(self.cpGenerator)) and (not IsSpellOnCD(self.cpGenerator)) and ( (self.usePickPocket and self.pickpocketUsed) or (not self.usePickPocket) or (GetHealthPercentage(self.target) < 100) or (not strfind("Humanoid", creatureType) or not strfind("Undead", creatureType)))then
+				if (not self.useStealth or not HasBuff(localObj, "Stealth") or self.openerUsed) and (localEnergy >= self.cpGeneratorCost) and (HasSpell(self.cpGenerator)) and (not IsSpellOnCD(self.cpGenerator)) and ( (self.usePickPocket and self.pickpocketUsed) or (not self.usePickPocket and GetHealthPercentage(self.target) >= 100) ) then
 					if (not CastSpellByName(self.cpGenerator)) then
+						FaceTarget(targetObj);
 						script_rogue:setTimers(1050);
 					end
 				end
@@ -381,6 +385,7 @@ function script_rogue:run(targetObj)
 
 		if (IsInCombat()) then
 			self.pickpocketUsed = false;
+			self.openerUsed = false;
 		end
 
 		-- now in combat 
@@ -461,16 +466,12 @@ function script_rogue:run(targetObj)
 					script_debug.debugCombat = "use gouge";
 					if (not Cast('Gouge', targetGUID)) then 
 						script_rogue:setTimers(1050);
+						AutoAttack(targetObj);
 						return true;
 					end 
 				end
 			end
-			if (HasDebuff(targetObj, "Gouge")) then
-				if (IsMoving()) then
-					StopMoving();
-					return;
-				end
-			end
+			
 
 	-- start of combat in melee range
 
@@ -639,24 +640,25 @@ function script_rogue:rest()
 	end
 
 	script_rogueEX:checkBandage();
+
 	-- if has bandage then use bandages
-	if (not IsInCombat()) and (self.eatHealth >= 35) and (self.hasBandage) and (self.useBandage) and (localHealth < self.eatHealth) and (not IsInCombat()) and (not HasDebuff(localObj, "Recently Bandaged")) and (not IsEating()) then
+	if (not script_checkDebuffs:hasPoison()) and (not IsInCombat()) and (self.eatHealth >= 35) and (self.hasBandage) and (self.useBandage) and (localHealth < self.eatHealth) and (not HasDebuff(localObj, "Recently Bandaged")) and (not IsEating()) and (not IsDead(GetLocalPlayer())) then
 		script_rogue:setTimers(1050);
 		if (IsMoving()) then
 			StopMoving();
 			return true;
 		end	
-		if (not IsMoving()) then
-		 	script_helper:useBandage();
-			script_path.savedPos['time'] = GetTimeEX();
-			if (IsMoving()) then
-				StopMoving();
-			return true;
-			end
-		script_rogue:setTimers(6500);
-		return true;
+		script_grind:restOn();
+		script_helper:useBandage();
+		script_path.savedPos['time'] = GetTimeEX();
+		if (IsMoving()) then
+			StopMoving();
+		return;
 		end
-	return true;	
+		if (not IsMoving()) then
+			script_rogue:setTimers(6500);
+		end
+	return;	
 	end
 
 	--Eat 

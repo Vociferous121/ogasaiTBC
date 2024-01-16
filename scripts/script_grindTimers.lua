@@ -4,6 +4,7 @@ function script_grindTimers:timers()
 
 	-- timers....
 	script_grind.currentTime = GetTimeEX();
+	script_grind.potTimer = GetTimeEX();
 	script_rogue.waitTimer = GetTimeEX();
 	script_mage.waitTimer = GetTimeEX();
 	script_mage.gemTimer = GetTimeEX();

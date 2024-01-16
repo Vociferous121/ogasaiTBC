@@ -208,6 +208,7 @@ function script_helper:useBandage()
 		return;
 		end
 		if (UseItem(self.bandage[bandageIndex])) then
+			script_grind.waitTimer = GetTimeEX() + 6000;
 			if (IsMoving()) then
 				StopMoving();
 			return;
