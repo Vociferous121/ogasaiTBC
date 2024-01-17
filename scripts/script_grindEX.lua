@@ -238,10 +238,21 @@ script_path.numSavedPathNodes = 0;
 			script_grind.message = "Resting..."; script_grind.waitTimer = GetTimeEX() + 2500; return true; end
 		end
 
-		-- Loot if there is anything to loot
-		if (script_target:isThereLoot() and not IsInCombat() and not AreBagsFull() and not script_grind.bagsFull) then
-			script_grind.message = "Looting... (enable auto loot)"; script_target:doLoot(); script_grind.waitTimer = GetTimeEX() + script_grind.tickRate; return true;
+		-- Loot
+	if (script_target:isThereLoot() and not AreBagsFull() and not script_grind.bagsFull) and (script_info:nrTargetingMe() == 0) then
+		if (GetDistance(script_target.lootTargets[script_target.currentLootTarget]) > script_target.lootDistance) then
+			local x, y, z = GetPosition(script_target.lootTargets[script_target.currentLootTarget]);
+			if (MoveToTarget(x, y, z)) then
+				return;
+			end
 		end
+		script_grind.message = "Looting... (enable auto loot)";
+		script_target:doLoot();
+		if (IsLooting()) then 
+			script_grind.waitTimer = GetTimeEX() + 350;
+		end
+	return true;
+	end
 
 		if (not IsMounted() and script_grind.useMount and IsOutdoors() and script_grind.tryMountTime < GetTimeEX()) then
 			if (IsMoving()) then StopMoving(); script_grind.waitTimer = 500; return true; end

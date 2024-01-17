@@ -127,7 +127,7 @@ function script_rogueEX:menu()
 		if (HasSpell("Expose Armor")) and (script_rogue.useExposeArmor) then
 			if (CollapsingHeader("|+| Expose Armor Options")) then
 				Text("Expose Armor Stacks On Target");
-				script_rogue.exposeArmorStacks = SliderInt("EAXS", 0, 5, script_rogue.exposeArmorStacks);
+				script_rogue.exposeArmorStacks = SliderInt("EAXS", 1, 5, script_rogue.exposeArmorStacks);
 			end
 		end
 
@@ -135,7 +135,7 @@ function script_rogueEX:menu()
 		if (HasSpell("Rupture")) and (script_rogue.useRupture) then
 			if (CollapsingHeader("|+| Rupture Options")) then
 				Text("Combo Points To Use Rupture");
-				script_rogue.ruptureStacks = SliderInt("RUPS", 0, 5, script_rogue.ruptureStacks);
+				script_rogue.ruptureStacks = SliderInt("RUPS", 1, 5, script_rogue.ruptureStacks);
 			end
 		end
 	end

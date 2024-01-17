@@ -85,9 +85,11 @@ function script_target:doLoot()
 	if (GetDistance(lootTarget) > self.lootDistance) then
 		script_path:savePos(false); -- SAVE FOR UNSTUCK
 		if (not script_grind.raycastPathing) then
-			MoveToTarget(lootTarget);
+			if (MoveToTarget(lootTarget)) then
+				script_grind.waitTimer = GetTimeEX() + 50;
+				return true;
+			end
 		elseif (script_grind.raycastPathing) then
-			
 			if (script_pather:moveToTarget(GetPosition(lootTarget))) then
 				script_grind.waitTimer = GetTimeEX() + 50;
 				return true;

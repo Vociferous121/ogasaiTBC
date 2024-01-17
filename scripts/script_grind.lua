@@ -15,8 +15,6 @@ function script_grind:draw()
 	script_grindEX:draw();
 end
 
-function script_grind:enemiesAttackingUs() local unitsAttackingUs = 0;  local localPlayer = GetLocalPlayer(); local i, t = GetFirstObject();  while i ~= 0 do if t == 3 then if (CanAttack(i) and not IsDead(i)) then if (localPlayer ~= nil and localPlayer ~= 0 and not IsDead(localPlayer)) then if (GetUnitsTarget(i) ~= nil and GetUnitsTarget(i) ~= 0) then unitsAttackingUs = unitsAttackingUs + 1; end end end end i, t = GetNextObject(i); end return unitsAttackingUs; end
-
 function script_grind:setWaitTimer(ms) self.waitTimer = GetTimeEX() + (ms); end
 
 function script_grind:run()
@@ -197,23 +195,23 @@ if (not script_paranoid:doParanoia()) then script_paranoid.logoutTimerSet = fals
 	end
 
 	-- Loot
-	if (script_target:isThereLoot() and not AreBagsFull() and not self.bagsFull) and (script_grind:enemiesAttackingUs() == 0) then
+	if (script_target:isThereLoot() and not AreBagsFull() and not self.bagsFull) and (script_info:nrTargetingMe() == 0) then
 		if (GetDistance(script_target.lootTargets[script_target.currentLootTarget]) > script_target.lootDistance) then
 			local x, y, z = GetPosition(script_target.lootTargets[script_target.currentLootTarget]);
 			if (MoveToTarget(x, y, z)) then
-			return true;
+				return;
 			end
 		end
 		self.message = "Looting... (enable auto loot)";
 		script_target:doLoot();
 		if (IsLooting()) then 
-			self.waitTimer = GetTimeEX() + 750;
+			self.waitTimer = GetTimeEX() + 350;
 		end
 	return true;
 	end
 
 	-- stuck in combat
-	if (IsInCombat()) and (not IsFleeing(GetUnitsTarget(GetLocalPlayer())) or GetHealthPercentage(GetUnitsTarget(GetLocalPlayer())) >= 100) and (script_info:nrTargetingMe() == 0) then
+	if (IsInCombat()) and (not IsFleeing(GetUnitsTarget(GetLocalPlayer())) or GetHealthPercentage(GetUnitsTarget(GetLocalPlayer())) >= 100) and (script_info:nrTargetingMe() == 0) and (not HasDebuff(self.target, "Gouge")) and (not IsFleeing(self.target)) then
 		self.message = "Stuck in combat... waiting...";
 		if (IsMoving()) then
 			StopMoving();
