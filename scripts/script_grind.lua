@@ -389,16 +389,24 @@ if (HasSpell("Raptor Strike")) then if (GetDistance(self.target) <= 30) and (IsI
 -- stop when we get close enough to target and we are a melee class
 if (GetDistance(self.target) <= self.meleeDistance) and (GetHealthPercentage(self.target) > 30) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then if (IsMoving()) and (IsInLineOfSight(self.target)) then StopMoving(); return true; end end
 			self.message = "Moving to target...";
--- rogue throw
-if (script_rogue.useThrow) and (not IsInCombat()) and (not HasBuff(localObj, "Stealth")) then if (GetDistance(self.target) <= 25) and (GetDistance(self.target) >= 7) and (IsInLineOfSight(self.target)) then if (IsMoving()) then StopMoving(); return; end end end
-
--- force rogue stealth
-if (not IsInCombat()) and (not script_checkDebuffs:hasPoison()) and (GetDistance(self.target) <= script_rogue.stealthRange) and (GetHealthPercentage(GetLocalPlayer()) > script_rogue.eatHealth) and (script_rogue.useStealth) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not HasBuff(localObj, "Stealth")) and (not HasDebuff(localObj, "Faerie Fire")) and (not script_target:isThereLoot()) then CastSpellByName("Stealth"); self.waitTimer = GetTimeEX() + 200; return; end
--- sprint
-if (script_rogue.useSprint) and (HasBuff(localObj, "Stealth")) and (HasSpell("Sprint")) and (not IsSpellOnCD("Sprint")) and (GetDistance(self.target) >= 20) then if (CastSpellByName("Sprint")) then return true; end end
-
 --wait for always rogue stealth
-if (not IsInCombat()) and (HasSpell("Stealth")) and (script_rogue.alwaysStealth) and (script_rogue.useStealth) and (not HasBuff(localObj, "Stealth")) and (IsSpellOnCD("Stealth")) and (not script_target:isThereLoot()) then self.message = "Waiting for stealth cooldown..."; if (IsMoving()) then ClearTarget(); StopMoving(); return; end script_path.savedPos['time'] = GetTimeEX(); return; end
+if (not IsInCombat()) and (HasSpell("Stealth")) and (script_rogue.alwaysStealth) and (script_rogue.useStealth) and (not HasBuff(localObj, "Stealth")) and (IsSpellOnCD("Stealth")) and (not script_target:isThereLoot()) then self.message = "Waiting for stealth cooldown..."; if (IsMoving()) then StopMoving(); return true; end script_path.savedPos['time'] = GetTimeEX(); self.waitTimer = GetTimeEX() + 1500; return; end
+-- rogue throw
+if (script_rogueEX:stopForThrow()) then
+	return;
+end
+-- rogue stealth
+if (HasSpell("Stealth")) and (not HasBuff(localObj, "Stealth")) then
+	if (script_rogueEX:forceStealth()) then
+		return;
+	end
+end
+-- sprint
+if (HasSpell("Sprint")) and (not IsSpellOnCD("Sprint")) then
+	if (script_rogueEX:useSprint()) then
+		return;
+	end
+end
 
 -- move to target...
 if (not self.raycastPathing) and (not IsCasting()) and (not IsChanneling()) then if (self.moveToMeleeRange) and (GetDistance(self.target) > self.meleeDistance) then if (not self.adjustTickRate) then script_grind.tickRate = 50; end local x, y, z = GetPosition(self.target); if (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then if (MoveToTarget(x, y, z)) then if (IsMoving()) then self.waitTimer = GetTimeEX() + 350; end else if (GetDistance(self.target) <= self.meleeDistance) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then if (IsMoving()) and (IsInLineOfSight(self.target)) then StopMoving(); return; end end end end elseif (GetDistance(self.target) > 27 or not IsInLineOfSight(self.target)) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then if (not self.adjustTickRate) then script_grind.tickRate = 50; end local x, y, z = GetPosition(self.target); if (MoveToTarget(x, y, z)) then if (IsMoving()) then self.waitTimer = GetTimeEX() + 350; end end end return; end

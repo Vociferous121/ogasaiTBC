@@ -13,72 +13,29 @@ function script_checkDebuffs:hasCurse()
 
 	local player = GetLocalPlayer();
 
-	if (HasDebuff(player, "Curse of Mending"))
-		or (HasDebuff(player, "Curse of the Shadowhorn"))
-		or (HasDebuff(player, "Curse of Recklessness"))
-
-
-	then
-
+	if (HasDebuff(player, "Curse of Mending")) or (HasDebuff(player, "Curse of the Shadowhorn")) or (HasDebuff(player, "Curse of Recklessness")) or (HasDebuff(player, "Curse of Thule")) then
 		return true;
-
-	else
-
-		return false;
 	end
-
+return false;
 end
 
 function script_checkDebuffs:hasPoison()
-
 	local player = GetLocalPlayer();
-
-	if (HasDebuff(player, "Weak Poison"))
-		or (HasDebuff(player, "Corrosive Poison"))
-		or (HasDebuff(player, "Poison"))
-		or (HasDebuff(player, "Slowing Poison"))
-		or (HasDebuff(player, "Poisoned Shot"))
-		or (HasDebuff(player, "Venom Spit"))
-		or (HasDebuff(player, "Bottle of Poison"))
-		or (HasDebuff(player, "Venom Sting"))
-
-
-		then
-
+	if (HasDebuff(player, "Weak Poison")) or (HasDebuff(player, "Corrosive Poison")) or (HasDebuff(player, "Poison")) or (HasDebuff(player, "Slowing Poison")) or (HasDebuff(player, "Poisoned Shot")) or (HasDebuff(player, "Venom Spit")) or (HasDebuff(player, "Bottle of Poison")) or (HasDebuff(player, "Venom Sting")) then
 		return true;
-	else
-
-		return false;
 	end
+return false;
 end
 
 function script_checkDebuffs:hasDisease()
-
 	local player = GetLocalPlayer();
-
-	if (HasDebuff(player, "Rabies"))
-		or (HasDebuff(player, "Fevered Fatigue"))
-		or (HasDebuff(player, "Dark Sludge"))
-		or (HasDebuff(player, "Infected Bite"))
-		or (HasDebuff(player, "Wandering Plague"))
-		or (HasDebuff(player, "Plague Mind"))
-		or (HasDebuff(player, "Fevered Fatigue"))
-		or (HasDebuff(player, "Tetanus")) 
-		or (HasDebuff(player, "Creeping Mold"))
-		or (HasDebuff(player, "Diseased Slime"))
-	
-		then
-
+	if (HasDebuff(player, "Rabies")) or (HasDebuff(player, "Fevered Fatigue")) or (HasDebuff(player, "Dark Sludge")) or (HasDebuff(player, "Infected Bite")) or (HasDebuff(player, "Wandering Plague")) or (HasDebuff(player, "Plague Mind")) or (HasDebuff(player, "Fevered Fatigue")) or (HasDebuff(player, "Tetanus"))  or (HasDebuff(player, "Creeping Mold")) or (HasDebuff(player, "Diseased Slime")) then
 		return true;
-	else
-
-		return false;
 	end
+return false;
 end
 
 function script_checkDebuffs:hasMagic()
-
-
 	local player = GetLocalPlayer();
 
 	if (HasDebuff(player, "Faerie Fire")) 

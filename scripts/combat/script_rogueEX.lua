@@ -161,3 +161,45 @@ function script_rogueEX:checkBandage()
 	end
 
 end
+
+	-- debuffs that stop stealth...
+function script_rogueEX:stopStealth()
+
+	if (HasDebuff(GetLocalPlayer(), "Faerie Fire")) or (script_checkDebuffs:hasPoison()) then
+		return true;
+	end
+return false;
+end
+
+function script_rogueEX:stopForThrow()
+	if (script_rogue.useThrow) and (not IsInCombat()) and (not HasBuff(localObj, "Stealth")) then
+		if (GetDistance(script_grind.target) <= 28) and (GetDistance(script_grind.target) >= 7) and (IsInLineOfSight(script_grind.target)) then 
+			if (IsMoving()) then
+				StopMoving();
+				return true;
+			end
+		return true;
+		end
+	end
+return false;
+end
+
+function script_rogueEX:forceStealth()
+	if (HasSpell("Stealth")) and (not IsInCombat()) and (not script_checkDebuffs:hasPoison()) and (GetDistance(script_grind.target) <= script_rogue.stealthRange) and (GetHealthPercentage(GetLocalPlayer()) > script_rogue.eatHealth) and (script_rogue.useStealth) and (not IsSpellOnCD("Stealth")) and (not HasBuff(localObj, "Stealth")) and (not script_rogueEX:stopStealth()) and (not script_target:isThereLoot()) then
+		if (not CastSpellByName("Stealth")) then
+			self.waitTimer = GetTimeEX() + 200;
+			return true;
+		end
+	end
+return false;
+end
+
+
+function script_rogueEX:useSprint()
+	if (script_rogue.useSprint) and (HasBuff(localObj, "Stealth")) and (HasSpell("Sprint")) and (not IsSpellOnCD("Sprint")) and (GetDistance(script_grind.target) >= 20) then
+		if (CastSpellByName("Sprint")) then
+			return true;
+		end
+	end
+return false;
+end
