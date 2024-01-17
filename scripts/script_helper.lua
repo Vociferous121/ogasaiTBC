@@ -138,7 +138,7 @@ function script_helper:ress(x, y, z)
 
 		return;
 		end
-			--RetrieveCorpse();	
+			RetrieveCorpse();	
 	end
 
 	if (IsUsingNavmesh() or script_grind.raycastPathing) then
