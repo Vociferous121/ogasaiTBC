@@ -87,15 +87,15 @@ function script_target:doLoot()
 		if (not script_grind.raycastPathing) then
 			if (MoveToTarget(lootTarget)) then
 				script_grind.waitTimer = GetTimeEX() + 50;
-				return true;
+				return;
 			end
 		elseif (script_grind.raycastPathing) then
 			if (script_pather:moveToTarget(GetPosition(lootTarget))) then
 				script_grind.waitTimer = GetTimeEX() + 50;
-				return true;
+				return;
 			end
 		end
-		return true;
+	return;
 	end
 		
 	if (GetDistance(lootTarget) < self.lootDistance) then
@@ -109,7 +109,7 @@ function script_target:doLoot()
 		
 	script_path:resetAutoPath();
 	if (GetDistance(lootTarget) < self.lootDistance) then
-		if (UnitInteract(lootTarget))  then
+		if (UnitInteract(lootTarget)) then
 			script_path:savePos(true); 
 	
 			if (IsSkinnable(lootTarget) and self.skin and HasItem('Skinning Knife')) then

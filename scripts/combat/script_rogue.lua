@@ -33,7 +33,7 @@ script_rogue = {
 	ppVarUsed = false,
 	useBandage = true,
 	hasBandage = false,
-	openerUsed = false,
+	openerUsed = 0,
 
 }
 
@@ -338,7 +338,7 @@ function script_rogue:run(targetObj)
 			end
 
 			-- Open with stealth opener
-			if (not self.openerUsed)
+			if (self.openerUsed < 2)
 				and (GetDistance(targetObj) <= 5)
 				and (self.useStealth and HasSpell(self.stealthOpener))
 				and (HasBuff(localObj, "Stealth"))
@@ -351,13 +351,15 @@ then
 					if (not script_grind.adjustTickRate) then
 						script_grind.tickRate = 50;
 					end
+					FaceTarget(targetObj);
 				if (not CastSpellByName(self.stealthOpener)) then
-					self.openerUsed = true;
+					self.openerUsed = self.openerUsed + 1;
 					local x, y, z = GetPosition(GetUnitsTarget(GetLocalPlayer()));
 					self.waitTimer = GetTimeEX() + 1250;
 					script_grind.waitTimer = GetTimeEX() + 1250;
+					FaceTarget(targetObj);
 					if (not self.useRotation) then
-						local moveBuffer = random(-2, 2);
+						local moveBuffer = random(-2, 4);
 						if (Move(x+moveBuffer, y+moveBuffer, z)) then
 						--	self.waitTimer = GetTimeEX() + 1250;
 						--	script_grind.waitTimer = GetTimeEX() + 1250;
@@ -368,7 +370,7 @@ then
 
 			-- Use CP generator attack 
 			if (GetDistance(targetObj) < 4) then
-				if (not self.useStealth or not HasBuff(localObj, "Stealth") or self.openerUsed) and (localEnergy >= self.cpGeneratorCost) and (HasSpell(self.cpGenerator)) and (not IsSpellOnCD(self.cpGenerator)) and ( (self.usePickPocket and self.pickpocketUsed) or (not self.usePickPocket) or (self.usePickPocket and not self.pickpocketUsed and not (strfind("Humanoid", creatureType) or not strfind("Undead", creatureType)))) then
+				if (not self.useStealth or not HasBuff(localObj, "Stealth") or self.openerUsed > 2) and (localEnergy >= self.cpGeneratorCost) and (HasSpell(self.cpGenerator)) and (not IsSpellOnCD(self.cpGenerator)) and ( (self.usePickPocket and self.pickpocketUsed) or (not self.usePickPocket) or (self.usePickPocket and not self.pickpocketUsed and not (strfind("Humanoid", creatureType) or not strfind("Undead", creatureType)))) then
 					if (not CastSpellByName(self.cpGenerator)) then
 						FaceTarget(targetObj);
 						script_rogue:setTimers(1050);
@@ -400,7 +402,7 @@ then
 
 if (IsInCombat()) then
 			self.pickpocketUsed = false;
-			self.openerUsed = false;
+			self.openerUsed = 0;
 		end
 
 			local cp = GetComboPoints(localObj);

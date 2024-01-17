@@ -239,19 +239,10 @@ script_path.numSavedPathNodes = 0;
 		end
 
 		-- Loot
-	if (script_target:isThereLoot() and not AreBagsFull() and not script_grind.bagsFull) and (script_info:nrTargetingMe() == 0) then
-		if (GetDistance(script_target.lootTargets[script_target.currentLootTarget]) > script_target.lootDistance) then
-			local x, y, z = GetPosition(script_target.lootTargets[script_target.currentLootTarget]);
-			if (MoveToTarget(x, y, z)) then
-				return;
-			end
-		end
+	if (script_target:isThereLoot() and not AreBagsFull() and not script_grind.bagsFull) and (script_info:nrTargetingMe() == 0) then	
 		script_grind.message = "Looting... (enable auto loot)";
-		script_target:doLoot();
-		if (IsLooting()) then 
-			script_grind.waitTimer = GetTimeEX() + 350;
-		end
-	return true;
+	script_target:doLoot();
+	return;
 	end
 
 		if (not IsMounted() and script_grind.useMount and IsOutdoors() and script_grind.tryMountTime < GetTimeEX()) then

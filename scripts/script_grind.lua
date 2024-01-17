@@ -195,19 +195,11 @@ if (not script_paranoid:doParanoia()) then script_paranoid.logoutTimerSet = fals
 	end
 
 	-- Loot
-	if (script_target:isThereLoot() and not AreBagsFull() and not self.bagsFull) and (script_info:nrTargetingMe() == 0) then
-		if (GetDistance(script_target.lootTargets[script_target.currentLootTarget]) > script_target.lootDistance) then
-			local x, y, z = GetPosition(script_target.lootTargets[script_target.currentLootTarget]);
-			if (MoveToTarget(x, y, z)) then
-				return;
-			end
-		end
-		self.message = "Looting... (enable auto loot)";
-		script_target:doLoot();
-		if (IsLooting()) then 
-			self.waitTimer = GetTimeEX() + 350;
-		end
-	return true;
+	if (script_target:isThereLoot() and not AreBagsFull() and not self.bagsFull) and (script_info:nrTargetingMe() == 0) then			
+		self.message = "Looting... (enable auto loot in settings...)";
+	script_target:doLoot();
+	
+	return;
 	end
 
 	-- stuck in combat
@@ -388,7 +380,7 @@ if (HasSpell("Raptor Strike")) then if (GetDistance(self.target) <= 30) and (IsI
 if (GetDistance(self.target) <= self.meleeDistance) and (GetHealthPercentage(self.target) > 30) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then if (IsMoving()) and (IsInLineOfSight(self.target)) then StopMoving(); return true; end end
 			self.message = "Moving to target...";
 --wait for always rogue stealth
-if (not IsInCombat()) and (HasSpell("Stealth")) and (script_rogue.alwaysStealth) and (script_rogue.useStealth) and (not HasBuff(localObj, "Stealth")) and (IsSpellOnCD("Stealth")) and (not script_target:isThereLoot()) then self.message = "Waiting for stealth cooldown..."; if (IsMoving()) then StopMoving(); return true; end script_path.savedPos['time'] = GetTimeEX(); self.waitTimer = GetTimeEX() + 1500; return; end
+if (not IsInCombat()) and (HasSpell("Stealth")) and (script_rogue.alwaysStealth) and (script_rogue.useStealth) and (not HasBuff(localObj, "Stealth")) and (IsSpellOnCD("Stealth")) and (not script_target:isThereLoot()) then self.message = "Waiting for stealth cooldown..."; if (IsMoving()) then StopMoving(); return true; end script_path.savedPos['time'] = GetTimeEX(); self.waitTimer = GetTimeEX() - self.tickRate; return; end
 -- rogue throw
 if (script_rogueEX:stopForThrow()) then
 	return;
@@ -437,7 +429,7 @@ if (not IsMoving() or IsInCombat()) and (not HasBuff(localObj, "Stealth")) then 
 if (GetTarget() ~= 0 and GetTarget() ~= nil) then 
 if (GetHealthPercentage(GetTarget()) < 98) then script_path:savePos(true);
 -- SAVE FOR UNSTUCK
-script_debug.debugGrind = "Using unstuck feature"; end end return; end
+script_debug.debugGrind = "Using unstuck feature"; end end return true; end
 -- Mount before pathing
 	if (not IsMounted() and self.target ~= nil and self.target ~= 0 and IsOutdoors() and self.tryMountTime < GetTimeEX()) then if (IsMoving()) then StopMoving(); return; end script_helper:useMount(); self.tryMountTime = GetTimeEX() + 10000; return; end
 
