@@ -195,11 +195,12 @@ if (not script_paranoid:doParanoia()) then script_paranoid.logoutTimerSet = fals
 	end
 
 	-- Loot
-	if (script_target:isThereLoot() and not AreBagsFull() and not self.bagsFull) and (script_info:nrTargetingMe() == 0) then			
+	if (script_target:isThereLoot() and not AreBagsFull() and not self.bagsFull) and (script_info.nrTargetingMe() == 0) then			
 		self.message = "Looting... (enable auto loot in settings - grinder)";
-		script_target:doLoot();
-	
-	return;
+		if (script_target:doLoot()) then
+			script_grind.waitTimer = GetTimeEX() + 250;
+			return true;
+		end
 	end
 
 	-- stuck in combat

@@ -91,9 +91,9 @@ function script_paranoid:playersWithinRange(range)
 
 	while i ~= 0 do 
 		if (t == 4 and not IsDead(i)) then
-			if (GetDistance(i) < range) then 
+			if (GetDistance(i) <= range) then 
 				if (GetGUID(localObj) ~= GetGUID(i)) then
-					if (GetDistance(i) < range) then
+					if (GetDistance(i) <= range) then
 						
 						local playerDistance = math.floor(GetDistance(i));
 						local playerTimeHours, playerTimeMinutes = GetGameTime();

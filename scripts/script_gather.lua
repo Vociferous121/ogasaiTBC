@@ -229,9 +229,11 @@ local targetObj, targetType = GetFirstObject();
 
 				DrawText(name, _tX-10, _tY, 255, 255, 0);
 				DrawText(name2, _tX-10, _tY, 0, 255, 0);
-				if (id ~= 192) and (id ~= 0) and (id ~= 386) then
-					local idd = "ID - "..id.."";
-					DrawText(idd, _tX-10, _tY-12, 255, 255, 0);
+				if (script_grindMenu.showIDD) then
+					if (id ~= 192) and (id ~= 0) and (id ~= 386) then
+						local idd = "ID - "..id.."";
+						DrawText(idd, _tX-10, _tY-12, 255, 255, 0);
+					end
 				end
 		
 			end

@@ -1,6 +1,7 @@
 script_grindSetup = {}
 
 function script_grindSetup:setup()
+
 	SetPVE(true);
 	SetAutoLoot();
 	DrawNavMeshPath(true);
@@ -41,6 +42,7 @@ function script_grindSetup:setup()
 	script_talent:setup();
 	script_pathFlyingEX:setup();
 
+	-- sad (but working!) attempt to quickly adjust bot to use new rotation mode
 	script_rogue.useRotation = false;
 	script_mage.useRotation = false;
 	script_druid.useRotation = false;
@@ -52,4 +54,8 @@ function script_grindSetup:setup()
 	script_warlock.useRotation = false;
 
 	script_grind.currentMoney = GetMoney();
+	local paranoiaRandom = math.random(30, 70);
+	local paranoiaTimerRandom = math.random(20, 45);
+	script_paranoid.paranoidRange = paranoiaRandom;
+	script_grind.setLogoutTime = paranoiaTimerRandom;
 end	

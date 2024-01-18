@@ -18,7 +18,7 @@ script_target = {
 	currentLootTarget = 0,
 	lootTargets = {},
 	numLoot = 0,
-	lootDistance = 3.0,
+	lootDistance = 3.5,
 	lootRange = 60,
 	lootTimer = 0,
 	skin = true,
@@ -79,29 +79,30 @@ function script_target:doLoot()
 	local x, y, z = GetPosition(lootTarget);
 	if (IsNodeBlacklisted(x, y, z, 5) or (not IsLootable(lootTarget) and (not IsSkinnable(lootTarget) or (not self.skin) or (not HasItem('Skinning Knife')))) ) then
 		self.lootTargets[self.currentLootTarget] = nil;
-		return;
+		return true;
 	end
 
 	if (GetDistance(lootTarget) > self.lootDistance) then
 		script_path:savePos(false); -- SAVE FOR UNSTUCK
 		if (not script_grind.raycastPathing) then
-			MoveToTarget(lootTarget);
+			MoveToTarget(x, y, z);
+			return true;
 		else
 			local x, y, z = GetPosition(lootTarget);
 			script_pather:moveToTarget(x, y, z);
+			return true;
 		end
-		return;
-	end
-		
-	if (IsMoving()) then
-		StopMoving();
-		if (script_grind.waitTimer ~= 0) then
-			script_grind.waitTimer = GetTimeEX() + 850;
-		end
-		return;
+	return true;
 	end
 			
-	script_path:resetAutoPath();
+	--script_path:resetAutoPath();
+
+	if (GetDistance(lootTarget) <= self.lootDistance) then
+		if (IsMoving()) then
+			StopMoving();
+			return;
+		end
+	end
 
 	if (UnitInteract(lootTarget)) then
 		script_path:savePos(true); 
@@ -112,15 +113,12 @@ function script_target:doLoot()
 				script_grind.waitTimer = GetTimeEX() + 1250;
 			end
 			
-			return;
-		end
-
-		if (script_grind.waitTimer ~= 0) then
-			script_grind.waitTimer = GetTimeEX() + 1250;
+			return true;
 		end
 		
-		return;
+		return true;
 	end
+return false;
 end
 
 function script_target:addLootTarget(target)

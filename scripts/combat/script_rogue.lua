@@ -34,6 +34,7 @@ script_rogue = {
 	useBandage = true,
 	hasBandage = false,
 	openerUsed = 0,
+	randomizeCombat = true,
 
 }
 
@@ -228,6 +229,8 @@ function script_rogue:run(targetObj)
 		script_grind.pullDistance = 25;
 	end
 
+	rogueRandom = math.random(0, 100);
+	rogueRandomCP = math.random(0, 5);
 	--Valid Enemy
 	if (targetObj ~= 0) and (not IsDead(GetLocalPlayer())) then
 
@@ -552,7 +555,7 @@ if (IsInCombat()) then
 				end
 
 				-- Keep Slice and Dice up when 1-4 CP
-				if (self.useSlice) and (cp < 5) and (cp > 0) and (HasSpell('Slice and Dice')) and (not IsSpellOnCD("Slice and Dice")) then 
+				if (self.useSlice or (self.randomizeCombat and rogueRandom >= 98)) and ( (cp < 5 and cp > 0) or (self.randomizeCombat and cp == rogueRandom2) ) and (HasSpell('Slice and Dice')) and (not IsSpellOnCD("Slice and Dice")) then 
 					-- Keep Slice and Dice up
 					if (not HasBuff(localObj, 'Slice and Dice') and targetHealth > 30 and localEnergy >= 25) then
 						script_debug.debugCombat = "slice and dice";
@@ -565,7 +568,7 @@ if (IsInCombat()) then
 				end
 
 				-- expose armor
-				if (self.useExposeArmor) and (cp == self.exposeArmorStacks) and (not HasDebuff(targetObj, "Expose Armor")) and (not HasDebuff(targetObj, "Sunder Armor")) then
+				if (self.useExposeArmor or (self.randomizeCombat and rogueRandom >= 98)) and (cp == self.exposeArmorStacks or (self.randomizeCombat and cp == rogueRandom2)) and (not HasDebuff(targetObj, "Expose Armor")) and (not HasDebuff(targetObj, "Sunder Armor")) and (GetHealthPercentage(targetObj) >= 30) then
 					if (localEnergy >= 25) then
 						if (not CastSpellByName("Expose Armor")) then
 							script_rogue:setTimers(1050);
@@ -578,7 +581,7 @@ if (IsInCombat()) then
 				end
 	
 				-- rupture
-				if (self.useRupture) and (cp == self.ruptureStacks) and (not HasDebuff(targetObj, "Rupture")) then
+				if (self.useRupture or (self.randomizeCombat and rogueRandom >= 98)) and (cp == self.ruptureStacks or (self.randomizeCombat and cp == rogueRandom2)) and (not HasDebuff(targetObj, "Rupture")) and (GetHealthPercentage(targetObj) >= 30) then
 					if (localEnergy >= 25) then
 						if (not CastSpellByName("Rupture")) then
 							script_rogue:setTimers(1050);

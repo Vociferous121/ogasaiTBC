@@ -13,6 +13,8 @@ function script_rogueEX:menu()
 			SameLine();
 		end
 		wasClicked, script_rogue.useThrow = Checkbox("Use Throw", script_rogue.useThrow);
+		--SameLine();
+		wasClicked, script_rogue.randomizeCombat = Checkbox("Try to Randomize Combat (cast all spells)", script_rogue.randomizeCombat);
 		Text("Melee Distance To Target    ");
 		script_grind.meleeDistance = SliderFloat("Melee Distance", 0, 5, script_grind.meleeDistance);
 

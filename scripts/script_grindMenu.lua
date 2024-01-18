@@ -1,6 +1,7 @@
 script_grindMenu = {
 
 	debug = false,
+	showIDD = true,	-- debug to find ID of chests
 }
 
 function script_grindMenu:menu()
@@ -195,4 +196,8 @@ function script_grindMenu:menu()
 
 	Separator();
 	script_counterMenu:menu();
+
+	Separator();
+	Text("Temp Debug Item ID's (chests)");
+	wasClicked, self.showIDD = Checkbox("Show ID's", self.showIDD);
 end
