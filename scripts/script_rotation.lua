@@ -9,6 +9,10 @@ script_rotation = {
 	restMana = 60,
 	useRestFeature = false,
 	enemyObj = 0,
+	faceTarget = true,
+	adjustTickRate = false,
+	lastTarget = 0,
+	stickyTargeting = true,
 
 	
 	helperLoaded = include("scripts\\script_helper.lua"),
@@ -46,7 +50,6 @@ function script_rotation:setup()
 	script_hunter.useRotation = true;
 	script_priest.useRotation = true;
 	script_warlock.useRotation = true;
-
 
 	local class, classFileName = UnitClass("player");
 	if (strfind("Mage", class)) then
@@ -117,11 +120,24 @@ function script_rotation:run()
 	-- set tick rate
 	 self.waitTimer = GetTimeEX() + self.tickRate;
 
-	if (not IsInCombat() or GetUnitsTarget(GetLocalPlayer()) == 0) then
-		self.tickRate = 75;
-	else
-		self.tickRate = random(300, 750);
+	if (not self.adjustTickRate) then
+		if (not IsInCombat()) or (self.enemyObj == 0 and GetUnitsTarget(GetLocalPlayer()) == 0) then
+			self.tickRate = 350;
+		else
+			self.tickRate = random(400, 950);
+		end
 	end
+
+	-- last target is current our current target until told not ~= self.enemyObj
+	if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
+		self.lastTarget = self.enemyObj;
+	end
+
+	-- sticky targeting on current target only currently
+	if (self.stickyTargeting) and (not IsInCombat() and not IsDead(self.lastTarget) and GetUnitsTarget(GetLocalPlayer()) == 0 or GetUnitsTarget(GetLocalPlayer()) == nil) and (not IsAutoCasting("Attack")) then
+		AutoAttack(self.lastTarget);
+	end
+
 	-- Check: Summon our Demon if we are not in combat (Voidwalker is Summoned in favor of the Imp)
 	if (HasSpell("Summon Imp")) then
 		if (script_warlock:summonPet()) then
@@ -129,10 +145,30 @@ function script_rotation:run()
 		end
 	end
 
+	-- reset enemyObj
+	if (GetUnitsTarget(GetLocalPlayer()) == 0) or (GetUnitsTarget(GetLocalPlayer()) == nil) or (self.enemyObj ~= 0 and IsDead(self.enemyObj)) then
+		self.enemyObj = 0;
+	end
+
 	-- if have a target in UI then run combat script
-	if(GetTarget() ~= 0) then
+	if (GetTarget() ~= 0) and (GetHealthPercentage(GetTarget()) > 0 and not IsDead(GetTarget())) then
 
 			self.enemyObj = GetTarget();
+
+		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) and (self.faceTarget) then
+			if (not IsDead(self.enemyObj)) and (not IsMoving()) and (GetDistance(self.enemyObj) <= 36) and (IsInLineOfSight(self.enemyObj)) then
+				FaceTarget(self.enemyObj);
+			end
+		end
+			local creatureType = GetCreatureType(self.enemyObj);
+
+		if (GetDistance(self.enemyObj) <= 5) and ( (not HasBuff(localObj, "Stealth")) or
+		( (HasBuff(localObj, "Stealth") and script_rogue.pickpocketUsed) or (not script_rogue.usePickPocket) or (not strfind("Humanoid", creatureType) or not strfind("Undead", creatureType) )) ) then
+			AutoAttack(self.enemyObj);
+			if (GetHealthPercentage(self.enemyObj) >= 95) then
+				StopMoving();
+			end
+		end
 
 		-- run combat scripts...
 		RunCombatScript(GetTarget());
@@ -150,8 +186,6 @@ function script_rotation:run()
 		self.enemyObj = 0;
 
 	end
-
-	return;
 end
 
 
@@ -181,6 +215,19 @@ function script_rotation:menu()
 
 	-- use rest feature
 	wasClicked, self.useRestFeature = Checkbox("Stop And Rest After Combat", self.useRestFeature);
+
+	SameLine();
+
+	-- auto face target
+	wasClicked, self.faceTarget = Checkbox("Auto Face Target", self.faceTarget);
+
+	-- adjust tick rate
+	wasClicked, self.adjustTickRate = Checkbox("Adjust Tick Rate", self.adjustTickRate);
+
+	SameLine();
+
+	-- sticky targeting
+	wasClicked, self.stickyTargeting = Checkbox("Sticky Targeting", self.stickyTargeting);
 
 	-- tick rate / reaction time
 	Text("Reaction Time (ms)");

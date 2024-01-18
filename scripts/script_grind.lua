@@ -425,7 +425,8 @@ if (script_info:nrTargetingMe() == 0) and ( (localMana <= script_grind.restMana 
 		script_pather:resetPath();
 		ResetNavigate();
 		RunCombatScript(self.target);
-if (not IsMoving() or IsInCombat()) and (not HasBuff(localObj, "Stealth")) then AutoAttack(self.target); self.waitTimer = GetTimeEX() + 200; end
+		local creatureType = GetCreatureType(GetUnitsTarget(GetLocalPlayer()));
+if (not IsMoving() or IsInCombat()) and ( (not HasBuff(localObj, "Stealth")) or (script_rogue.pickpocketUsed) or (HasBuff(localObj, "Stealth") and not strfind("Humanoid", creatureType) and not strfind("Undead", creatureType) and (script_rogue.usePickPocket) )) then AutoAttack(self.target); self.waitTimer = GetTimeEX() + 200; end
 -- Unstuck feature on valid "working" targets
 if (GetTarget() ~= 0 and GetTarget() ~= nil) then 
 if (GetHealthPercentage(GetTarget()) < 98) then script_path:savePos(true);

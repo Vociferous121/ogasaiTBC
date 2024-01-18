@@ -35,6 +35,7 @@ script_rogue = {
 	hasBandage = false,
 	openerUsed = 0,
 	randomizeCombat = true,
+	randomCastCount = 97,
 
 }
 
@@ -356,11 +357,11 @@ then
 					end
 					FaceTarget(targetObj);
 				if (not CastSpellByName(self.stealthOpener)) then
-					self.openerUsed = self.openerUsed + 1;
 					local x, y, z = GetPosition(GetUnitsTarget(GetLocalPlayer()));
 					self.waitTimer = GetTimeEX() + 1250;
 					script_grind.waitTimer = GetTimeEX() + 1250;
 					FaceTarget(targetObj);
+					self.openerUsed = self.openerUsed + 1;
 					if (not self.useRotation) then
 						local moveBuffer = random(-2, 2);
 						if (Move(x+moveBuffer, y+moveBuffer, z)) then
@@ -372,8 +373,8 @@ then
 			end
 
 			-- Use CP generator attack 
-			if (GetDistance(targetObj) < 4) then
-				if (not self.useStealth or not HasBuff(localObj, "Stealth") or self.openerUsed > 2) and (localEnergy >= self.cpGeneratorCost) and (HasSpell(self.cpGenerator)) and (not IsSpellOnCD(self.cpGenerator)) and ( (self.usePickPocket and self.pickpocketUsed) or (not self.usePickPocket) or (self.usePickPocket and not self.pickpocketUsed and not (strfind("Humanoid", creatureType) or not strfind("Undead", creatureType)))) then
+			if (GetDistance(targetObj) <= 4) then
+				if (self.openerUsed >= 2) or ( (not self.useStealth or not HasBuff(localObj, "Stealth")) and (localEnergy >= self.cpGeneratorCost) and (HasSpell(self.cpGenerator)) and (not IsSpellOnCD(self.cpGenerator)) and ( (self.usePickPocket and self.pickpocketUsed) or (not self.usePickPocket) or (self.usePickPocket and not self.pickpocketUsed and not (strfind("Humanoid", creatureType) or not strfind("Undead", creatureType))))) then
 					if (not CastSpellByName(self.cpGenerator)) then
 						FaceTarget(targetObj);
 						script_rogue:setTimers(1050);
@@ -555,7 +556,7 @@ if (IsInCombat()) then
 				end
 
 				-- Keep Slice and Dice up when 1-4 CP
-				if (self.useSlice or (self.randomizeCombat and rogueRandom >= 98)) and ( (cp < 5 and cp > 0) or (self.randomizeCombat and cp == rogueRandom2) ) and (HasSpell('Slice and Dice')) and (not IsSpellOnCD("Slice and Dice")) then 
+				if (self.useSlice or (self.randomizeCombat and rogueRandom >= self.randomCastCount)) and ( (cp < 5 and cp > 0) or (self.randomizeCombat and cp == rogueRandom2) ) and (HasSpell('Slice and Dice')) and (not IsSpellOnCD("Slice and Dice")) then 
 					-- Keep Slice and Dice up
 					if (not HasBuff(localObj, 'Slice and Dice') and targetHealth > 30 and localEnergy >= 25) then
 						script_debug.debugCombat = "slice and dice";
@@ -568,7 +569,7 @@ if (IsInCombat()) then
 				end
 
 				-- expose armor
-				if (self.useExposeArmor or (self.randomizeCombat and rogueRandom >= 98)) and (cp == self.exposeArmorStacks or (self.randomizeCombat and cp == rogueRandom2)) and (not HasDebuff(targetObj, "Expose Armor")) and (not HasDebuff(targetObj, "Sunder Armor")) and (GetHealthPercentage(targetObj) >= 30) then
+				if (self.useExposeArmor or (self.randomizeCombat and rogueRandom >= self.randomCastCount)) and (cp == self.exposeArmorStacks or (self.randomizeCombat and cp == rogueRandom2)) and (not HasDebuff(targetObj, "Expose Armor")) and (not HasDebuff(targetObj, "Sunder Armor")) and (GetHealthPercentage(targetObj) >= 30) then
 					if (localEnergy >= 25) then
 						if (not CastSpellByName("Expose Armor")) then
 							script_rogue:setTimers(1050);
@@ -581,7 +582,7 @@ if (IsInCombat()) then
 				end
 	
 				-- rupture
-				if (self.useRupture or (self.randomizeCombat and rogueRandom >= 98)) and (cp == self.ruptureStacks or (self.randomizeCombat and cp == rogueRandom2)) and (not HasDebuff(targetObj, "Rupture")) and (GetHealthPercentage(targetObj) >= 30) then
+				if (self.useRupture or (self.randomizeCombat and rogueRandom >= self.randomCastCount)) and (cp == self.ruptureStacks or (self.randomizeCombat and cp == rogueRandom2)) and (not HasDebuff(targetObj, "Rupture")) and (GetHealthPercentage(targetObj) >= 30) then
 					if (localEnergy >= 25) then
 						if (not CastSpellByName("Rupture")) then
 							script_rogue:setTimers(1050);
