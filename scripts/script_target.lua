@@ -18,7 +18,7 @@ script_target = {
 	currentLootTarget = 0,
 	lootTargets = {},
 	numLoot = 0,
-	lootDistance = 3.4,
+	lootDistance = 3.0,
 	lootRange = 60,
 	lootTimer = 0,
 	skin = true,
@@ -85,48 +85,41 @@ function script_target:doLoot()
 	if (GetDistance(lootTarget) > self.lootDistance) then
 		script_path:savePos(false); -- SAVE FOR UNSTUCK
 		if (not script_grind.raycastPathing) then
-			if (MoveToTarget(lootTarget)) then
-				script_grind.waitTimer = GetTimeEX() + 50;
-				return;
-			end
-		elseif (script_grind.raycastPathing) then
-			if (script_pather:moveToTarget(GetPosition(lootTarget))) then
-				script_grind.waitTimer = GetTimeEX() + 50;
-				return;
-			end
+			MoveToTarget(lootTarget);
+		else
+			local x, y, z = GetPosition(lootTarget);
+			script_pather:moveToTarget(x, y, z);
 		end
-	return;
+		return;
 	end
 		
-	if (GetDistance(lootTarget) < self.lootDistance) then
-		if (IsMoving()) then
-			if (script_grind.waitTimer ~= 0) then
-				script_grind.waitTimer = GetTimeEX() + 850;
-			end
-			return;
+	if (IsMoving()) then
+		StopMoving();
+		if (script_grind.waitTimer ~= 0) then
+			script_grind.waitTimer = GetTimeEX() + 850;
 		end
+		return;
 	end
-		
+			
 	script_path:resetAutoPath();
-	if (GetDistance(lootTarget) < self.lootDistance) then
-		if (UnitInteract(lootTarget)) then
-			script_path:savePos(true); 
-	
-			if (IsSkinnable(lootTarget) and self.skin and HasItem('Skinning Knife')) then
-				
-				if (script_grind.waitTimer ~= 0) then
-					script_grind.waitTimer = GetTimeEX() + 1250;
-				end
-				
-				return;
-			end
-	
+
+	if (UnitInteract(lootTarget)) then
+		script_path:savePos(true); 
+
+		if (IsSkinnable(lootTarget) and self.skin and HasItem('Skinning Knife')) then
+			
 			if (script_grind.waitTimer ~= 0) then
 				script_grind.waitTimer = GetTimeEX() + 1250;
 			end
 			
 			return;
 		end
+
+		if (script_grind.waitTimer ~= 0) then
+			script_grind.waitTimer = GetTimeEX() + 1250;
+		end
+		
+		return;
 	end
 end
 

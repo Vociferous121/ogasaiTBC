@@ -359,7 +359,7 @@ then
 					script_grind.waitTimer = GetTimeEX() + 1250;
 					FaceTarget(targetObj);
 					if (not self.useRotation) then
-						local moveBuffer = random(-2, 4);
+						local moveBuffer = random(-2, 2);
 						if (Move(x+moveBuffer, y+moveBuffer, z)) then
 						--	self.waitTimer = GetTimeEX() + 1250;
 						--	script_grind.waitTimer = GetTimeEX() + 1250;

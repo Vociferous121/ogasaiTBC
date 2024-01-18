@@ -130,6 +130,7 @@ function hotspotDB:setup()
 	hotspotDB:addHotspot("Silverpine Forest 12 - 14", "Horde", 12, 14, 372.77, 1268.07, 78.43);
 	hotspotDB:addHotspot("Silverpine Forest 14 - 16", "Horde", 14, 16, -280.09, 1231.51, 46.07);
 	hotspotDB:addHotspot("Silverpine Forest 16 - 18", "Horde", 16, 18, -516.85, 1574.21, 10);
+	hotspotDB:addHotspot("Beren's Peril 21 - 23", "Horde", 21, 23, -480.32, 961.29, 88.08);
 	-- ghostlands
 	hotspotDB:addHotspot("Ghostlands 10 - 12", "Horde", 10, 12, 7897.04, -7073.45, 113.67);
 	hotspotDB:addHotspot("Ghostlands 12 - 14", "Horde", 12, 14, 7642.81, -6449.86, 14.05);

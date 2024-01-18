@@ -134,7 +134,7 @@ function script_helper:ress(x, y, z)
 			rTime = GetTimeEX();
 
 			-- move to point
-			Move (rX, rY, rZ);			
+			MoveToTarget(rX, rY, rZ);			
 
 		return;
 		end

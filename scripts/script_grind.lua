@@ -196,8 +196,8 @@ if (not script_paranoid:doParanoia()) then script_paranoid.logoutTimerSet = fals
 
 	-- Loot
 	if (script_target:isThereLoot() and not AreBagsFull() and not self.bagsFull) and (script_info:nrTargetingMe() == 0) then			
-		self.message = "Looting... (enable auto loot in settings...)";
-	script_target:doLoot();
+		self.message = "Looting... (enable auto loot in settings - grinder)";
+		script_target:doLoot();
 	
 	return;
 	end
