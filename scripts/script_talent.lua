@@ -61,7 +61,6 @@ function script_talent:setup()
 			"2;Deflection", "2;Deflection", "2;Deflection", "2;Deflection", "2;Deflection",
 			"2;Riposte", 
 			"2;Precision", "2;Precision", "2;Precision", "2;Precision", "2;Precision",
-
 			"2;Dual Wield Specialization", "2;Dual Wield Specialization", "2;Dual Wield Specialization", "2;Dual Wield Specialization",
 			"2;Blade Flurry",
 			"2;Sword Specialization", "2;Sword Specialization", "2;Sword Specialization", "2;Sword Specialization",

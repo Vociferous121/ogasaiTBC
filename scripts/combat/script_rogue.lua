@@ -35,7 +35,7 @@ script_rogue = {
 	hasBandage = false,
 	openerUsed = 0,
 	randomizeCombat = true,
-	randomCastCount = 97,
+	randomCastCount = 96,
 
 }
 
@@ -232,6 +232,11 @@ function script_rogue:run(targetObj)
 
 	rogueRandom = math.random(0, 100);
 	rogueRandomCP = math.random(0, 5);
+
+	if (IsInCombat()) and (GetHealthPercentage(GetLocalPlayer()) <= 10) and (script_info.nrTargetingMe() > 0) then
+		script_grind.tickRate = 50;
+	end
+
 	--Valid Enemy
 	if (targetObj ~= 0) and (not IsDead(GetLocalPlayer())) then
 
@@ -247,7 +252,8 @@ function script_rogue:run(targetObj)
 		-- Dismount
 		DismountEX();
 
-		if (not IsInCombat()) and (HasSpell("Stealth")) and (script_rogue.alwaysStealth) and (script_rogue.useStealth) and (not HasBuff(localObj, "Stealth")) and (IsSpellOnCD("Stealth")) and (not script_target:isThereLoot()) then
+		-- wait for stealth cooldown
+		if (not IsInCombat()) and (HasSpell("Stealth")) and (script_rogue.alwaysStealth) and (script_rogue.useStealth) and (not HasBuff(localObj, "Stealth")) and (IsSpellOnCD("Stealth")) and (not script_target:isThereLoot()) and (not script_checkDebuffs:hasPoison()) then
 			self.message = "Waiting for stealth cooldown...";
 			if (IsMoving()) then
 				StopMoving();
@@ -259,7 +265,7 @@ function script_rogue:run(targetObj)
 
 
 		-- cast stealth
-		if (not IsInCombat()) and (script_rogue.useStealth) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not HasBuff(localObj, "Stealth")) and (not HasDebuff(localObj, "Faerie Fire")) and (not script_target:isThereLoot()) then
+		if (not IsInCombat()) and (script_rogue.useStealth) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not HasBuff(localObj, "Stealth")) and (not HasDebuff(localObj, "Faerie Fire")) and (not script_target:isThereLoot()) and (not script_checkDebuffs:hasPoison()) then
 			if (CastSpellByName("Stealth")) then
 				Jump();
 				script_rogue:setTimers(1050);
@@ -556,7 +562,7 @@ if (IsInCombat()) then
 				end
 
 				-- Keep Slice and Dice up when 1-4 CP
-				if (self.useSlice or (self.randomizeCombat and rogueRandom >= self.randomCastCount)) and ( (cp < 5 and cp > 0) or (self.randomizeCombat and cp == rogueRandom2) ) and (HasSpell('Slice and Dice')) and (not IsSpellOnCD("Slice and Dice")) then 
+				if (self.useSlice or (self.randomizeCombat and rogueRandom >= self.randomCastCount)) and ( (cp < 5 and cp > 0) or (self.randomizeCombat and cp == rogueRandomCP) ) and (HasSpell('Slice and Dice')) and (not IsSpellOnCD("Slice and Dice")) then 
 					-- Keep Slice and Dice up
 					if (not HasBuff(localObj, 'Slice and Dice') and targetHealth > 30 and localEnergy >= 25) then
 						script_debug.debugCombat = "slice and dice";
@@ -569,7 +575,7 @@ if (IsInCombat()) then
 				end
 
 				-- expose armor
-				if (self.useExposeArmor or (self.randomizeCombat and rogueRandom >= self.randomCastCount)) and (cp == self.exposeArmorStacks or (self.randomizeCombat and cp == rogueRandom2)) and (not HasDebuff(targetObj, "Expose Armor")) and (not HasDebuff(targetObj, "Sunder Armor")) and (GetHealthPercentage(targetObj) >= 30) then
+				if (self.useExposeArmor or (self.randomizeCombat and rogueRandom >= self.randomCastCount)) and (cp == self.exposeArmorStacks or (self.randomizeCombat and cp == rogueRandomCP)) and (not HasDebuff(targetObj, "Expose Armor")) and (not HasDebuff(targetObj, "Sunder Armor")) and (GetHealthPercentage(targetObj) >= 30) then
 					if (localEnergy >= 25) then
 						if (not CastSpellByName("Expose Armor")) then
 							script_rogue:setTimers(1050);
@@ -582,7 +588,7 @@ if (IsInCombat()) then
 				end
 	
 				-- rupture
-				if (self.useRupture or (self.randomizeCombat and rogueRandom >= self.randomCastCount)) and (cp == self.ruptureStacks or (self.randomizeCombat and cp == rogueRandom2)) and (not HasDebuff(targetObj, "Rupture")) and (GetHealthPercentage(targetObj) >= 30) then
+				if (self.useRupture or (self.randomizeCombat and rogueRandom >= self.randomCastCount)) and (cp == self.ruptureStacks or (self.randomizeCombat and cp == rogueRandomCP)) and (not HasDebuff(targetObj, "Rupture")) and (GetHealthPercentage(targetObj) >= 30) then
 					if (localEnergy >= 25) then
 						if (not CastSpellByName("Rupture")) then
 							script_rogue:setTimers(1050);
@@ -667,11 +673,11 @@ function script_rogue:rest()
 		script_rogue:setTimers(1550);
 		script_grind.tickRate = 1500;
 		if (not script_helper:useBandage()) then
-			script_rogue:setTimers(1550);
+			script_rogue:setTimers(9550);
 		end
 		script_path.savedPos['time'] = GetTimeEX();
 		
-	script_rogue:setTimers(8500);
+	script_rogue:setTimers(9500);
 	return;	
 	end
 
@@ -691,7 +697,7 @@ function script_rogue:rest()
 			end
 			if (not script_helper:eat()) then
 				script_debug.debugCombat = "use script_helper:eat";
-				script_rogue:setTimers(1550);
+				script_rogue:setTimers(550);
 				script_grind:restOn();
 			end
 		return;
@@ -699,7 +705,7 @@ function script_rogue:rest()
 	return true;
 	end
 
-	if (IsEating()) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (self.useStealth) and (not script_target:isThereLoot()) and (not HasDebuff(localObj, "Faerie Fire")) then
+	if (IsEating()) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (self.useStealth) and (not script_target:isThereLoot()) and (not HasDebuff(localObj, "Faerie Fire")) and (not script_checkDebuffs:hasPoison()) then
 		if (CastSpellByName("Stealth")) then
 		script_rogue:setTimers(1550);
 		return true;
@@ -718,6 +724,15 @@ function script_rogue:rest()
 		script_debug.debugCombat = "eating... waiting for health";
 		script_grind:restOn();
 		return true;
+	end
+
+	if (IsEating() and localHealth < 95) then
+		return;
+	elseif (not IsStanding()) then
+		local x, y, z = GetPosition(GetLocalPlayer());
+		local mbuffer = math.random(-1, 1);
+		Move(x+mbuffer, y+mbuffer, z)
+		script_grind:restOff();
 	end
 
 	script_grind:restOff();

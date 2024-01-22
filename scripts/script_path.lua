@@ -89,7 +89,7 @@ function script_path:distToSavedPos()
 end
 
 function script_path:unStuck()
-	if (GetTimeEX() - self.savedPos['time'] > 10000) then
+	if (GetTimeEX() - self.savedPos['time'] > 7000) then
 		script_grind.waitTimer = GetTimeEX() + 150;
 		self.isStuck = true;
 		return true;

@@ -42,6 +42,7 @@ function script_paranoid:doParanoia()
 				self.logoutTimerSet = true;
 			end
 
+		script_grind.waitTimer = GetTimeEX() + 3500;
 		return true;
 		end
 	end

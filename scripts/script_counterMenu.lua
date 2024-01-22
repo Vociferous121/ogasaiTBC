@@ -66,9 +66,9 @@ function script_counterMenu:menu()
 				Text("Money Obtained Pick Pocketing : "..silverFromCopper.." Silver "..copperFromSilver.." Copper");
 			end
 			if copper > 1000 then
-				-- we need to convert to gold from COPPER COUNT ppmoney
+				-- we need to convert to gold from COPPER COUNT
 				local goldFromCopper =  math.floor(copper / 1000);
-				local silverFromGold = ppmoneyGold - math.floor(copper / 100);
+				local silverFromGold = goldFromCopper - math.floor(copper / 100);
 				Text("Money Obtained Pick Pocketing : "..goldFromCopper..":"..silverFromGold);
 			end
 

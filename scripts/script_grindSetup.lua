@@ -9,6 +9,7 @@ function script_grindSetup:setup()
 	script_grind.unStuckTime = GetTimeEX();
 	script_grind.tryMountTime = GetTimeEX();
 	script_grind.waitTimer = GetTimeEX();
+	script_grindEX.waitTimer = GetTimeEX();
 
 	-- Classes that doesn't use mana
 	local class, classFileName = UnitClass("player");

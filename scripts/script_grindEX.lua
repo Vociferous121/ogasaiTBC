@@ -18,8 +18,6 @@ function script_grindEX:setup()
 
 	script_grindEX:setZone();
 
-	self.waitTimer = GetTimeEX();
-
 	self.isSetup = true;
 end
 
@@ -116,27 +114,28 @@ script_path.numSavedPathNodes = 0;
 		return true;
 	end
 
-	if (GetTimeEX() + script_grind.tickRate > self.waitTimer) then
+	if (GetTimeEX() > self.waitTimer) then
+		return;
+	end
 
-		-- Check: jump to the surface if we are under water
-		local progress = GetMirrorTimerProgress("BREATH");
-		if (progress ~= nil and progress ~= 0) then
-			if ((progress/1000) < 35) then
-				self.message = "Let's not drown...";
-				script_debug.debugGrind = "using jump out of water";
-				Jump();
-				self.waitTimer = GetTimeEX() + 1500;
-			end	
-		end
+	-- Check: jump to the surface if we are under water
+	local progress = GetMirrorTimerProgress("BREATH");
+	if (progress ~= nil and progress ~= 0) then
+		if ((progress/1000) < 35) then
+			self.message = "Let's not drown...";
+			script_debug.debugGrind = "using jump out of water";
+			Jump();
+			self.waitTimer = GetTimeEX() + 2500;
+		end	
+	end
 
 	
-		if (script_grind.jump) and (IsMoving()) and (not IsInCombat()) and (not script_checkDebuffs:hasDisabledMovement()) then
-			local randomJump = math.random(-100, 100);
-			local randomWait = random(550, 8215);
-			if randomJump > self.jumpFloat then
-				Jump();
-				self.waitTimer = GetTimeEX() + randomWait;
-			end
+	if (script_grind.jump) and (IsMoving()) and (not IsInCombat()) and (not script_checkDebuffs:hasDisabledMovement()) then
+		local randomJump = math.random(-100, 100);
+		local randomWait = random(550, 8215);
+		if randomJump > self.jumpFloat then
+			Jump();
+			self.waitTimer = GetTimeEX() + randomWait;
 		end
 	end
 
@@ -201,7 +200,7 @@ script_path.numSavedPathNodes = 0;
 				script_grind.tickRate = 50;
 				script_grind.waitTimer = GetTimeEX() - 5000;
 				script_path:savePos(true); 
-				return true;
+			return;
 			end
 		end
 	end
@@ -242,7 +241,7 @@ script_path.numSavedPathNodes = 0;
 		if (script_target:isThereLoot() and not IsInCombat() and not AreBagsFull() and not script_grind.bagsFull) then
 			script_grind.message = "Looting... (enable auto loot)";
 			script_target:doLoot();
-			script_grind.waitTimer = GetTimeEX() + script_grind.tickRate;
+			script_grind.waitTimer = GetTimeEX() + (script_grind.tickRate/2);
 		return true;
 		end
 

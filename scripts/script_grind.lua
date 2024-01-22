@@ -55,6 +55,7 @@ script_grindEX.sentToLog = false;
 if (script_paranoid.paranoiaUsed) then	script_paranoid.paranoiaUsed = false; end
 -- do paranoia
 if (script_paranoid.useParanoia) and (not self.pause) and (script_paranoid.paranoidOn) and (not IsInCombat()) then if (script_paranoid:doParanoia()) then
+script_path.savedPos['time'] = GetTimeEX();
 -- stop moving on paranoia
 if (script_paranoid.stopMovement) then if (IsMoving()) then StopMoving(); end end
 -- we have used paranoia...
@@ -124,9 +125,11 @@ if (not script_paranoid:doParanoia()) then script_paranoid.logoutTimerSet = fals
 	-- Check: Rest 
 	local hp = GetHealthPercentage(GetLocalPlayer());
 	local mana = GetManaPercentage(GetLocalPlayer());
+-- Rest out of combat
+if (not IsInCombat() or (IsInCombat()) and script_info:nrTargetingMe() == 0) and (not script_target:isThereLoot()) then
+-- Check: Pause, Unstuck, Vendor, Repair, Buy and Sell etc
+if (script_grindEX:doChecks()) then if (not IsInCombat()) and (not IsMoving()) then script_debug.debugGrind = "doing grindEX checks"; end return; end
 
-	-- Rest out of combat
-	if (not IsInCombat() or (IsInCombat()) and script_info:nrTargetingMe() == 0) and (not script_target:isThereLoot()) then
 		script_debug.debugGrind = "resting";
 		self.potUsed = false;
 		if ((not IsSwimming()) and (not IsFlying())) then
@@ -168,9 +171,7 @@ if (not script_paranoid:doParanoia()) then script_paranoid.logoutTimerSet = fals
 	end
 
 	-- stop rogue attack for stealth attacks....
-	if (HasBuff(localObj, "Stealth")) and (GetUnitsTarget(GetLocalPlayer()) ~= 0) then
-		StopAttack();
-	end
+	if (HasBuff(localObj, "Stealth")) and (GetUnitsTarget(GetLocalPlayer()) ~= 0) then StopAttack(); end
 
 	-- not bags are full then use or delete items
 	if (not IsInCombat()) and (not AreBagsFull()) then
@@ -186,14 +187,8 @@ if (not script_paranoid:doParanoia()) then script_paranoid.logoutTimerSet = fals
 			end
 		end
 	end
-
 	-- Check: Summon our Demon if we are not in combat (Voidwalker is Summoned in favor of the Imp)
-	if (HasSpell("Summon Imp")) then
-		if (script_warlock:summonPet()) then
-			return;
-		end
-	end
-
+	if (HasSpell("Summon Imp")) then if (script_warlock:summonPet()) then return; end end
 	-- Loot
 	if (script_target:isThereLoot() and not AreBagsFull() and not self.bagsFull) and (script_info.nrTargetingMe() == 0) then			
 		self.message = "Looting... (enable auto loot in settings - grinder)";
@@ -201,35 +196,13 @@ if (not script_paranoid:doParanoia()) then script_paranoid.logoutTimerSet = fals
 			script_grind.waitTimer = GetTimeEX() + 250;
 			return true;
 		end
+		return true;
 	end
 
 	-- stuck in combat
-	if (IsInCombat()) and (not IsFleeing(GetUnitsTarget(GetLocalPlayer())) or GetHealthPercentage(GetUnitsTarget(GetLocalPlayer())) >= 100) and (script_info:nrTargetingMe() == 0) and (not HasDebuff(self.target, "Gouge")) and (not IsFleeing(self.target)) then
-		self.message = "Stuck in combat... waiting...";
-		if (IsMoving()) then
-			StopMoving();
-			return;
-		end
-	return;
-	end
-
-	-- Wait for group members
-	if (GetNumPartyMembers() > 2) then
-
-		script_debug.debugGrind = "waiting for group memebrs";
-
-		if (script_followEX:getTarget() ~= 0) then
-			local targetGUID = script_followEX:getTarget();
-			self.target = GetGUIDTarget(targetGUID);
-			UnitInteract(self.target);
-		else
-			if (script_info:waitGroup() and not IsInCombat()) then
-				self.message = 'Waiting for group (rest & movement)...';
-				script_path:savePos(true);
-				return;
-			end
-		end
-	end
+	if (IsInCombat()) and (not IsFleeing(GetUnitsTarget(GetLocalPlayer())) or GetHealthPercentage(GetUnitsTarget(GetLocalPlayer())) >= 100) and (script_info:nrTargetingMe() == 0) and (not HasDebuff(self.target, "Gouge")) and (not IsFleeing(self.target)) then self.message = "Stuck in combat... waiting..."; if (IsMoving()) then StopMoving(); return; end return; end
+-- Wait for group members
+if (GetNumPartyMembers() > 2) then script_debug.debugGrind = "waiting for group memebrs"; if (script_followEX:getTarget() ~= 0) then local targetGUID = script_followEX:getTarget(); self.target = GetGUIDTarget(targetGUID); UnitInteract(self.target); else if (script_info:waitGroup() and not IsInCombat()) then self.message = 'Waiting for group (rest & movement)...'; script_path:savePos(true); return; end end end
 
 	-- Gather
 	if (self.gather and not IsInCombat() and not AreBagsFull() and not self.bagsFull) then
@@ -264,16 +237,14 @@ if (not script_paranoid:doParanoia()) then script_paranoid.logoutTimerSet = fals
 	-- Fetch a new target
 	if (self.skipMobTimer < GetTimeEX()) or (IsInCombat() and script_info:nrTargetingMe() > 0) then	
 			script_debug.debugGrind = "fetching a new target";
-		if (script_path.reachedHotspot or (not IsUsingNavmesh() and not self.raycastPathing) or IsInCombat()) then
-			local targetGUID = script_target:getTarget();
+		if (script_path.reachedHotspot or (IsUsingNavmesh() or self.raycastPathing) or IsInCombat()) then
+			local targetGUID = script_target:getTarget(); local curTar = targetGUID;
 			self.target = GetGUIDTarget(targetGUID);
 			if (GetTarget() ~= self.target) then
 				if (self.moveToMeleeRange and not IsMoving()) or (IsInCombat()) then
 					UnitInteract(self.target);
 				end
-				if (not IsMoving() or IsInCombat()) then
-					AutoAttack(self.target);
-				end
+				if (not IsMoving() or IsInCombat()) then AutoAttack(self.target); end if (curTar ~= self.target) then AutoAttack(curTar); end
 			end	
 		end
 	else
@@ -324,7 +295,7 @@ if (not script_paranoid:doParanoia()) then script_paranoid.logoutTimerSet = fals
 		end
 
 		script_debug.debugGrind = "attack valid target";
-		if (GetDistance(self.target) < self.pullDistance and IsInLineOfSight(self.target)) and (not IsMoving() or GetDistance(self.target) <= self.meleeDistance-.5) then
+		if (GetDistance(self.target) < self.pullDistance and IsInLineOfSight(self.target)) and (not IsMoving() or GetDistance(self.target) <= 2) then
 			-- stop movement when we reach target
 			if (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then
 				if (IsMoving()) and (IsInLineOfSight(self.target)) then
@@ -381,23 +352,15 @@ if (HasSpell("Raptor Strike")) then if (GetDistance(self.target) <= 30) and (IsI
 if (GetDistance(self.target) <= self.meleeDistance) and (GetHealthPercentage(self.target) > 30) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then if (IsMoving()) and (IsInLineOfSight(self.target)) then StopMoving(); return true; end end
 			self.message = "Moving to target...";
 --wait for always rogue stealth
-if (not IsInCombat()) and (HasSpell("Stealth")) and (script_rogue.alwaysStealth) and (script_rogue.useStealth) and (not HasBuff(localObj, "Stealth")) and (IsSpellOnCD("Stealth")) and (not script_target:isThereLoot()) then self.message = "Waiting for stealth cooldown..."; if (IsMoving()) then StopMoving(); return true; end script_path.savedPos['time'] = GetTimeEX(); self.waitTimer = GetTimeEX() - self.tickRate; return; end
+if (not IsInCombat()) and (HasSpell("Stealth")) and (script_rogue.alwaysStealth) and (script_rogue.useStealth) and (not HasBuff(localObj, "Stealth")) and (IsSpellOnCD("Stealth")) and (not script_target:isThereLoot()) then self.message = "Waiting for stealth cooldown..."; if (IsMoving()) then StopMoving(); ClearTarget(); return true; end script_path.savedPos['time'] = GetTimeEX(); self.waitTimer = GetTimeEX() - self.tickRate; return; end
 -- rogue throw
 if (script_rogueEX:stopForThrow()) then
 	return;
 end
 -- rogue stealth
-if (HasSpell("Stealth")) and (not HasBuff(localObj, "Stealth")) then
-	if (script_rogueEX:forceStealth()) then
-		return;
-	end
-end
+if (HasSpell("Stealth")) and (not HasBuff(localObj, "Stealth")) and (not script_checkDebuffs:hasPoison()) then if (script_rogueEX:forceStealth()) then return; end end
 -- sprint
-if (HasSpell("Sprint")) and (not IsSpellOnCD("Sprint")) then
-	if (script_rogueEX:useSprint()) then
-		return;
-	end
-end
+if (HasSpell("Sprint")) and (not IsSpellOnCD("Sprint")) then if (script_rogueEX:useSprint()) then return; end end
 
 -- move to target...
 if (not self.raycastPathing) and (not IsCasting()) and (not IsChanneling()) then if (self.moveToMeleeRange) and (GetDistance(self.target) > self.meleeDistance) then if (not self.adjustTickRate) then script_grind.tickRate = 50; end local x, y, z = GetPosition(self.target); if (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then if (MoveToTarget(x, y, z)) then if (IsMoving()) then self.waitTimer = GetTimeEX() + 350; end else if (GetDistance(self.target) <= self.meleeDistance) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then if (IsMoving()) and (IsInLineOfSight(self.target)) then StopMoving(); return; end end end end elseif (GetDistance(self.target) > 27 or not IsInLineOfSight(self.target)) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then if (not self.adjustTickRate) then script_grind.tickRate = 50; end local x, y, z = GetPosition(self.target); if (MoveToTarget(x, y, z)) then if (IsMoving()) then self.waitTimer = GetTimeEX() + 350; end end end return; end
@@ -426,7 +389,7 @@ if (script_info:nrTargetingMe() == 0) and ( (localMana <= script_grind.restMana 
 		ResetNavigate();
 		RunCombatScript(self.target);
 		local creatureType = GetCreatureType(GetUnitsTarget(GetLocalPlayer()));
-if (not IsMoving() or IsInCombat()) and ( (not HasBuff(localObj, "Stealth")) or (script_rogue.pickpocketUsed) or (HasBuff(localObj, "Stealth") and not strfind("Humanoid", creatureType) and not strfind("Undead", creatureType) and (script_rogue.usePickPocket) )) then AutoAttack(self.target); self.waitTimer = GetTimeEX() + 200; end
+if (not IsMoving() or IsInCombat()) and ( (not HasBuff(localObj, "Stealth")) or (script_rogue.pickpocketUsed) or (HasBuff(localObj, "Stealth") and not strfind("Humanoid", creatureType) and not strfind("Undead", creatureType) and (script_rogue.usePickPocket) )) then AutoAttack(self.target); self.waitTimer = GetTimeEX() + 400; end
 -- Unstuck feature on valid "working" targets
 if (GetTarget() ~= 0 and GetTarget() ~= nil) then 
 if (GetHealthPercentage(GetTarget()) < 98) then script_path:savePos(true);
