@@ -6,7 +6,7 @@ script_grindMenu = {
 
 function script_grindMenu:menu()
 
--- draw move path
+	-- draw move path
 	if (IsMoving()) and (script_grind.drawPath) and (not script_grind.raycastPathing) then
 		DrawMovePath();
 	end
@@ -30,23 +30,28 @@ function script_grindMenu:menu()
 	if (GetLoadNavmeshProgress() ~= nil) and (GetLoadNavmeshProgress() ~= 0) and (GetLoadNavmeshProgress() ~= 1) then
 		local qqq = math.floor(GetLoadNavmeshProgress()*100);
 		if (qqq > 100) then
-			Text("Navmesh Loading Error... Reload Game...");
+			Text("Navmesh Error - Reload Game. "..qqq.." Percent Loaded");
 		end
 		if (qqq ~= nil) and (qqq ~= 100) and (qqq < 101) then
 			Text("Navmesh Loading Progress Percent... " ..qqq);
 		end
 	end
 
-
 	if (script_grind.pause) then
 		if (Button("Resume Bot")) then script_grind.pause = false; end
 	else
 		if (Button("Pause Bot")) then
-		script_grind.pause = true; end end
-	SameLine(); if (Button("Reload Scripts")) then
-		menu:reload();
+			script_grind.pause = true;
 		end
-	SameLine(); if (Button("Exit Bot")) then StopBot(); end
+	end
+	SameLine();
+	if (Button("Reload Scripts")) then
+		menu:reload();
+	end
+	SameLine();
+	if (Button("Exit Bot")) then
+		StopBot();
+	end
 	SameLine();
 	wasClicked, self.debug = Checkbox("Debug", self.debug);
 	Separator();
@@ -200,4 +205,5 @@ function script_grindMenu:menu()
 	Separator();
 	Text("Temp Debug Item ID's (chests)");
 	wasClicked, self.showIDD = Checkbox("Show ID's", self.showIDD);
+
 end

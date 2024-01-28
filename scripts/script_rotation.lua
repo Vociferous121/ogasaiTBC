@@ -73,6 +73,8 @@ function script_rotation:setup()
 		script_warlock.useFelguard = true;
 	end
 
+	script_grind.meleeDistance = 5;
+
 	self.isSetup = true;
 	
 
@@ -127,14 +129,14 @@ function script_rotation:run()
 			self.tickRate = random(400, 950);
 		end
 	end
-
-	-- last target is current our current target until told not ~= self.enemyObj
-	if (self.enemyObj ~= 0 and self.enemyObj ~= nil) then
+ 
+	-- last target is current our current target until told not ~= self.enemyObj ***this***
+	if (self.enemyObj ~= 0 and self.enemyObj ~= nil) and (not IsDead(self.lastTarget)) then
 		self.lastTarget = self.enemyObj;
 	end
 
-	-- sticky targeting on current target only currently
-	if (self.stickyTargeting) and (not IsInCombat() and not IsDead(self.lastTarget) and GetUnitsTarget(GetLocalPlayer()) == 0 or GetUnitsTarget(GetLocalPlayer()) == nil) and (not IsAutoCasting("Attack")) then
+	-- sticky targeting on current target only currently ***goes to this***
+	if (self.stickyTargeting and CanAttack(self.lastTarget)) and (not IsInCombat() and not IsDead(self.lastTarget) and GetUnitsTarget(GetLocalPlayer()) == 0 or GetUnitsTarget(GetLocalPlayer()) == nil) and (not IsAutoCasting("Attack")) then
 		AutoAttack(self.lastTarget);
 	end
 
@@ -145,12 +147,26 @@ function script_rotation:run()
 		end
 	end
 
+	-- Apply poisons if we are rogue and use poison is selected
+	if (HasSpell("Poisons")) and (not IsInCombat()) and (script_rogue.usePoisons) then
+		if (script_rogue:checkPoisons()) then
+			self.waitTimer = GetTimeEX() + 4550;
+			script_debug.debugCombat = "applying poisons";
+			return;
+		end
+	end
+
 	-- reset enemyObj
 	if (GetUnitsTarget(GetLocalPlayer()) == 0) or (GetUnitsTarget(GetLocalPlayer()) == nil) or (self.enemyObj ~= 0 and IsDead(self.enemyObj)) then
 		self.enemyObj = 0;
 	end
 
-	-- if have a target in UI then run combat script
+	-- if we are in combat and we have no target then return a target...
+	if (GetUnitsTarget(GetLocalPlayer()) == 0) and (IsInCombat()) then
+		self.enemyObj = GetNearestEnemy();
+	end
+
+	-- if have a target in UI then run combat script else run rest script
 	if (GetTarget() ~= 0) and (GetHealthPercentage(GetTarget()) > 0 and not IsDead(GetTarget())) then
 
 			self.enemyObj = GetTarget();
@@ -160,7 +176,8 @@ function script_rotation:run()
 				FaceTarget(self.enemyObj);
 			end
 		end
-			local creatureType = GetCreatureType(self.enemyObj);
+		
+		local creatureType = GetCreatureType(self.enemyObj);
 
 		if (GetDistance(self.enemyObj) <= 5) and ( (not HasBuff(localObj, "Stealth")) or
 		( (HasBuff(localObj, "Stealth") and script_rogue.pickpocketUsed) or (not script_rogue.usePickPocket) or (not strfind("Humanoid", creatureType) or not strfind("Undead", creatureType) )) ) then
@@ -211,7 +228,8 @@ function script_rotation:menu()
 	if (Button("Exit Bot")) then
 		StopBot();
 	end
-	Separator();
+
+	if (CollapsingHeader("Rotation Menu")) then
 
 	-- use rest feature
 	wasClicked, self.useRestFeature = Checkbox("Stop And Rest After Combat", self.useRestFeature);
@@ -233,7 +251,7 @@ function script_rotation:menu()
 	Text("Reaction Time (ms)");
 	self.tickRate = SliderInt("(ms)", 0, 2500, self.tickRate);
 	
-	Separator();
+end
 
 	-- Load combat menu by class
 	local class = UnitClass("player");
@@ -259,7 +277,7 @@ function script_rotation:menu()
 	end
 
 	-- rest options
-	if (CollapsingHeader("Rest options")) then
+	if (CollapsingHeader("Rest Menu")) then
 		
 		-- does class use mana?
 		wasClicked, script_rotation.useMana = Checkbox("Class Uses Mana", script_rotation.useMana);
@@ -283,7 +301,7 @@ function script_rotation:menu()
 	
 	end
 
-if (CollapsingHeader("Display Options")) then
+	if (CollapsingHeader("Display Menu")) then
 		wasClicked, script_aggro.drawAggro = Checkbox("Draw Aggro Ranges", script_aggro.drawAggro);
 		wasClicked, script_grindEX.drawStatus = Checkbox("Draw Status Window", script_grindEX.drawStatus);
 		wasClicked, script_grindEX.drawGather = Checkbox("Draw Gather Nodes", script_grindEX.drawGather);

@@ -21,7 +21,7 @@ end
 
 function script_checkDebuffs:hasPoison()
 	local player = GetLocalPlayer();
-	if (HasDebuff(player, "Weak Poison")) or (HasDebuff(player, "Corrosive Poison")) or (HasDebuff(player, "Poison")) or (HasDebuff(player, "Slowing Poison")) or (HasDebuff(player, "Poisoned Shot")) or (HasDebuff(player, "Venom Spit")) or (HasDebuff(player, "Bottle of Poison")) or (HasDebuff(player, "Venom Sting")) then
+	if (HasDebuff(player, "Weak Poison")) or (HasDebuff(player, "Corrosive Poison")) or (HasDebuff(player, "Poison")) or (HasDebuff(player, "Slowing Poison")) or (HasDebuff(player, "Poisoned Shot")) or (HasDebuff(player, "Venom Spit")) or (HasDebuff(player, "Bottle of Poison")) or (HasDebuff(player, "Venom Sting")) or (HasDebuff(player, "Touch of Zanzil")) then
 		return true;
 	end
 return false;

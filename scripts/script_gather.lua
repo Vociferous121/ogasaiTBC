@@ -229,6 +229,19 @@ local targetObj, targetType = GetFirstObject();
 
 				DrawText(name, _tX-10, _tY, 255, 255, 0);
 				DrawText(name2, _tX-10, _tY, 0, 255, 0);
+
+				if (id == 6434) then
+					local a = "Floating Wreckage";
+					DrawText(a, _tX-10, _tY, 255, 255, 0);
+				end
+				if (id == 6435) then
+					local b = "Sagefish School";
+					DrawText(b, _tX-10, _tY, 255, 255, 0);
+				end
+				if (id == 6482) then
+					local c = "Firefin Snapper School";
+					DrawText(c, _tX-10, _tY, 255, 255, 0);
+				end
 				if (script_grindMenu.showIDD) then
 					if (id ~= 192) and (id ~= 0) and (id ~= 386) then
 						local idd = "ID - "..id.."";

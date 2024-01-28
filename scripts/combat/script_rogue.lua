@@ -263,7 +263,6 @@ function script_rogue:run(targetObj)
 		return;
 		end
 
-
 		-- cast stealth
 		if (not IsInCombat()) and (script_rogue.useStealth) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not HasBuff(localObj, "Stealth")) and (not HasDebuff(localObj, "Faerie Fire")) and (not script_target:isThereLoot()) and (not script_checkDebuffs:hasPoison()) then
 			if (CastSpellByName("Stealth")) then
@@ -280,7 +279,7 @@ function script_rogue:run(targetObj)
 		-- Apply poisons 
 		if (not IsInCombat()) and (self.usePoisons) then
 			if (script_rogue:checkPoisons()) then
-				script_rogue:setTimers(1050);
+				script_rogue:setTimers(4550);
 				script_debug.debugCombat = "applying poisons";
 				return;
 			end
@@ -304,7 +303,7 @@ function script_rogue:run(targetObj)
 		if (not IsInCombat()) then
 
 			-- Check: Use Stealth before oponer
-			if (self.useStealth and HasSpell('Stealth')) and (not HasBuff(localObj, 'Stealth')) and (GetDistance(self.target) <= self.stealthRange) and (not IsSpellOnCD("Stealth")) then
+			if (self.useStealth and HasSpell('Stealth')) and (not HasBuff(localObj, 'Stealth')) and (GetDistance(self.target) <= self.stealthRange) and (not IsSpellOnCD("Stealth")) and (not script_checkDebuffs:hasPoison()) then
 				script_debug.debugCombat = "using stealth";
 				if (CastSpellByName('Stealth')) then
 					script_rogue:setTimers(1050);
