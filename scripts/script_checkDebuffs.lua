@@ -21,7 +21,7 @@ end
 
 function script_checkDebuffs:hasPoison()
 	local player = GetLocalPlayer();
-	if (HasDebuff(player, "Weak Poison")) or (HasDebuff(player, "Corrosive Poison")) or (HasDebuff(player, "Poison")) or (HasDebuff(player, "Slowing Poison")) or (HasDebuff(player, "Poisoned Shot")) or (HasDebuff(player, "Venom Spit")) or (HasDebuff(player, "Bottle of Poison")) or (HasDebuff(player, "Venom Sting")) or (HasDebuff(player, "Touch of Zanzil")) then
+	if (HasDebuff(player, "Weak Poison")) or (HasDebuff(player, "Corrosive Poison")) or (HasDebuff(player, "Poison")) or (HasDebuff(player, "Slowing Poison")) or (HasDebuff(player, "Poisoned Shot")) or (HasDebuff(player, "Venom Spit")) or (HasDebuff(player, "Bottle of Poison")) or (HasDebuff(player, "Venom Sting")) or (HasDebuff(player, "Touch of Zanzil")) or (HasDebuff(player, "Poison Burst")) then
 		return true;
 	end
 return false;
@@ -29,7 +29,7 @@ end
 
 function script_checkDebuffs:hasDisease()
 	local player = GetLocalPlayer();
-	if (HasDebuff(player, "Rabies")) or (HasDebuff(player, "Fevered Fatigue")) or (HasDebuff(player, "Dark Sludge")) or (HasDebuff(player, "Infected Bite")) or (HasDebuff(player, "Wandering Plague")) or (HasDebuff(player, "Plague Mind")) or (HasDebuff(player, "Fevered Fatigue")) or (HasDebuff(player, "Tetanus"))  or (HasDebuff(player, "Creeping Mold")) or (HasDebuff(player, "Diseased Slime")) then
+	if (HasDebuff(player, "Rabies")) or (HasDebuff(player, "Fevered Fatigue")) or (HasDebuff(player, "Dark Sludge")) or (HasDebuff(player, "Infected Bite")) or (HasDebuff(player, "Wandering Plague")) or (HasDebuff(player, "Plague Mind")) or (HasDebuff(player, "Fevered Fatigue")) or (HasDebuff(player, "Tetanus"))  or (HasDebuff(player, "Creeping Mold")) or (HasDebuff(player, "Diseased Slime")) or (HasDebuff(player, "Creeping Vines")) then
 		return true;
 	end
 return false;
@@ -67,7 +67,8 @@ function script_checkDebuffs:hasDisabledMovement()
 		or (HasDebuff(player, "Frost Nova"))
 		or (HasDebuff(player, "Entangling Roots"))
 		or (HasDebuff(player, "Slowing Poison"))
-		or (HasBuff(player, "Gust of Wind"))
+		or (HasDebuff(player, "Gust of Wind"))
+		or (HasDebuff(player, "Creeping Vines"))
 
 
 	then

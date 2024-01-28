@@ -3,12 +3,11 @@ script_grind = {
 helperLoaded = include("scripts\\script_helper.lua"), targetLoaded = include("scripts\\script_target.lua"), pathLoaded = include("scripts\\script_path.lua"),  vendorScript = include("scripts\\script_vendor.lua"), grindExtra = include("scripts\\script_grindEX.lua"), grindMenu = include("scripts\\script_grindMenu.lua"), autoTalents = include("scripts\\script_talent.lua"), safeRessLoaded = include("scripts\\script_safeRess.lua"), info = include("scripts\\script_info.lua"), gather = include("scripts\\script_gather.lua"), rayPather = include("scripts\\script_pather.lua"), debugincluded = include("scripts\\script_debug.lua"), aggroincluded = include("scripts\\script_aggro.lua"), checkDebuffsLoaded = include("scripts\\script_checkDebuffs.lua"), unstuckLoaded = include("scripts\\script_unstuck.lua"), paranoidLoaded = include("scripts\\script_paranoid.lua"), grindEX2Loaded = include("scripts\\script_grindEX2.lua"), counterMenuLoaded = include("scripts\\script_counterMenu.lua"),
 message = 'Starting the grinder...', alive = true, target = 0, targetTimer = GetTimeEX(), pullDistance = 30, waitTimer = 0, tickRate = 50, adjustTickRate = false, restHp = 60, restMana = 60, potHp = 15, potMana = 15, pause = true, stopWhenFull = false, hsWhenFull = false, shouldRest = false, skipMobTimer = 0, useMana = true, skipLoot = false, currentTime2 = 0, skipReason = 'user selected...', stopIfMHBroken = false, useVendor = true, sellWhenFull = true, repairWhenYellow = true, bagsFull = false, vendorRefill = false, refillMinNr = 5, unStuckPos = {}, unStuckTime = 0, jump = true, useMount = true, tryMountTime = 0, autoTalent = true, gather = true, raycastPathing = false, showRayMenu = false, useNavMesh = true, potUsed = false,
 combatStatus = 0, -- 0 = in range, 1 = not in range
-drawPath = false, useUnstuckScript = false, setLogoutTime = 30, currentTime = 0, timerSet = false, moveToMeleeRange = false, monsterKillCount = 0, moneyObtainedCount = 0, currentMoney = 0, dead = false, meleeDistance = 4.0,
+drawPath = false, useUnstuckScript = false, setLogoutTime = 30, currentTime = 0, timerSet = false, moveToMeleeRange = false, monsterKillCount = 0, moneyObtainedCount = 0, currentMoney = 0, dead = false, meleeDistance = 4.0, allowSwim = true,
 }
 
 function script_grind:setup()
 	script_grindSetup:setup();
-	self.isSetup = true;
 end
 
 function script_grind:draw()
@@ -36,11 +35,7 @@ if (self.waitTimer + self.tickRate > GetTimeEX() or IsCasting() or IsChanneling(
 -- adjust tick rate
 if (not self.adjustTickRate) then if (not IsInCombat() or IsMoving()) then self.tickRate = 50; end if (not IsMoving() or IsInCombat()) then local tickRandom = math.random(342, 1521); self.tickRate = tickRandom; end end
 -- face target in combat
-if (IsInCombat()) and (not IsMoving()) then if (self.target ~= 0 and self.target ~= nil) and (not script_checkDebuffs:hasDisabledMovement()) then FaceTarget(self.target); end end
--- stop bot on stop movement debuffs
-if (IsInCombat()) then if (script_checkDebuffs:hasDisabledMovement()) then script_path.savedPos['time'] = GetTimeEX(); script_grind.waitTimer = GetTimeEX() + 550; return; end
--- try to stop if we are stunned...
-if (IsStunned(GetLocalPlayer())) then self.waitTimer = GetTimeEX() + 550; return; end end
+if (IsInCombat()) and (not IsMoving()) then if (self.target ~= 0 and self.target ~= nil) and (not script_checkDebuffs:hasDisabledMovement()) and (not IsStunned(GetLocalPlayer())) then FaceTarget(self.target); end end
 -- Update min/max level if we level up
 if (script_target.currentLevel ~= GetLevel(GetLocalPlayer())) then script_target.minLevel = script_target.minLevel + 1; script_target.maxLevel = script_target.maxLevel + 2; script_target.currentLevel = script_target.currentLevel + 1; end
 -- Check: jump over obstacles
@@ -143,6 +138,10 @@ if (script_grindEX:doChecks()) then if (not IsInCombat()) and (not IsMoving()) t
 			return;
 		end
 	else
+-- stop bot on stop movement debuffs
+if (script_checkDebuffs:hasDisabledMovement()) then script_path.savedPos['time'] = GetTimeEX(); script_grind.waitTimer = GetTimeEX() + 550; self.message = "Waiting for debuff"; return; end
+-- try to stop if we are stunned...
+if (IsStunned(GetLocalPlayer())) then self.waitTimer = GetTimeEX() + 550; return; end
 		-- Use Potions in combat
 		if (hp < self.potHp) and (not self.potUsed) then
 			script_grind.waitTimer = GetTimeEX() + 100;
@@ -200,7 +199,7 @@ if (script_grindEX:doChecks()) then if (not IsInCombat()) and (not IsMoving()) t
 	end
 
 	-- stuck in combat
-	if (IsInCombat()) and (not IsFleeing(GetUnitsTarget(GetLocalPlayer())) or GetHealthPercentage(GetUnitsTarget(GetLocalPlayer())) >= 100) and (script_info:nrTargetingMe() == 0) and (not HasDebuff(self.target, "Gouge")) and (not IsFleeing(self.target)) then self.message = "Stuck in combat... waiting..."; if (IsMoving()) then StopMoving(); return; end return; end
+	if (IsInCombat()) and (not IsFleeing(GetUnitsTarget(GetLocalPlayer())) or GetHealthPercentage(GetUnitsTarget(GetLocalPlayer())) >= 100) and (script_info:nrTargetingMe() == 0) and (not HasDebuff(self.target, "Gouge")) and (not IsStunned(GetUnitsTarget(GetLocalPlayer()))) then self.message = "Stuck in combat... waiting..."; if (IsMoving()) then StopMoving(); return; end return; end
 -- Wait for group members
 if (GetNumPartyMembers() > 2) then script_debug.debugGrind = "waiting for group memebrs"; if (script_followEX:getTarget() ~= 0) then local targetGUID = script_followEX:getTarget(); self.target = GetGUIDTarget(targetGUID); UnitInteract(self.target); else if (script_info:waitGroup() and not IsInCombat()) then self.message = 'Waiting for group (rest & movement)...'; script_path:savePos(true); return; end end end
 
@@ -263,7 +262,7 @@ if (GetNumPartyMembers() > 2) then script_debug.debugGrind = "waiting for group 
 	if (self.target ~= 0 and self.target ~= nil and not IsInCombat()) then
 		local mx, my, mz = GetPosition(self.target);
 		local mobDistFromHotSpot = math.sqrt((mx - script_path.hx)^2+(my - script_path.hy)^2);
-		if (mobDistFromHotSpot > script_path.grindingDist) then
+		if (mobDistFromHotSpot > script_path.grindingDist) or (not script_path.reachedHotspot) then
 			script_debug.debugGrind = "moving to hotspot before we pull";
 			self.target = nil;
 			self.skipMobTimer = GetTimeEX() + 15000; -- 15 sec to move back to waypoints
@@ -272,7 +271,7 @@ if (GetNumPartyMembers() > 2) then script_debug.debugGrind = "waiting for group 
 	end
 
 	-- Dont fight if we are swimming
-	if (IsSwimming()) and (script_path.reachedHotspot) then
+	if (not self.allowSwim) and (IsSwimming()) and (script_path.reachedHotspot) then
 		script_debug.debugGrind = "we are swimming don't attack";
 		self.target = nil;
 		if (IsUsingNavmesh() or self.raycastPathing) then 
@@ -291,6 +290,8 @@ if (GetNumPartyMembers() > 2) then script_debug.debugGrind = "waiting for group 
 	if (self.target ~= 0 and self.target ~= nil) then
 
 		if (script_checkDebuffs:hasDisabledMovement()) then
+			script_path.savedPos['time'] = GetTimeEX();
+			self.message = "Waiting for debuff";
 			return;
 		end
 
@@ -351,11 +352,13 @@ if (HasSpell("Raptor Strike")) then if (GetDistance(self.target) <= 30) and (IsI
 -- stop when we get close enough to target and we are a melee class
 if (GetDistance(self.target) <= self.meleeDistance) and (GetHealthPercentage(self.target) > 30) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then if (IsMoving()) and (IsInLineOfSight(self.target)) then StopMoving(); return true; end end self.message = "Moving to target...";
 --wait for always rogue stealth
-if (not IsInCombat()) and (HasSpell("Stealth")) and (script_rogue.alwaysStealth) and (script_rogue.useStealth) and (not HasBuff(localObj, "Stealth")) and (IsSpellOnCD("Stealth")) and (not script_target:isThereLoot()) then self.message = "Waiting for stealth cooldown..."; if (IsMoving()) then StopMoving(); ClearTarget(); return true; end script_path.savedPos['time'] = GetTimeEX(); self.waitTimer = GetTimeEX() - self.tickRate; return; end
+if (not IsInCombat()) and (HasSpell("Stealth")) and (script_rogue.alwaysStealth) and (script_rogue.useStealth) and (not HasBuff(localObj, "Stealth")) and (IsSpellOnCD("Stealth")) and (not script_target:isThereLoot()) then self.message = "Waiting for stealth cooldown..."; if (IsMoving()) then StopMoving(); ClearTarget(); return; end script_path.savedPos['time'] = GetTimeEX(); self.waitTimer = GetTimeEX() - self.tickRate; return; end
 -- rogue throw
 if (script_rogueEX:stopForThrow()) then return; end
 -- rogue stealth
-if (HasSpell("Stealth")) and (not HasBuff(localObj, "Stealth")) and (not script_checkDebuffs:hasPoison()) and (IsStanding()) then if (script_rogueEX:forceStealth()) then return; end end
+if (HasSpell("Stealth")) and (not HasBuff(localObj, "Stealth")) and (not script_checkDebuffs:hasPoison()) then if (not IsStanding() or IsMoving()) then StopMoving(); return; end; if (script_rogueEX:forceStealth()) then return; end end
+-- rogue poisons
+if (not IsInCombat()) and (script_rogue.usePoisons) then if (script_rogue:checkPoisons()) then script_rogue:setTimers(1550); script_rogue.message = "applying poisons"; if (IsMoving()) then StopMoving(); return; end return; end end
 -- sprint
 if (HasSpell("Sprint")) and (not IsSpellOnCD("Sprint")) then if (script_rogueEX:useSprint()) then return; end end
 -- move to target...

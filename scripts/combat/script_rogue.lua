@@ -1,5 +1,5 @@
 script_rogue = {
-	message = 'Rogue Combat',
+	message = 'Rogue Script',
 	rogueEXLoaded = include("scripts\\combat\\script_rogueEX.lua"),
 	eatHealth = 50,
 	isSetup = false,
@@ -103,9 +103,9 @@ function script_rogue:setup()
 	if (level >= 11) then
 		self.cpGeneratorCost = 40;
 	end
-	if (HasSpell("Poisons")) then
-		self.usePoisons = true;
-	end
+	--if (HasSpell("Poisons")) then
+	--	self.usePoisons = true;
+	--end
 	if (GetNumPartyMembers() >= 1) then
 		self.useFeint = true;
 	end
@@ -121,6 +121,7 @@ function script_rogue:setup()
 	--self.waitTimer = GetTimeEX();
 
 	script_grind.moveToMeleeRange = true;
+	self.message = "running setup...";
 
 
 	self.isSetup = true;
@@ -147,7 +148,7 @@ function script_rogue:checkPoisons()
 		if (IsMounted()) then DisMount(); return true; end
 		-- Apply poison to the main-hand
 		self.message = "Applying poison to main hand..."
-		UseItem(self.mainhandPoison); 
+		UseItem(self.mainhandPoison);
 		PickupInventoryItem(16);  
 		self.waitTimer = GetTimeEX() + 6000; 
 		return true;
@@ -215,7 +216,6 @@ function script_rogue:run(targetObj)
 		return;
 	end
 
-
 	if (IsInCombat()) and (not script_grind.adjustTickRate) then
 		local tickRandom = math.random(232, 514);
 		script_grind.tickRate = tickRandom;
@@ -238,17 +238,13 @@ function script_rogue:run(targetObj)
 	end
 
 	--Valid Enemy
-	if (targetObj ~= 0) and (not IsDead(GetLocalPlayer())) then
+	if (targetObj ~= 0) and (not IsDead(GetLocalPlayer())) and (not IsStunned(GetLocalPlayer())) then
 
 		-- Cant Attack dead targets
-		if (IsDead(targetObj)) then
+		if (IsDead(targetObj)) or (not CanAttack(targetObj)) then
 			return;
 		end
-		
-		if (not CanAttack(targetObj)) then
-			return;
-		end
-		
+	
 		-- Dismount
 		DismountEX();
 
@@ -268,6 +264,7 @@ function script_rogue:run(targetObj)
 			if (CastSpellByName("Stealth")) then
 				Jump();
 				script_rogue:setTimers(1050);
+				self.message = "Cast stealth...";
 				return;
 			end
 		end
@@ -279,7 +276,7 @@ function script_rogue:run(targetObj)
 		-- Apply poisons 
 		if (not IsInCombat()) and (self.usePoisons) then
 			if (script_rogue:checkPoisons()) then
-				script_rogue:setTimers(4550);
+				script_rogue:setTimers(6550);
 				script_debug.debugCombat = "applying poisons";
 				return;
 			end
@@ -295,6 +292,7 @@ function script_rogue:run(targetObj)
 		if (HasSpell("Cold Blood")) and (not IsSpellOnCD("Cold Blood")) and (not localObj:HasBuff("Cold Blood")) and (not IsInCombat()) then
 			if (CastSpellByName("Cold Blood")) then
 				script_rogue:setTimers(1050);
+				self.message = "Cast cold blood...";
 				return true;
 			end
 		end
@@ -307,6 +305,7 @@ function script_rogue:run(targetObj)
 				script_debug.debugCombat = "using stealth";
 				if (CastSpellByName('Stealth')) then
 					script_rogue:setTimers(1050);
+					self.message = "Cast stealth...";
 					return true;
 				end
 			else
@@ -314,6 +313,7 @@ function script_rogue:run(targetObj)
 				if (self.useThrow and script_rogue:hasThrow()) and (not IsSpellOnCD("Throw")) and (GetDistance(targetObj) <= 25) and (GetDistance(targetObj) >= 9) then
 					if (IsSpellOnCD('Throw')) then
 						script_debug.debugCombat = "using throw";
+						self.message = "Cast throw";
 						script_rogue:setTimers(4000);
 						return;	
 					end
@@ -339,11 +339,12 @@ function script_rogue:run(targetObj)
 			if (not script_grind.adjustTickRate) then
 				script_grind.tickRate = 500;
 			end
+			self.message = "Cast pick pocket";
 			CastSpellByName("Pick Pocket");
 			self.ppmoney = GetMoney();
 			self.ppVarUsed = false;
 			self.pickpocketUsed = true;
-			script_rogue:setTimers(500);
+			script_rogue:setTimers(300);
 			end
 
 			-- Open with stealth opener
@@ -351,7 +352,6 @@ function script_rogue:run(targetObj)
 				and (GetDistance(targetObj) <= 5)
 				and (self.useStealth and HasSpell(self.stealthOpener))
 				and (HasBuff(localObj, "Stealth"))
-				and (not IsInCombat())
 				and (GetUnitsTarget(GetLocalPlayer()) ~= 0)
 				and (not IsSpellOnCD(self.stealthOpener))
 				and
@@ -360,6 +360,7 @@ then
 					if (not script_grind.adjustTickRate) then
 						script_grind.tickRate = 50;
 					end
+					self.message = "Cast stealth opener";
 					FaceTarget(targetObj);
 				if (not CastSpellByName(self.stealthOpener)) then
 					local x, y, z = GetPosition(GetUnitsTarget(GetLocalPlayer()));
@@ -380,6 +381,7 @@ then
 			-- Use CP generator attack 
 			if (GetDistance(targetObj) <= 4) then
 				if (self.openerUsed >= 2) or ( (not self.useStealth or not HasBuff(localObj, "Stealth")) and (localEnergy >= self.cpGeneratorCost) and (HasSpell(self.cpGenerator)) and (not IsSpellOnCD(self.cpGenerator)) and ( (self.usePickPocket and self.pickpocketUsed) or (not self.usePickPocket) or (self.usePickPocket and not self.pickpocketUsed and not (strfind("Humanoid", creatureType) or not strfind("Undead", creatureType))))) then
+					self.message = "use CP generator";
 					if (not CastSpellByName(self.cpGenerator)) then
 						FaceTarget(targetObj);
 						script_rogue:setTimers(1050);
@@ -399,7 +401,7 @@ then
 				else
 					-- Auto attack
 					--UnitInteract(targetObj);
-					script_debug.debugCombat = "unit interact";
+					--script_debug.debugCombat = "unit interact";
 	
 				end
 			end
@@ -447,9 +449,10 @@ if (IsInCombat()) then
 
 			-- Check: Use Evasion
 			if (HasSpell('Evasion') and not IsSpellOnCD('Evasion')) then
-				if (localHealth < targetHealth and localHealth < 35) or (script_info:nrTargetingMe() >= 2) then
+				if (targetHealth >= 50 and localHealth <= 35) or (script_info:nrTargetingMe() >= 2 and targetHealth >= 30 and localHealth <= 65) then
 					script_debug.debugCombat = "use evasion";
 					if (not CastSpellByName('Evasion')) then
+						self.message = "Cast Evasion";
 						script_rogue:setTimers(1050);
 						return true;
 					end 
@@ -492,7 +495,19 @@ if (IsInCombat()) then
 					end 
 				end
 			end
-			
+
+			-- Check: blind to interrupt casting
+			if (HasSpell('Blind')) and (not IsSpellOnCD("Blind")) and (localEnergy >= 30) and (tarDist <= 10) and (IsSpellOnCD("Kick") or tarDist > 5) then
+			local name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo("target");
+				if (name ~= nil) then
+					script_debug.debugCombat = "use blind";
+					if (not Cast('Blind', targetGUID)) then 
+						script_rogue:setTimers(1050);
+						AutoAttack(targetObj);
+						return true;
+					end 
+				end
+			end
 
 	-- start of combat in melee range
 
@@ -508,6 +523,7 @@ if (IsInCombat()) then
 				-- Check: Use Riposte whenever we can
 				if (HasSpell("Riposte")) and (script_rogue:canRiposte() and not IsSpellOnCD("Riposte")) and (localEnergy >= 10) then 
 					if (not CastSpellByName("Riposte")) then
+						self.message = "Cast riposte";
 						script_rogue:setTimers(1050);
 						return true;					
 					end
@@ -516,6 +532,7 @@ if (IsInCombat()) then
 				if (GetNumPartyMembers() >= 1) and (self.useFeint) and (HasSpell("Feint")) and (script_grindEX2:isTargetingMe(targetObj))
 					and (not IsSpellOnCD("Feint")) and (localEnergy >= 20) and (not IsSpellOnCD("Feint")) then
 					if (not CastSpellByName("Feint")) then
+						self.message = "Cast feint";
 						script_rogue:setTimers(1050);
 						return true;
 					end
@@ -524,6 +541,7 @@ if (IsInCombat()) then
 				if (HasSpell("Ghostly Strike")) and (not IsSpellOnCD("Ghostly Strike")) and (localEnergy >= 40) and (not HasBuff(localObj, "Ghostly Strike")) then
 					if (not CastSpellByName("Ghostly Strike")) then
 						script_rogue:setTimers(1050);
+						self.message = "Cast ghostly strike";
 						return true;
 					end
 				end
@@ -532,7 +550,7 @@ if (IsInCombat()) then
 				local add = script_info:addTargetingMe(targetObj);
 
 				if (add ~= nil and HasSpell('Blade Flurry') and not IsSpellOnCD('Blade Flurry')) and (localEnergy >= 25) then
-					if (GetDistance(add) < 5) then
+					if (GetDistance(add) < 5) and (targetHealth >= 50 or localHealth <= 50) then
 					script_debug.debugCombat = "blade flurry";
 						if (not CastSpellByName("Blade Flurry")) then
 							script_rogue:setTimers(1050);
@@ -541,7 +559,7 @@ if (IsInCombat()) then
 					end
 				end
 
-				if (script_info:nrTargetingMe() >= 3) then
+				if (script_info:nrTargetingMe() >= 3) or (HasBuff(GetLocalPlayer(), "Blade Flurry") and localHealth <= 50) then
 					if (HasSpell('Adrenaline Rush') and not IsSpellOnCD('Adrenaline Rush')) then
 						script_debug.debugCombat = "adrenaline rush";
 						if (not CastSpellByName('Adrenaline Rush')) then

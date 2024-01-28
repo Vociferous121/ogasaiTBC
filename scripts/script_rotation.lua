@@ -38,6 +38,7 @@ end
 
 function script_rotation:setup()
 	script_helper:setup()
+	script_gather:setup();
 	SetPVE(true);
 	SetAutoLoot();
 	self.waitTimer = GetTimeEX();
@@ -172,7 +173,7 @@ function script_rotation:run()
 			self.enemyObj = GetTarget();
 
 		if (self.enemyObj ~= 0 and self.enemyObj ~= nil) and (self.faceTarget) then
-			if (not IsDead(self.enemyObj)) and (not IsMoving()) and (GetDistance(self.enemyObj) <= 36) and (IsInLineOfSight(self.enemyObj)) then
+			if (not IsDead(self.enemyObj)) and (not IsMoving()) and (GetDistance(self.enemyObj) <= 36) and (IsInLineOfSight(self.enemyObj)) and (CanAttack(self.enemyObj)) then
 				FaceTarget(self.enemyObj);
 			end
 		end
@@ -187,9 +188,14 @@ function script_rotation:run()
 			end
 		end
 
-		-- run combat scripts...
-		RunCombatScript(GetTarget());
-
+		-- is valid target
+		local tarFaction = GetFactionInfo(self.enemyObj);
+		local myFaction = GetFactionInfo(GetLocalPlayer());
+		if (not CanAttack(self.enemyObj)) or (tarFaction == myFaction) then
+			self.enemyObj = 0;
+		end
+			-- run combat scripts...
+			RunCombatScript(self.enemyObj);
 	-- if we want to rest and are not in combat then run rest scripts
 	elseif(self.useRestFeature) and (not IsInCombat()) then
 
@@ -258,22 +264,31 @@ end
 	
 	if (class == 'Mage') then
 		script_mageEX:menu();
+		script_rotation.message = script_mage.message;
 	elseif (class == 'Hunter') then
 		script_hunterEX:menu();
+		script_rotation.message = script_hunter.message;
 	elseif (class == 'Warlock') then
 		script_warlockEX:menu();
+		script_rotation.message = script_warlock.message;
 	elseif (class == 'Paladin') then
 		script_paladinEX:menu();
+		script_rotation.message = script_paladin.message;
 	elseif (class == 'Druid') then
 		script_druidEX:menu();
+		script_rotation.message = script_druid.message;
 	elseif (class == 'Priest') then
 		script_priestEX:menu();
+		script_rotation.message = script_priest.message;
 	elseif (class == 'Warrior') then
 		script_warriorEX:menu();
+		script_rotation.message = script_warrior.message;
 	elseif (class == 'Rogue') then
 		script_rogueEX:menu();
+		script_rotation.message = script_rogue.message;
 	elseif (class == 'Shaman') then
 		script_shamanEX:menu();
+		script_rotation.message = script_shaman.message;
 	end
 
 	-- rest options
@@ -306,7 +321,35 @@ end
 		wasClicked, script_grindEX.drawStatus = Checkbox("Draw Status Window", script_grindEX.drawStatus);
 		wasClicked, script_grindEX.drawGather = Checkbox("Draw Gather Nodes", script_grindEX.drawGather);
 		wasClicked, script_grindEX.drawTarget = Checkbox("Draw Unit Info", script_grindEX.drawTarget);
+
+		Separator();
+		Text("Temp Debug Item ID's (chests)");
+		wasClicked, script_grindMenu.showIDD = Checkbox("Show ID's", script_grindMenu.showIDD);
 	end
+
+	-- Draw info and status
+	if (script_grindEX.drawStatus) then
+		local pX, pY, onScreen = WorldToScreen(GetUnitsPosition(GetLocalPlayer()));
+		pX = pX - 70;
+		pY = pY + 100;
+		if (onScreen) then
+			DrawRectFilled(pX - 5, pY - 5, pX + 385, pY + 65, 0, 0, 0, 160, 0, 0);
+			--DrawRect(pX - 5, pY - 5, pX + 385, pY + 65, 0, 190, 45,  1, 1, 1);
+			DrawText("Rotation", pX, pY, 0, 190, 45);
+			DrawText('Status: ' .. (script_rotation.message or " "), pX, pY+20, 255, 255, 0);
+			DrawText('Script Speed: ' .. math.max(((script_rotation.waitTimer + script_rotation.tickRate) - GetTimeEX()), 0) .. ' ms', pX, pY+30, 255, 255, 255);
+			DrawText("Melee Distance: " ..math.floor(script_grind.meleeDistance).."", pX+1, pY+40, 255, 255, 0);
+			if (AreBagsFull()) then
+				DrawText('Warning bags are full...', pX, pY+50, 255, 0, 0);
+			end	
+		end
+	end
+
+
+
+
+
+
 end
 
 
@@ -344,6 +387,7 @@ function script_rotation:runRest()
 		end
 			
 	end
+
 
 return false;
 end

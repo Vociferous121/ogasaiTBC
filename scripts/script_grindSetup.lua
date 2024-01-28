@@ -59,4 +59,6 @@ function script_grindSetup:setup()
 	local paranoiaTimerRandom = math.random(20, 45);
 	script_paranoid.paranoidRange = paranoiaRandom;
 	script_grind.setLogoutTime = paranoiaTimerRandom;
+
+	script_grind.isSetup = true;
 end	

@@ -175,7 +175,7 @@ end
 
 function script_rogueEX:stopForThrow()
 	if (script_rogue.useThrow) and (not IsInCombat()) and (not HasBuff(localObj, "Stealth")) then
-		if (GetDistance(script_grind.target) <= 28) and (GetDistance(script_grind.target) >= 7) and (IsInLineOfSight(script_grind.target)) then 
+		if (GetDistance(script_grind.target) <= 24) and (GetDistance(script_grind.target) >= 7) and (IsInLineOfSight(script_grind.target)) then 
 			if (IsMoving()) then
 				StopMoving();
 				return true;

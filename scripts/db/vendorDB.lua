@@ -1,6 +1,6 @@
 vendorDB = {
 	vendorList = {},
-	numVendors = 0	
+	numVendors = 0,
 }
 
 --[[
@@ -67,6 +67,8 @@ function vendorDB:setup()
 	-- Teldrassil
 	vendorDB:addVendor("Keina", 0, 1, 141, true, false, false, false, false, 10436.7, 794.83, 1322.7);
 	vendorDB:addVendor("Keina", 0, 1, 141, false, false, false, false, false, 10436.7, 794.83, 1322.7);
+	vendorDB:addVendor("Dellylah", 0, 1, 141, false, true, false, false, false, 10450.2, 779.85, 1322.66);
+	vendorDB:addVendor("Dellylah", 0, 1, 141, false, false, true, false, false, 10450.2, 779.85, 1322.66);
 	vendorDB:addVendor("Keina", 0, 1, 141, false, false, false, true, false, 10436.7, 794.83, 1322.7);
 	vendorDB:addVendor("Lyrai", 0, 1, 141, false, false, false, false, true, 10442.9, 783.98, 1337.28);
 	vendorDB:addVendor("Meri Ironweave", 0, 1, 141, true, false, false, false, false, 9815.88, 948.6, 1308.76);
@@ -162,7 +164,7 @@ function vendorDB:setup()
 
 	-- Ally: Human
 	vendorDB:addVendor('Brother Danil', 0, 0, 12, false, true, true, true, true, -8901.59, -112.72, 81.85);
-	vendorDB:addVendor("Godric Rothgar", 0, 0, 12, true, false, false, false, false, -8898.23, -119.84, 81.83); -- Repair -- 
+	vendorDB:addVendor("Godric Rothgar", 0, 0, 12, true, false, false, false, false, -8898.23, -119.84, 81.83); -- Repair
 	vendorDB:addVendor("Innkeeper Farley", 0, 0, 12, false, true, false, false, false, -9462.67, 16.19, 56.96); -- bread goldshire
 	vendorDB:addVendor("Innkeeper Farley", 0, 0, 12, false, false, true, false, false, -9462.67, 16.19, 56.96); -- drinks goldshire
 	vendorDB:addVendor("Andrew Krighton", 0, 0, 12, true, false, false, false, false, -9462.3, 87.81, 58.33); -- Repair Goldshire
@@ -179,10 +181,10 @@ function vendorDB:setup()
 
 
 	-- Hillsbrad Foothills - Horde
-	vendorDB:addVendor("Ott", 1, 0, 267, false, false, false, false, false, -158.53, -867.18, 56.89);
-	vendorDB:addVendor("Ott", 1, 0, 267, true, false, false, false, false, -158.53, -867.18, 56.89);
-	vendorDB:addVendor("Innkeeper Shay", 1, 0, 267, false, true, false, false, false, -5.74, -942.02, 57.16);
-	vendorDB:addVendor("Innkeeper Shay", 1, 0, 267, false, false, true, false, false, -5.74, -942.02, 57.16);
+
+	vendorDB:addVendor("Ott", 1, 2, 13, true, false, false, false, false, -158.53, -867.18, 56.71);
+	vendorDB:addVendor("Ott", 1, 2, 13, false, false, false, false, false, -158.53, -867.18, 56.71);
+
 
 	
 	-- Ally: Night Elf
@@ -242,17 +244,7 @@ function vendorDB:setup()
 	vendorDB:addVendor('Himmik', 0, 1, 618, false, true, true, false, false, 6679.62, -4670.89, 721.71); -- Food + Drink Vendor
 	vendorDB:addVendor('Himmik', 1, 1, 618, false, true, true, false, false, 6679.62, -4670.89, 721.71); -- Food + Drink Vendor 
 
-	-- Gadgetzan
-	vendorDB:addVendor("Krinkle Goodsteel", 0, 1, 17, true, false, false, false, false, -7200.44, -3769.83, 8.67); -- repair
-	vendorDB:addVendor("Krinkle Goodsteel", 1, 1, 17, true, false, false, false, false, -7200.44, -3769.83, 8.67); -- repair
-	vendorDB:addVendor("Blizrik Buchshot", 0, 1, 17, false, false, false, false, true, -7141.5, -3719.69, 8.49); -- bullet	
-	vendorDB:addVendor("Blizrik Buchshot", 1, 1, 17, false, false, false, false, true, -7141.5, -3719.69, 8.49); -- bullet	
-	vendorDB:addVendor("Innkeeper Fizzgrimble", 0, 1, 17, false, true, true, false, false, -7159.08, -3841.72, 8.68); -- drinks, meat
-	vendorDB:addVendor("Innkeeper Fizzgrimble", 1, 1, 17, false, true, true, false, false, -7159.08, -3841.72, 8.68); -- drinks, meat
-
-	-- Thrallmar
-	vendorDB:addVendor("Rohok", 1, 3, 2, true, false, false, false, false, 167.27, 2795.66, 113.36);
-	vendorDB:addVendor("Floyd Pinkus", 1, 3, 2, false, true, true, false, false, 190.87, 2610.92, 87.28);
+	-- Add new additions here!!
 
 end
 

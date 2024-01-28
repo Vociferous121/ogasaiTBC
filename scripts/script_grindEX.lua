@@ -12,6 +12,7 @@ script_grindEX = {
 	jumpFloat = 97,
 	waitTimer = 0,
 	sentToLog = false,
+	jumpInWater = false,
 }
 
 function script_grindEX:setup()
@@ -106,7 +107,7 @@ function script_grindEX:doChecks()
 		script_path.hx = 0;
 		script_path.hy = 0;
 		script_path.hz = 0;
-script_path.numSavedPathNodes = 0;
+		script_path.numSavedPathNodes = 0;
 		script_grind.message = "Paused by user...";
 		if (IsMoving()) then
 			StopMoving();
@@ -114,18 +115,14 @@ script_path.numSavedPathNodes = 0;
 		return true;
 	end
 
-	if (GetTimeEX() > self.waitTimer) then
-		return;
-	end
-
 	-- Check: jump to the surface if we are under water
 	local progress = GetMirrorTimerProgress("BREATH");
-	if (progress ~= nil and progress ~= 0) then
+	if (progress ~= nil and progress ~= 0) and (self.jumpInWater) then
 		if ((progress/1000) < 35) then
 			self.message = "Let's not drown...";
 			script_debug.debugGrind = "using jump out of water";
 			Jump();
-			self.waitTimer = GetTimeEX() + 2500;
+			self.waitTimer = GetTimeEX() + 5500;
 		end	
 	end
 
@@ -200,7 +197,7 @@ script_path.numSavedPathNodes = 0;
 				script_grind.tickRate = 50;
 				script_grind.waitTimer = GetTimeEX() - 5000;
 				script_path:savePos(true); 
-			return;
+			return true;
 			end
 		end
 	end

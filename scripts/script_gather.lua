@@ -18,6 +18,10 @@ script_gather = {
 	gatherAllPossible = true,
 	chests = {},
 	numChests = 0,
+	lock = {},
+	numLock = 0,
+	fish = {},
+	numFish = 0,
 }
 
 function script_gather:addHerb(name, id, use, req)
@@ -30,7 +34,7 @@ function script_gather:addHerb(name, id, use, req)
 end
 
 function script_gather:addMineral(name, id, use, req)
-	self.minerals[self.numMinerals] = {}
+	self.minerals[self.numMinerals] = {};
 	self.minerals[self.numMinerals][0] = name;
 	self.minerals[self.numMinerals][1] = id;
 	self.minerals[self.numMinerals][2] = use;
@@ -38,10 +42,22 @@ function script_gather:addMineral(name, id, use, req)
 	self.numMinerals = self.numMinerals + 1;
 end
 function script_gather:addChest(name, id)
-	self.chests[self.numChests] = {}
+	self.chests[self.numChests] = {};
 	self.chests[self.numChests][0] = name;
 	self.chests[self.numChests][1] = id;
 	self.numChests = self.numChests + 1;
+end
+function script_gather:addLock(name, id)
+	self.lock[self.numLock] = {};
+	self.lock[self.numLock][0] = name;
+	self.lock[self.numLock][1] = id;
+	self.numLock = self.numLock + 1;
+end
+function script_gather:addFish(name, id)
+	self.fish[self.numFish] = {};
+	self.fish[self.numFish][0] = name;
+	self.fish[self.numFish][1] = id;
+	self.numFish = self.numFish + 1;
 end
 
 function script_gather:setup()
@@ -116,7 +132,6 @@ function script_gather:setup()
 	script_gather:addChest("Battered Chest", 2849);
 	script_gather:addChest("Battered Chest", 106318);
 	script_gather:addChest("Battered Chest", 106319);
-
 	script_gather:addChest("Primitive Chest", 184793);
 	script_gather:addChest("Large Iron Bound Chest", 74447);
 	script_gather:addChest("Large Iron Bound Chest", 75297);
@@ -142,6 +157,14 @@ function script_gather:setup()
 	script_gather:addChest("Large Solid Chest", 153462);
 	script_gather:addChest("Large Solid Chest", 153463);
 	script_gather:addChest("Large Solid Chest", 153464);
+
+	script_gather:addLock("Battered Footlocker", 5743);
+
+	script_gather:addFish("Floating Wreckage", 6434);
+	script_gather:addFish("Safefish School", 6435);
+	script_gather:addFish("Firefin Snapper School", 6482);
+	script_gather:addFish("Oily Blackmouth School", 6291);
+	
 
 	self.timer = GetTimeEX();
 
@@ -198,8 +221,9 @@ local targetObj, targetType = GetFirstObject();
 		if (targetType == 5) then 
 			local id = GetObjectDisplayID(targetObj);
 			local name = '';
-			local name2 = "";
-			local name3 = "";
+			local chestName = "";
+			local lockName = "";
+			local fishName = "";
 			local _x, _y, _z = GetPosition(targetObj);
 			local _tX, _tY, onScreen = WorldToScreen(_x, _y, _z);
 			local dist = math.floor(GetDistance(targetObj));
@@ -219,29 +243,59 @@ local targetObj, targetType = GetFirstObject();
 						DrawText(this, _tX-10, _tY+12, 255, 255, 0);
 					end
 				end
+
+				-- show chests by name
 				for i=0,self.numChests - 1 do
 					if (self.chests[i][1] == id) then
-						name2 = "*"..self.chests[i][0].."*";
+						chestName = "*"..self.chests[i][0].."*";
 						local this = ""..dist.." yd";
 						DrawText(this, _tX-10, _tY+12, 0, 255, 0);
 					end
 				end
 
-				DrawText(name, _tX-10, _tY, 255, 255, 0);
-				DrawText(name2, _tX-10, _tY, 0, 255, 0);
+				-- chests shown on a specific server
+				if (id == 259) then
+					local this = ""..dist.." yd";
+					local otherName = "*Chest*";
+					DrawText(otherName, _tX-10, _tY, 0, 255, 0);
+					DrawText(this, _tX-10, _tY+12, 0, 255, 0);
+				end
+				-- armor crates
+				if (id == 335) then
+					local this = ""..dist.." yd";
+					local crateName = "Armor Crate";
+					DrawText(crateName, _tX-10, _tY, 0, 255, 0);
+					DrawText(this, _tX-10, _tY+12, 0, 255, 0);
+				end
+				-- show lock pick boxes by name
+				if (HasSpell("Pick Lock")) then
+					for i=0,self.numLock - 1 do
+						if (self.lock[i][1] == id) then
+							lockName = ""..self.lock[i][0].."";
+							local thisLock = ""..dist.." yd";
+							DrawText(thisLock, _tX-10, _tY+12, 255, 255, 0);
+						end
+					end
+				DrawText(lockName, _tX-10, _tY, 255, 255, 0);
+				end
 
-				if (id == 6434) then
-					local a = "Floating Wreckage";
-					DrawText(a, _tX-10, _tY, 255, 255, 0);
+				-- show fishing pools by name
+				if (HasSpell("Fishing")) then
+					for i=0, self.numFish - 1 do
+						if (self.fish[i][1] == id) then
+							fishName = ""..self.fish[i][0].."";
+							local thisFish = ""..dist.." yd";
+							DrawText(thisFish, _tX-10, _tY+12, 255, 255, 0);
+						end
+					end
+				DrawText(fishName, _tX-10, _tY, 255, 255, 0);
 				end
-				if (id == 6435) then
-					local b = "Sagefish School";
-					DrawText(b, _tX-10, _tY, 255, 255, 0);
-				end
-				if (id == 6482) then
-					local c = "Firefin Snapper School";
-					DrawText(c, _tX-10, _tY, 255, 255, 0);
-				end
+
+				-- draw herbs and minerals by name
+				DrawText(name, _tX-10, _tY, 255, 255, 0);
+				-- draw chests by name
+				DrawText(chestName, _tX-10, _tY, 0, 255, 0);
+
 				if (script_grindMenu.showIDD) then
 					if (id ~= 192) and (id ~= 0) and (id ~= 386) then
 						local idd = "ID - "..id.."";
