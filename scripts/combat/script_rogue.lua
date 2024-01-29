@@ -369,19 +369,14 @@ then
 			end
 
 			if (not self.useRotation) then
-				if (GetDistance(targetObj) > script_grind.meleeDistance) then
-					-- Set the grinder to wait for momvement
-					if (script_grind.waitTimer ~= 0) then
-						script_grind.waitTimer = GetTimeEX() + 1050;
-					end
+				local dist = script_grind.meleeDistance;
+				if (IsFleeing(targetObj)) then dist = 1; end
+				if (GetDistance(targetObj) > dist) then
+					
 					script_debug.debugCombat = "moving to target";
 					MoveToTarget(targetObj);
-					return;
-				else
-					-- Auto attack
-					--UnitInteract(targetObj);
-					--script_debug.debugCombat = "unit interact";
-	
+					UnitInteract(targetObj);
+					return true;
 				end
 			end
 
@@ -408,22 +403,17 @@ if (IsInCombat()) then
 
 			-- If too far away move to the target then stop
 			if (not self.useRotation) then
-				if (GetDistance(targetObj) > script_grind.meleeDistance) then 
+				local dist = script_grind.meleeDistance;
+				if (IsFleeing(targetObj)) then dist = 1; end
+				if (GetDistance(targetObj) > dist) then 
 					if (script_grind.combatStatus ~= nil) then
 						script_grind.combatStatus = 1;
 					end
 					script_debug.debugCombat = "Moving to target";
 					MoveToTarget(targetObj); 
-					return; 
-				else 
-					if (script_grind.combatStatus ~= nil) then
-						script_grind.combatStatus = 0;
-					end
-					script_debug.debugCombat = "Reached target and in combat - stop moving";
-					if (IsMoving()) then 
-						StopMoving(); 
-					end 
-				end 
+					UnitInteract(targetObj);
+					return true; 
+				end
 			end
 
 			-- Check: Use Evasion
@@ -452,7 +442,7 @@ if (IsInCombat()) then
 
 			if (HasSpell('Kidney Shot')) and (tarDist < 5) then
 			local name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo("target");
-				if (name ~= nil) or ( (self.randomizeCombat and rogueRandom >= self.randomCastCount and cp == self.randomCP) ) then
+				if (name ~= nil) or ( (self.randomizeCombat and rogueRandom >= self.randomCastCount and cp == self.randomCP and self.randomCP >= 2) ) then
 					if (cp >= 1) and (not IsSpellOnCD('Kidney Shot')) and (localEnergy >= 25) then	
 						if (not Cast('Kidney Shot', targetObj)) then
 							script_rogue:setTimers(1050);
@@ -668,12 +658,12 @@ function script_rogue:rest()
 		script_grind:restOn();
 		script_rogue:setTimers(1550);
 		script_grind.tickRate = 1500;
-		if (not script_helper:useBandage()) then
-			script_rogue:setTimers(9550);
+		if (script_helper:useBandage()) then
+			script_rogue:setTimers(10500);
 		end
 		script_path.savedPos['time'] = GetTimeEX();
 		
-	script_rogue:setTimers(9500);
+	script_rogue:setTimers(10500);
 	return;	
 	end
 

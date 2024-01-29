@@ -1,7 +1,7 @@
 script_grindMenu = {
 
 	debug = false,
-	showIDD = true,	-- debug to find ID of chests
+	showIDD = false,	-- debug to find ID of chests
 }
 
 function script_grindMenu:menu()
@@ -184,6 +184,11 @@ function script_grindMenu:menu()
 		wasClicked, script_grindEX.drawGather = Checkbox("Draw Gather Nodes", script_grindEX.drawGather);
 		wasClicked, script_grindEX.drawTarget = Checkbox("Draw Unit Info", script_grindEX.drawTarget);
 		wasClicked, script_grindEX.drawAutoPath = Checkbox("Draw Hotspot & Nodes", script_grindEX.drawAutoPath);
+
+		Separator();
+
+		Text("Temp Debug Item ID's (chests)");
+		wasClicked, self.showIDD = Checkbox("Show ID's", self.showIDD);
 	end
 
 	wasClicked, script_grind.adjustTickRate = Checkbox("", script_grind.adjustTickRate);
@@ -201,18 +206,14 @@ function script_grindMenu:menu()
 		script_grind.tickRate = SliderInt("Mili - Seconds", 0, 2500, script_grind.tickRate);
 	end
 
+	Separator();
+	script_counterMenu:menu();
+
+	Separator();
 
 	if (script_grindMenu.debug) then
 		if(NewWindow("Debug", 100, 100)) then
 			script_debug:menu();
 		end
 	end
-
-	Separator();
-	script_counterMenu:menu();
-
-	Separator();
-	Text("Temp Debug Item ID's (chests)");
-	wasClicked, self.showIDD = Checkbox("Show ID's", self.showIDD);
-
 end

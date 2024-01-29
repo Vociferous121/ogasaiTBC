@@ -5,7 +5,7 @@ function script_counterMenu:menu()
 	-- show text since last reload
 	Text("Counters Since Last Reload - ");
 
-		-- count is grind script counter
+		-- current script local counter is grind script counter
 		local monsterKillCount = script_grind.monsterKillCount;
 
 		-- show text monster kill count
@@ -17,16 +17,16 @@ function script_counterMenu:menu()
 		-- get copper amount
 		local moneyObtainedCount = script_grind.moneyObtainedCount;
 
-		-- get silver amount from copper
+		-- get silver from copper amount
 		local moneyObtainedCountSilver = math.floor(moneyObtainedCount / 100);
 
-		-- get gold amount from copper
+		-- get gold from copper amount
 		local moneyObtainedCountGold = math.floor(moneyObtainedCount / 10000);
 
-		-- silver from copper when we have gold
+		-- get silver amount from copper amount when we have gold
 		local test = (moneyObtainedCount - moneyObtainedCountSilver * 100);
 
-		-- silver from gold when we have gold
+		-- get silver amount from gold amount when we have gold
 		local test2 = math.floor((moneyObtainedCount - (moneyObtainedCountGold*10000)) / 100);
 		
 		if (moneyObtainedCount < 100) then

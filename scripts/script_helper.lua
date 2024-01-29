@@ -210,7 +210,7 @@ function script_helper:useBandage()
 		end
 		script_grind.waitTimer = GetTimeEX() + 1550;
 		if (not UseItem(self.bandage[bandageIndex])) then
-			script_grind.waitTimer = GetTimeEX() + 6500;
+			script_grind.waitTimer = GetTimeEX() + 10500;
 			
 		return;
 		end

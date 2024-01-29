@@ -3,7 +3,7 @@ script_path = {
 	savedPathNodes = {},
 	numSavedPathNodes = 0,
 	currentPathNode = 0,
-	navNodeDist = 10,
+	navNodeDist = 9,
 	navNodeDistMounted = 15,
 	pathNodeDist = 45,
 	grindingDist = 650,
@@ -150,12 +150,12 @@ function script_path:autoPath()
 	end
 
 	if (IsIndoors()) then
-		self.navNodeDist = 6;
+		self.navNodeDist = 5.5;
 	end
 
 	-- No path nodes yet
 	if (self.numSavedPathNodes == 0 or not self.reachedHotspot) then
-		if (script_path:distanceToHotspot() <= self.reachedHotspotDistance) then
+		if (script_path:distanceToHotspot() < self.reachedHotspotDistance) then
 			self.reachedHotspot = true;
 		end
 		
@@ -192,7 +192,7 @@ function script_path:autoPath()
 
 	-- When close to the next path node swap to the next one
 	if (self.numSavedPathNodes > 1) then
-		if (script_path:distanceToPathNode(self.currentPathNode) < 5) then
+		if (script_path:distanceToPathNode(self.currentPathNode) < 3) then
 			if (self.currentPathNode < self.numSavedPathNodes) then
 				if (not self.backwards) then
 					self.currentPathNode = self.currentPathNode + 1;
@@ -226,7 +226,6 @@ function script_path:autoPath()
 		else
 			script_pather:moveToTarget(self.hx, self.hy, self.hz);
 		end
-
 
 		return 'Moving to hotspot...';
 	end
