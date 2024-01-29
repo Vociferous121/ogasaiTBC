@@ -126,7 +126,7 @@ function script_gather:setup()
 		
 	script_gather:addChest("Duskwood Chest", 123214);
 	script_gather:addChest("Adamantite Bound Chest", 181802);
-	script_gather:addChest("Battered Chest", 259);
+	--script_gather:addChest("Battered Chest", 259);
 	script_gather:addChest("Battered Chest", 2843);
 	script_gather:addChest("Battered Chest", 2844);
 	script_gather:addChest("Battered Chest", 2849);

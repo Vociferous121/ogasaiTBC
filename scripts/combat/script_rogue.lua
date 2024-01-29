@@ -224,13 +224,6 @@ function script_rogue:run(targetObj)
 
 	local targetGUID = GetTargetGUID(targetObj);
 
-	-- Set pull range
-	if (not self.useThrow) then
-		script_grind.pullDistance = 4;
-	elseif (not self.useThrow) then
-		script_grind.pullDistance = 25;
-	end
-
 	rogueRandom = math.random(0, 100);
 	rogueRandomCP = math.random(0, 5);
 
@@ -314,24 +307,6 @@ function script_rogue:run(targetObj)
 					return true;
 				end
 			else
-				-- Check: Use Throw	
-				if (self.useThrow and script_rogue:hasThrow()) and (not IsSpellOnCD("Throw")) and (GetDistance(targetObj) <= 25) and (GetDistance(targetObj) >= 9) then
-					if (IsSpellOnCD('Throw')) then
-						script_debug.debugCombat = "using throw";
-						self.message = "Cast throw";
-						script_rogue:setTimers(4000);
-						return;	
-					end
-					if (IsMoving()) then
-						StopMoving();
-						return;
-					end
-					if (Cast('Throw', targetGUID)) then 
-						script_rogue:setTimers(2550);
-						return true;
-					end 
-					return;
-				end
 			end
 
 			local creatureType = GetCreatureType(GetUnitsTarget(GetLocalPlayer()));

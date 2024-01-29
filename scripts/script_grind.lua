@@ -354,7 +354,7 @@ if (HasSpell("Raptor Strike")) then if (GetDistance(self.target) <= 30) and (IsI
 -- stop when we get close enough to target and we are a melee class
 if (GetDistance(self.target) <= self.meleeDistance) and (GetHealthPercentage(self.target) > 30) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then if (IsMoving()) and (IsInLineOfSight(self.target)) then StopMoving(); return true; end end self.message = "Moving to target...";
 -- rogue throw
-if (script_rogueEX:stopForThrow()) then return; end
+-- if (script_rogueEX:stopForThrow() and IsInLineOfSight(GetUnitsTarget(GetLocalPlayer()))) then if (IsMoving()) then StopMoving(); return; end end
 -- rogue stealth
 if (HasSpell("Stealth")) and (not HasBuff(localObj, "Stealth")) and (not script_checkDebuffs:hasPoison()) then if (not IsStanding() or IsMoving()) then StopMoving(); return; end; if (script_rogueEX:forceStealth()) then self.waitTimer = GetTimeEX() + 200; return; end end
 -- rogue poisons

@@ -12,7 +12,7 @@ function script_rogueEX:menu()
 			wasClicked, self.useBandage = Checkbox("Use Bandages", self.useBandage);
 			SameLine();
 		end
-		wasClicked, script_rogue.useThrow = Checkbox("Use Throw", script_rogue.useThrow);
+		--wasClicked, script_rogue.useThrow = Checkbox("Use Throw", script_rogue.useThrow);
 		--SameLine();
 		wasClicked, script_rogue.randomizeCombat = Checkbox("Try to Randomize Combat (cast all spells)", script_rogue.randomizeCombat);
 		Text("Melee Distance To Target    ");
@@ -174,12 +174,9 @@ return false;
 end
 
 function script_rogueEX:stopForThrow()
-	if (script_rogue.useThrow) and (not IsInCombat()) and (not HasBuff(localObj, "Stealth")) then
-		if (GetDistance(script_grind.target) <= 24) and (GetDistance(script_grind.target) >= 7) and (IsInLineOfSight(script_grind.target)) then 
-			if (IsMoving()) then
-				StopMoving();
-				return true;
-			end
+	local myTarget = GetUnitsTarget(GetLocalPlayer());
+	if (script_rogue.useThrow) and (not IsInCombat()) and (not HasBuff(localObj, "Stealth")) and (myTarget ~= 0) and (myTarget ~= nil) then
+		if (GetDistance(myTarget) <= 24) and (GetDistance(myTarget) >= 7) and (IsInLineOfSight(myTarget)) and (script_helper:inLineOfSight(myTarget))  then 
 		return true;
 		end
 	end
