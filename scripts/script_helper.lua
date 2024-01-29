@@ -209,9 +209,9 @@ function script_helper:useBandage()
 		return;
 		end
 		script_grind.waitTimer = GetTimeEX() + 1550;
-		if (not UseItem(self.bandage[bandageIndex])) then
+		if (UseItem(self.bandage[bandageIndex])) then
 			script_grind.waitTimer = GetTimeEX() + 10500;
-			
+			script_path.savedPos['time'] = GetTimeEX() + 5000;	
 		return;
 		end
 	return true;

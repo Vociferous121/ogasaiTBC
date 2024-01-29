@@ -375,7 +375,7 @@ then
 					
 					script_debug.debugCombat = "moving to target";
 					MoveToTarget(targetObj);
-					UnitInteract(targetObj);
+					--UnitInteract(targetObj);
 					return true;
 				end
 			end
@@ -411,7 +411,7 @@ if (IsInCombat()) then
 					end
 					script_debug.debugCombat = "Moving to target";
 					MoveToTarget(targetObj); 
-					UnitInteract(targetObj);
+					--UnitInteract(targetObj);
 					return true; 
 				end
 			end
@@ -548,7 +548,7 @@ if (IsInCombat()) then
 				end
 
 				-- Keep Slice and Dice up when 1-4 CP
-				if (self.useSlice or (self.randomizeCombat and rogueRandom >= self.randomCastCount)) and ( (cp < 5 and cp > 0) or (self.randomizeCombat and cp == rogueRandomCP) ) and (HasSpell('Slice and Dice')) and (not IsSpellOnCD("Slice and Dice")) then 
+				if (self.useSlice or (self.randomizeCombat and rogueRandom >= self.randomCastCount)) and ( (cp < 5 and cp >= 1) or (self.randomizeCombat and cp == rogueRandomCP) ) and (HasSpell('Slice and Dice')) and (not IsSpellOnCD("Slice and Dice")) then 
 					-- Keep Slice and Dice up
 					if (not HasBuff(localObj, 'Slice and Dice') and targetHealth > 30 and localEnergy >= 25) then
 						script_debug.debugCombat = "slice and dice";
@@ -661,7 +661,7 @@ function script_rogue:rest()
 		if (script_helper:useBandage()) then
 			script_rogue:setTimers(10500);
 		end
-		script_path.savedPos['time'] = GetTimeEX();
+		script_path.savedPos['time'] = GetTimeEX() + 5000;
 		
 	script_rogue:setTimers(10500);
 	return;	

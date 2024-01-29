@@ -87,11 +87,11 @@ function script_target:doLoot()
 		script_path:savePos(false); -- SAVE FOR UNSTUCK
 		if (not script_grind.raycastPathing) then
 			MoveToTarget(x, y, z);
-			return true;
+			return;
 		else
 			local x, y, z = GetPosition(lootTarget);
 			script_pather:moveToTarget(x, y, z);
-			return true;
+			return;
 		end
 	return true;
 	end
