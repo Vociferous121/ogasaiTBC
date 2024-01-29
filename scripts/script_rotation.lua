@@ -124,10 +124,15 @@ function script_rotation:run()
 	 self.waitTimer = GetTimeEX() + self.tickRate;
 
 	if (not self.adjustTickRate) then
+		local class = UnitClass("player");
 		if (not IsInCombat()) or (self.enemyObj == 0 and GetUnitsTarget(GetLocalPlayer()) == 0) then
 			self.tickRate = 350;
 		else
-			self.tickRate = random(400, 950);
+			if (class ~= "Rogue") then
+				self.tickRate = random(450, 1150);
+			else
+				self.tickRate = random(250, 650);
+			end
 		end
 	end
  
@@ -195,7 +200,7 @@ function script_rotation:run()
 			self.enemyObj = 0;
 		end
 			-- run combat scripts...
-			RunCombatScript(self.enemyObj);
+			RunCombatScript(GetTarget());
 	-- if we want to rest and are not in combat then run rest scripts
 	elseif(self.useRestFeature) and (not IsInCombat()) then
 

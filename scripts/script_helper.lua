@@ -40,17 +40,18 @@ function script_helper:jump()
 	local jumpRandom = random(1,100);
 	local isSwimming = IsSwimming();
 	local jump = true;
-	if (isSwimming) then 
-		jump = false; self.jumpTimer = GetTimeEX() + 20000; 
-	end
+	--if (isSwimming) or (script_grindEX.jumpInWater) then 
+	--	jump = false;
+	--	self.jumpTimer = GetTimeEX() + 20000; 
+	--end
 
-	if (jumpRandom > 90 and jump and self.jumpTimer < GetTimeEX()) then
-		if (IsMoving()) then
-			Jump();
-		end
-	else
-		StopJump();
-	end
+	--if (jumpRandom > 90 and jump and self.jumpTimer < GetTimeEX()) and (not IsSwimming()) then
+	--	if (IsMoving()) then
+	--		Jump();
+	--	end
+	--else
+	--	StopJump();
+	--end
 end
 
 function script_helper:ress(x, y, z)

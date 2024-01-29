@@ -114,14 +114,15 @@ function script_rogue:setup()
 	end
 	if (HasSpell("Stealth")) then
 		self.useStealth = true;
-		self.alwaysStealth = true;
+		if (not self.useRotation) then
+			self.alwaysStealth = true;
+		end
 	end
 	
 
 	--self.waitTimer = GetTimeEX();
 
 	script_grind.moveToMeleeRange = true;
-	self.message = "running setup...";
 
 
 	self.isSetup = true;
@@ -261,6 +262,10 @@ function script_rogue:run(targetObj)
 
 		-- cast stealth
 		if (not IsInCombat()) and (script_rogue.useStealth) and (HasSpell("Stealth")) and (not IsSpellOnCD("Stealth")) and (not HasBuff(localObj, "Stealth")) and (not HasDebuff(localObj, "Faerie Fire")) and (not script_target:isThereLoot()) and (not script_checkDebuffs:hasPoison()) then
+				if (IsMoving()) then
+					StopMoving();
+				return;
+				end
 			if (CastSpellByName("Stealth")) then
 				Jump();
 				script_rogue:setTimers(1050);
@@ -339,7 +344,6 @@ function script_rogue:run(targetObj)
 			if (not script_grind.adjustTickRate) then
 				script_grind.tickRate = 500;
 			end
-			self.message = "Cast pick pocket";
 			CastSpellByName("Pick Pocket");
 			self.ppmoney = GetMoney();
 			self.ppVarUsed = false;
@@ -349,7 +353,7 @@ function script_rogue:run(targetObj)
 
 			-- Open with stealth opener
 			if (self.openerUsed < 2)
-				and (GetDistance(targetObj) <= 5)
+				and (GetDistance(targetObj) <= 4)
 				and (self.useStealth and HasSpell(self.stealthOpener))
 				and (HasBuff(localObj, "Stealth"))
 				and (GetUnitsTarget(GetLocalPlayer()) ~= 0)
@@ -473,7 +477,7 @@ if (IsInCombat()) then
 
 			if (HasSpell('Kidney Shot')) and (tarDist < 5) then
 			local name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo("target");
-				if (name ~= nil) then
+				if (name ~= nil) or ( (self.randomizeCombat and rogueRandom >= self.randomCastCount and cp == self.randomCP) ) then
 					if (cp >= 1) and (not IsSpellOnCD('Kidney Shot')) and (localEnergy >= 25) then	
 						if (not Cast('Kidney Shot', targetObj)) then
 							script_rogue:setTimers(1050);

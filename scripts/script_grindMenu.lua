@@ -163,6 +163,7 @@ function script_grindMenu:menu()
 			wasClicked, script_target.skipMechanical = Checkbox("Skip Mechanicals", script_target.skipMechanical);
 			SameLine();
 			wasClicked, script_target.skipElemental = Checkbox("Skip Elementals", script_target.skipElemental);
+			wasClicked, script_target.skipCritter = Checkbox("Skip Critter", script_target.skipCritter);
 		end	
 	end
 

@@ -13,6 +13,7 @@ script_grindEX = {
 	waitTimer = 0,
 	sentToLog = false,
 	jumpInWater = false,
+	jumpTimer = 0,
 }
 
 function script_grindEX:setup()
@@ -45,6 +46,10 @@ function script_grindEX:draw()
 	
 	if (self.drawGather) then
 		script_gather:drawGatherNodes();
+	end
+
+	if (self.jumpInWater) then
+		script_grind.jump = false;
 	end
 
 	-- Draw auto path 
@@ -116,22 +121,22 @@ function script_grindEX:doChecks()
 	end
 
 	-- Check: jump to the surface if we are under water
-	local progress = GetMirrorTimerProgress("BREATH");
-	if (progress ~= nil and progress ~= 0) and (self.jumpInWater) then
-		if ((progress/1000) < 35) then
-			self.message = "Let's not drown...";
-			script_debug.debugGrind = "using jump out of water";
-			Jump();
-			self.waitTimer = GetTimeEX() + 5500;
-		end	
-	end
+	--local progress = GetMirrorTimerProgress("BREATH");
+	--if (progress ~= nil and progress ~= 0) and (self.jumpInWater) then
+	--	if ((progress/1000) < 35) then
+	--		self.message = "Let's not drown...";
+	--		script_debug.debugGrind = "using jump out of water";
+	--		Jump();
+	--		self.waitTimer = GetTimeEX() + 5500;
+	--	end	
+	--end
 
 	
-	if (script_grind.jump) and (IsMoving()) and (not IsInCombat()) and (not script_checkDebuffs:hasDisabledMovement()) then
+	if (script_grind.jump) and (not IsSwimming()) and (IsMoving()) and (not IsInCombat()) and (not script_checkDebuffs:hasDisabledMovement()) and (GetTimeEX() > self.jumpTimer) then
 		local randomJump = math.random(-100, 100);
 		local randomWait = random(550, 8215);
 		if randomJump > self.jumpFloat then
-			Jump();
+			JumpOrAscendStart();
 			self.waitTimer = GetTimeEX() + randomWait;
 		end
 	end
@@ -236,9 +241,10 @@ function script_grindEX:doChecks()
 
 		-- Loot if there is anything to loot
 		if (script_target:isThereLoot() and not IsInCombat() and not AreBagsFull() and not script_grind.bagsFull) then
+			script_grind.tickRate = 150;
 			script_grind.message = "Looting... (enable auto loot)";
 			script_target:doLoot();
-			script_grind.waitTimer = GetTimeEX() + (script_grind.tickRate/2);
+			script_grind.waitTimer = GetTimeEX() + 150;
 		return true;
 		end
 

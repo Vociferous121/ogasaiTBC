@@ -21,7 +21,7 @@ function script_targetEX:getNearestEnemy()
 	local i, targetType = GetFirstObject();
 	while i ~= 0 do
 		if (targetType == 3) then
-			if (not IsDead(i) and CanAttack(i) and not IsCritter(i)) then
+			if (not IsDead(i) and CanAttack(i)) then
 				if (GetTargetGUID(GetUnitsTarget(i)) == GetTargetGUID(GetLocalPlayer())) then
 					return i;
 				end
@@ -39,7 +39,7 @@ function script_targetEX:getNearestEnemy()
 	i, targetType = GetFirstObject();
 	while i ~= 0 do
 		if (targetType == 3) then
-			if (not IsDead(i) and CanAttack(i) and not IsCritter(i)) then
+			if (not IsDead(i) and CanAttack(i)) then
 				-- valid check: level, range, tapped
 				local iLevel = GetLevel(i);
 				local dist = GetDistance(i);
@@ -93,6 +93,8 @@ function script_targetEX:isValid(i)
 	elseif (script_target.skipGiant and strfind("Giant", creatureType)) then
 		return false;
 	elseif (script_target.skipMechanical and strfind("Mechanical", creatureType)) then
+		return false;
+	elseif (script_target.skipCritter and strfind("Critter", creatureType)) then
 		return false;
 	end
 

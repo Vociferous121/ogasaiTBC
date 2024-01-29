@@ -189,10 +189,11 @@ if (IsStunned(GetLocalPlayer())) then self.waitTimer = GetTimeEX() + 550; return
 	-- Check: Summon our Demon if we are not in combat (Voidwalker is Summoned in favor of the Imp)
 	if (HasSpell("Summon Imp")) then if (script_warlock:summonPet()) then return; end end
 	-- Loot
-	if (script_target:isThereLoot() and not AreBagsFull() and not self.bagsFull) and (script_info.nrTargetingMe() == 0) then			
+	if (script_target:isThereLoot() and not AreBagsFull() and not self.bagsFull) and (script_info.nrTargetingMe() == 0) then
+		self.tickRate = 150;			
 		self.message = "Looting... (enable auto loot in settings - grinder)";
 		if (script_target:doLoot()) then
-			script_grind.waitTimer = GetTimeEX() + 250;
+			script_grind.waitTimer = GetTimeEX() + 150;
 			return true;
 		end
 		return true;
@@ -232,7 +233,8 @@ if (GetNumPartyMembers() > 2) then script_debug.debugGrind = "waiting for group 
 			end
 		end
 	end	
-		
+		--wait for always rogue stealth
+if (not IsInCombat()) and (HasSpell("Stealth")) and (script_rogue.alwaysStealth) and (script_rogue.useStealth) and (not HasBuff(localObj, "Stealth")) and (IsSpellOnCD("Stealth")) and (not script_target:isThereLoot()) then self.message = "Waiting for stealth cooldown..."; if (IsMoving()) then StopMoving(); return; end script_path.savedPos['time'] = GetTimeEX(); self.waitTimer = GetTimeEX() + 200; return; end
 	-- Fetch a new target
 	if (self.skipMobTimer < GetTimeEX()) or (IsInCombat() and script_info:nrTargetingMe() > 0) then	
 			script_debug.debugGrind = "fetching a new target";
@@ -351,12 +353,10 @@ if (GetNumPartyMembers() > 2) then script_debug.debugGrind = "waiting for group 
 if (HasSpell("Raptor Strike")) then if (GetDistance(self.target) <= 30) and (IsInLineOfSight(self.target)) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then if (IsMoving()) and (IsInLineOfSight(self.target)) then StopMoving(); return; end end end
 -- stop when we get close enough to target and we are a melee class
 if (GetDistance(self.target) <= self.meleeDistance) and (GetHealthPercentage(self.target) > 30) and (not script_target:hasDebuff('Frost Nova') and not script_target:hasDebuff('Frostbite')) then if (IsMoving()) and (IsInLineOfSight(self.target)) then StopMoving(); return true; end end self.message = "Moving to target...";
---wait for always rogue stealth
-if (not IsInCombat()) and (HasSpell("Stealth")) and (script_rogue.alwaysStealth) and (script_rogue.useStealth) and (not HasBuff(localObj, "Stealth")) and (IsSpellOnCD("Stealth")) and (not script_target:isThereLoot()) then self.message = "Waiting for stealth cooldown..."; if (IsMoving()) then StopMoving(); ClearTarget(); return; end script_path.savedPos['time'] = GetTimeEX(); self.waitTimer = GetTimeEX() - self.tickRate; return; end
 -- rogue throw
 if (script_rogueEX:stopForThrow()) then return; end
 -- rogue stealth
-if (HasSpell("Stealth")) and (not HasBuff(localObj, "Stealth")) and (not script_checkDebuffs:hasPoison()) then if (not IsStanding() or IsMoving()) then StopMoving(); return; end; if (script_rogueEX:forceStealth()) then return; end end
+if (HasSpell("Stealth")) and (not HasBuff(localObj, "Stealth")) and (not script_checkDebuffs:hasPoison()) then if (not IsStanding() or IsMoving()) then StopMoving(); return; end; if (script_rogueEX:forceStealth()) then self.waitTimer = GetTimeEX() + 200; return; end end
 -- rogue poisons
 if (not IsInCombat()) and (script_rogue.usePoisons) then if (script_rogue:checkPoisons()) then script_rogue:setTimers(1550); script_rogue.message = "applying poisons"; if (IsMoving()) then StopMoving(); return; end return; end end
 -- sprint

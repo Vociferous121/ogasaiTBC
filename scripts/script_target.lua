@@ -10,6 +10,7 @@ script_target = {
 	skipGiant = false,
 	skipMechanical = false,
 	skipElites = true,
+	skipCritter = true,
 	pullRange = 150,
 	minLevel = 0,
 	maxLevel = 0,

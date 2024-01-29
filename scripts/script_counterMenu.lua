@@ -21,31 +21,30 @@ function script_counterMenu:menu()
 		local moneyObtainedCountSilver = math.floor(moneyObtainedCount / 100);
 
 		-- get gold amount from copper
-		local moneyObtainedCountGold = math.floor(moneyObtainedCount / 1000);
+		local moneyObtainedCountGold = math.floor(moneyObtainedCount / 10000);
 
 		-- silver from copper when we have gold
 		local test = (moneyObtainedCount - moneyObtainedCountSilver * 100);
 
-		-- copper from gold when we have gold??
+		-- silver from gold when we have gold
+		local test2 = math.floor((moneyObtainedCount - (moneyObtainedCountGold*10000)) / 100);
 		
-	
-		-- less than 100 copper
 		if (moneyObtainedCount < 100) then
 
 			-- show copper only
 			Text("Money Obtained : " ..moneyObtainedCount.. " Copper");
 
-		-- more than 100 copper but less than 1000 copper
-		elseif (moneyObtainedCount > 100) and (moneyObtainedCount < 1000) then
+		-- more than 100 copper but less than 10000 copper
+		elseif (moneyObtainedCount > 100) and (moneyObtainedCount < 10000) then
 
 			-- show silver and copper
 			Text("Money Obtained : " ..moneyObtainedCountSilver .. " Silver " ..test.. " Copper");
 
-		-- more than 1000 copper then we have 1 gold!
-		elseif (moneyObtainedCount >= 1000) then
+		-- more than 10000 copper then we have 1 gold!
+		elseif (moneyObtainedCount >= 10000) then
 
 			-- show gold and silver
-			Text("Money Obtained : " ..moneyObtainedCountGold.. " Gold " ..test.. " Silver");
+			Text("Money Obtained : " ..moneyObtainedCountGold.. " Gold " ..test2.. " Silver ");
 		end
 
 	-- show pickpocket money obtained

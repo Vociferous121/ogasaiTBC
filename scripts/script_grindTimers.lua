@@ -23,4 +23,7 @@ function script_grindTimers:timers()
 	script_druid.waitTimer = GetTimeEX();
 	script_pather.waitTimer = GetTimeEX();
 	script_grindEX.waitTimer = GetTimeEX();
+	script_helper.jumpTimer = GetTimeEX();
+	script_grindEX.waitTimer = GetTimeEX();
+	script_grindEX.jumpTimer = GetTimeEX();
 end
